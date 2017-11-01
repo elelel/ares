@@ -1,0 +1,7 @@
+#pragma once
+
+#include "../../src/utils.hpp"
+#include "../../src/declaration.hpp"
+#include "../../src/versions.hpp"
+#include "../../src/packets.hpp"
+#include "../../src/ver_selection.hpp"

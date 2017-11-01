@@ -1,0 +1,93 @@
+digraph dependency {
+        compound=true;
+
+        subgraph cluster_Server {
+                label="Server";
+                bgcolor="#DDDDDD";
+                
+                ares_session[label="ares::session<Session>", shape="box"]
+                ares_server[label="ares::server<Server>", shape="box"]
+                ares_acceptor[label="ares::acceptor<Server>", shape="box"]
+                ares_packet_handler[label="ares::packet_handler<Handler,\n Packet,\n Session,\nState>", shape="box"]
+                ares_asio_handler[label="ares::asio_handler", shape="box"]
+                ares_recv_handler[label="ares::recv_handler<Handler>", shape="box"]
+                ares_send_handler[label="ares::send_handler<Handler>", shape="box"]
+
+                ares_server -> ares_acceptor[dir=back, label="acceptors_", arrowtail=odiamond]
+                ares_asio_handler -> ares_recv_handler[dir=back, arrowtail=onormal]
+                ares_asio_handler -> ares_send_handler[dir=back, arrowtail=onormal]
+        }
+
+        subgraph cluster_Packets {
+                label="Packets"
+                bgcolor="#DDDDDD"
+
+                ares_packet[label="ares::packet\n(selected packet ver)", shape="box"]
+        }
+
+        subgraph cluster_Database {
+                label="Database"
+                bgcolor="#DDDDDD"
+
+                ares_database[label="ares::database<Database>", shape="box"]
+        }
+        
+        subgraph cluster_Config {
+                label="Config";
+                ares_config[label="ares::config", shape="box"];
+        }
+
+        subgraph cluster_Common {
+                label="Common";
+                ares_common[label="misc utilities", shape="box"];
+        }
+
+
+                 
+        subgraph cluster_Account_Server {
+                label="Account server"
+                account_server[label="account::server", shape="box"]
+                account_config[label="account::config", shape="box"]
+                account_database[label="account::database", shape="box"]
+                account_session[label="account::session", shape="box"]
+                account_states[label=<Concrete states:<br/>session::monostate<br/>session::client<br/>session::character_server>, shape="box"]
+                account_recv_handler[label="[State]::recv_handler", shape="box"]
+                account_send_handler[label="[State]::send_handler", shape="box"]
+                account_packet_handler[label="[State]::packet_handler<Packet>", shape="box"]
+
+                ares_server -> account_server[dir=back, arrowtail=onormal]
+                account_session -> account_states[dir=back, arrowtail=diamond]
+
+                ares_database -> account_database[dir=back, arrowtail=onormal]
+                ares_config -> account_config[dir=back, arrowtail=onormal]
+                ares_packet_handler -> account_packet_handler[dir=back, arrowtail=onormal]
+                ares_recv_handler -> account_recv_handler[dir=back, arrowtail=onormal]
+                ares_send_handler -> account_send_handler[dir=back, arrowtail=onormal]
+                
+                account_server -> account_database[dir=back, label="db_", arrowtail=diamond]
+                account_server -> account_config[dir=back, label="config_", arrowtail=odiamond]
+                
+                ares_session:s -> account_session:w[label=< on_open <br/> before_close <br/> on_connection_reset<br/> on_eof <br/> on_socket_error<br/> on_dispatch<br/> >, arrowhead=vee, fontcolor="#909090", color="#909090", lhead=cluster_Concrete_Sessions]
+
+                ares_common -> account_session[dir=back, arrowtail=vee, fontcolor="#909090", color="#909090"]
+                ares_packet -> account_session[dir=back, arrowtail=vee, fontcolor="#909090", color="#909090"]
+                ares_server -> account_server[label="construct_acceptor", arrowhead=vee, fontcolor="#909090", color="#909090"]
+                ares_acceptor -> account_server[label="create_session", arrowhead=vee, fontcolor="#909090", color="#909090"]
+
+                account_server -> account_session[dir=back, label=<clients_<br/>character_servers_<br/>>, arrowtail=odiamond]
+
+                account_states -> account_packet_handler[dir=back, arrowtail=diamond]
+
+                
+                {rank="same" account_server, account_database}
+
+        }
+
+        subgraph cluster_Character_Server {
+                label="Character server";
+        }
+
+        {edge[style=invis]
+                {ares_database, ares_packet, ares_config, ares_common} -> {ares_server}
+        }
+}
