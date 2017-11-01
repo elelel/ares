@@ -1,4 +1,4 @@
-Rewrite Athena server to modern and sane C++.
+### Rewrite Athena server to modern and sane C++.
 
 Things done and working:
 - Network and event server template (buffers, reading, sending, managing connections, timers, etc)
@@ -13,7 +13,7 @@ Things not done:
 - The "vertical" work (adding more cases to the things listed above)
 - Game logic itself
 
-Interested in development/design details? See developer's guide: [doc/developer.md]
+Interested in development/design details? See [developer's guide](doc/developer.md)
 
 Questions? Issue an issue!
 
