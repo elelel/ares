@@ -1,0 +1,12 @@
+[submodule "contrib/Catch"]
+	path = contrib/Catch
+	url = https://github.com/philsquared/Catch.git
+[submodule "contrib/json"]
+	path = contrib/json
+	url = https://github.com/nlohmann/json.git
+[submodule "contrib/spdlog"]
+	path = contrib/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "contrib/network_buffer"]
+	path = contrib/network_buffer
+	url = https://github.com/elelel/network_buffer.git
