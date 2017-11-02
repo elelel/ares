@@ -13,6 +13,7 @@ Things not done:
 - The "vertical" work (adding more cases to the things listed above)
 - Game logic itself
 
+Build and installation docs are [here](doc/install.md)
 Interested in development/design details? See [developer's guide](doc/developer.md)
 
 Questions? Issue an issue!
