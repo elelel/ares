@@ -38,30 +38,31 @@ mkdir -p ~/build/ares/account ~/build/ares/character ~/build/ares/zoneto
 ```
 cd build/ares/account
 ```
-4.1. Configure the project using CMake with 'base' (or any other) packet version
+Configure the project using CMake with 'base' (or any other) packet version
 ```
 cmake -DARES_PACKET_VER=base /path/ares/account
 ```
 ...where ```/path/ares``` is the location of the cloned git repo
-4.2. Make the server
+Make the server
 ```
 make
 ```
 This will produce ares_account executable binary
+
 5. Repeat the steps in 4 for character server, the sources are located
 at path /path/ares/character
+
 6. Repeat the steps in 4 for zone server, the sources are located
 at path /path/ares/zone
-```
 
-5. Setup game database
+7. Setup game database
 Create three databases: one for account server, one for character and one for zone.
 Create extention pgcrypto in Postgres (refer to Postgres doc if needed) for account server.
 Use schema files in projects/postgres to populate the database
 Create manually a test user (refer to account server's database directory in
 sources for the SQL syntax) in account server database
 
-6. Setup JSON configuration files
+## Runtime configuration
 
 Configuration files location is either in /etc/ares directory or ${HOME}/etc/ares
 with latter taking precedence if both exist.
