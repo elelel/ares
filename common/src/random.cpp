@@ -3,8 +3,8 @@
 #include <limits>
 
 ares::random_int32::random_int32() :
-  random_device_(std::random_device()),
-  random_engine_(std::default_random_engine(random_device_())),
+  random_device_(),
+  random_engine_(random_device_()), //use mt instead ?
   dist_(std::uniform_int_distribution<>(std::numeric_limits<int32_t>::min(),
                                             std::numeric_limits<int32_t>::max())) {
 }
