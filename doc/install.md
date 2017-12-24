@@ -11,7 +11,8 @@ The following software is required to run Ares server:
 - C++ compiler supporting C++17. Currently only GCC is supported
 - CMake build system
 - Boost
-- libpqxx library to communicate with PostgreSQL
+- libpqxx library to communicate with PostgreSQL (recent enough to compile under C++17,
+version 5.1 is known to work)
 - libpq library to communicate with PostgreSQL (required by libpqxx)
 
 Current CMakeFiles are not tuned for Windows builds. Building on
