@@ -26,6 +26,12 @@ using your distribution's packet management system or by other means
 ```
 git clone --recurse-submodules https://github.com/elelel/ares
 ```
+Alternatively with various command (if ou already have done the clone for instance)
+```
+git clone https://github.com/elelel/ares 
+cd ares 
+git submodule update --init
+```
 3. Create build directories somewhere at a location separate from
 the cloned source. Currently each server has to be compiled separately
 (account, character, zone).
@@ -95,7 +101,7 @@ with latter taking precedence if both exist.
 }
 ```
 
-#### Example configuration for account_server.json:
+#### Example configuration for character_server.json:
 ```js
 {
     "server_name": "Ares server",
