@@ -17,7 +17,7 @@ void ares::config::read_from_files(const std::string& service_name,
   if (config_fn) {
     conf_filenames.push_back(*config_fn);
   } else {
-    char const* home_ptr = getenv("HOME");
+    char const* home_ptr = getenv("ARES_HOME");
     if (home_ptr) conf_filenames.push_back(std::string(home_ptr) + "/etc/ares/" + service_name + ".json");
     conf_filenames.push_back("/etc/ares/" + service_name + ".json");
   }

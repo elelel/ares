@@ -10,3 +10,6 @@
 [submodule "contrib/network_buffer"]
 	path = contrib/network_buffer
 	url = https://github.com/elelel/network_buffer.git
+[submodule "contrib/libpqxx"]
+	path = contrib/libpqxx
+	url = https://github.com/jtv/libpqxx
