@@ -13,23 +13,29 @@ ares::config::config(std::shared_ptr<spdlog::logger> log,
 
 void ares::config::read_from_files(const std::string& service_name,
                                    const std::optional<std::string> config_fn) {
+  // The vector contains all possible config fully-quallyfied filenames.
+  // The lower the index of an element, the higher priority of this config file.
   std::vector<std::string> conf_filenames;
   if (config_fn) {
+    // If config filename is specified explicitly, use it as the one with the highest
+    // priority
     conf_filenames.push_back(*config_fn);
   } else {
+    // Add config file from current user's home directory's 'etc' subdir
+    // Using HOME system env variable is a portable way of getting user homedir on Unix and Windows
     char const* home_ptr = getenv("HOME");
     if (home_ptr) conf_filenames.push_back(std::string(home_ptr) + "/etc/ares/" + service_name + ".json");
     conf_filenames.push_back("/etc/ares/" + service_name + ".json");
   }
 
   std::ifstream conf_file;
+  // Iterate the filename vector until a file is opened successfuly
   for (auto fn = conf_filenames.begin(); (fn != conf_filenames.end()) && !conf_file.is_open(); ++fn) {
     SPDLOG_TRACE(log_, "config: trying to open file {}", *fn);
     conf_file.open(*fn);
   }
   if (conf_file.is_open()) {
     if (conf_file.good()) {
-
       conf_file >> json_;
     } else {
       log_->error("config: file stream error after open");
