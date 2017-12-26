@@ -1,28 +1,54 @@
 #pragma once
 
+/*! \file packet_size.hpp
+
+    \brief Static packet size calculation structures.
+    
+    Packet size for a fixed-size packet is equal to the size of it's struct declaration.
+    For dynamic-sized packets it equals the value of PacketLength member. Dynamic-sized packets
+    are destinguished from fixed-size packets by the presence of this member in the structure.
+    The member has to be public, otherwise the detection will assume it's a fixed-size packet.
+ */
+
 namespace ares {
   namespace network {
     struct packet_size_helper {
-      // How many bytes are needed to receive, judging by header/length
+      /*! Calculate how many bytes are still to be received, judging by header/length
+        \tparam Packet packet struct type
+        \param buf pointer to buffer with packet's contents
+        \param sz number of bytes already in the buffer
+       */
       template <typename Packet>
-      static size_t bytes_needed(const Packet* buf, const size_t sz) {
+      static size_t bytes_needed(const Packet* buf ,
+                                 const size_t sz) {
         return bytes_needed_<Packet>(buf, sz, dynamic_size());
       }
 
-      // How many bytes should be in fifo_buffer, judging by header/length
+      /*! Get the packet size in fifo buffer
+        \tparam Packet packet struct type
+        \tparam Buffer type of fifo buffer
+        \param buf universal reference to the buffer
+      */
       template <typename Packet,
                 typename Buffer>
       static size_t size(Buffer&& buf) {
         return size_<>((Packet*)buf.start_ptr(), buf.size(), dynamic_size());
       }
 
-      // How many bytes should be in void* buffer, judging by header/length
+      /*! Get the packet size in flat memory buffer
+         \tparam Packet packet struct type
+         \param buf plain memory pointer to the Packet
+         \param sz number of meaningful bytes in the buffer
+      */
       template <typename Packet>
       static size_t size(const Packet* buf, const size_t sz) {
         return size_(buf, sz, dynamic_size());
       }
     
-      // Check if size declaration for packet reference is correct
+      /*! Check if size declaration for a packet is correct
+        \tparam Packet packet struct type
+        \param p const reference to the packet struct
+      */
       template <typename Packet>
       static size_t validate(const Packet& p) {
         return validate_(p, dynamic_size());

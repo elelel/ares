@@ -2,8 +2,18 @@
 
 #include <boost/asio.hpp>
 
+/*! \file timer.hpp
+  \brief ASIO timer abstraction
+
+*/
+
 namespace ares {
   namespace network {
+    /*! Timer abstraction for Ares servers
+      \tparam Timer concrete timer type
+      \tparam Period time for the timeout period
+      \tparam Session concrete session type this timer is assiociated with
+    */
     template <typename Timer, typename Period, typename Session>
     struct timer : handler::asio::base<timer<Timer, Period, Session>, Session> {
       timer(std::shared_ptr<Session> sess, const Period& period);
