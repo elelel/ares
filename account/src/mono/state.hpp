@@ -9,6 +9,7 @@
 namespace ares {
   namespace account {
     namespace mono {
+      /*! State for sessions that are monostate (not initialized yet) */
       struct state {
         friend struct client::state;
         friend struct char_server::state;
@@ -25,6 +26,7 @@ namespace ares {
         size_t dispatch(const uint16_t PacketType);
 
         // Data
+        /*! Game client EXE hash (sent before session is handshaken as game client) */
         std::optional<std::array<uint8_t, 16>> client_exe_hash;
 
       private:
