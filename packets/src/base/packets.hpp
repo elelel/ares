@@ -1,5 +1,9 @@
 #pragma once
 
+/*! \file packets.hpp
+  \brief Packet structures for base packet version
+*/
+
 #include "../utils.hpp"
 
 #pragma pack(push, 1)

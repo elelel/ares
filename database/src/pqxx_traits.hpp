@@ -5,6 +5,7 @@
 #include <optional>
 
 namespace pqxx {
+  /*! Custom trait for libpqxx to seamlessly perform SQL operation on time_point datetimes */
   template <>
   struct PQXX_LIBEXPORT string_traits<std::optional<std::chrono::system_clock::time_point>> {
     using data_type = std::optional<std::chrono::system_clock::time_point>;

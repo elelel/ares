@@ -14,6 +14,14 @@ namespace ares {
   template <typename Database>
   struct database {
   protected:
+    /* Constructor that connects to Postgresql database
+       \param log pointer to logger
+       \param dbname string containing database name
+       \param host string containing database server host
+       \param port TCP port database server is listening on
+       \param username database username
+       \param password database password
+    */
     database(std::shared_ptr<spdlog::logger> log,
              const std::string& dbname,
              const std::string& host,
@@ -21,6 +29,9 @@ namespace ares {
              const std::string& username,
              const std::string& password);
 
+    /*! Execute function under database mutex lock, that will ensure sequencing and thread safety
+      \param f function to execute under the database mutex lock
+    */
     void with_wait_lock(std::function<void()> f);
 
     std::shared_ptr<spdlog::logger> log_;

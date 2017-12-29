@@ -1,5 +1,10 @@
 #pragma once
 
+/*! \file packet_ids.hpp
+  \brief Packet ids for base packet version
+
+*/
+
 namespace ares {
   template <>
   struct packet_ids<packet_version::base> {
