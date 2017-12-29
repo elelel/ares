@@ -17,6 +17,7 @@ namespace ares {
 
     // Account <-> Client
     #include "CA/CA_EXE_HASHCHECK.hpp"
+    #include "CA/CA_SSO_LOGIN_REQ_0x64.hpp"
     #include "CA/CA_SSO_LOGIN_REQ.hpp"
     #include "AC/AC_ACCEPT_LOGIN.hpp"
     #include "AC/AC_REFUSE_LOGIN.hpp"

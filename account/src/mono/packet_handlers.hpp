@@ -22,7 +22,9 @@ namespace ares {
       ARES_SIMPLE_PACKET_HANDLER(CA_EXE_HASHCHECK);
       
       // Packet handlers that store state/structured
+      #include "CA_SSO_LOGIN_REQ_0x64.hpp"
       #include "CA_SSO_LOGIN_REQ.hpp"
+
     }
   }
 }

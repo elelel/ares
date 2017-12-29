@@ -30,6 +30,7 @@ set(SOURCES
   ${SRC}/send_handler.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CA_EXE_HASHCHECK.cpp
+  ${SRC}/mono/CA_SSO_LOGIN_REQ_0x64.cpp
   ${SRC}/mono/CA_SSO_LOGIN_REQ.cpp
   ${SRC}/mono/ATHENA_HA_LOGIN_REQ.cpp
   ${SRC}/mono/ATHENA_HA_PING_REQ.cpp

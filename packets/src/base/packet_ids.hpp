@@ -11,6 +11,7 @@ namespace ares {
     static const uint16_t AC_REFUSE_LOGIN = 0x6a;
     static const uint16_t SC_NOTIFY_BAN = 0x81;
     static const uint16_t CA_EXE_HASHCHECK = 0x204;
+    static const uint16_t CA_SSO_LOGIN_REQ_0x64 = 0x64;
     static const uint16_t CA_SSO_LOGIN_REQ = 0x825;
     static const uint16_t AC_ACCEPT_LOGIN = 0xac4;
     static const uint16_t CH_ENTER = 0x65;

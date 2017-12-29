@@ -43,6 +43,7 @@ size_t ares::account::mono::state::dispatch(const uint16_t PacketType) {
   SPDLOG_TRACE(log_, "mono::state::dispatch() switching on PacketType = {0:#x}", PacketType);
   switch (PacketType) {
     ARES_DISPATCH_PACKET_CASE(CA_EXE_HASHCHECK);
+    ARES_DISPATCH_PACKET_CASE(CA_SSO_LOGIN_REQ_0x64);
     ARES_DISPATCH_PACKET_CASE(CA_SSO_LOGIN_REQ);
     ARES_DISPATCH_PACKET_CASE(ATHENA_HA_LOGIN_REQ);
     ARES_DISPATCH_PACKET_CASE(ATHENA_HA_PING_REQ);

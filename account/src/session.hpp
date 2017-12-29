@@ -31,6 +31,7 @@ namespace ares {
       friend struct send_handler;
       
       // Needed to allow changing of state type
+      friend struct mono::packet_handler<ares::packet::CA_SSO_LOGIN_REQ_0x64>;
       friend struct mono::packet_handler<ares::packet::CA_SSO_LOGIN_REQ>;
       friend struct mono::packet_handler<ares::packet::ATHENA_HA_LOGIN_REQ>;
 
