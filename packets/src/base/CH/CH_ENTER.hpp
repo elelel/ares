@@ -1,5 +1,5 @@
 struct CH_ENTER {
-  void emplace(const uint32_t AID,
+  inline void emplace(const uint32_t AID,
                const int32_t AuthCode,
                const uint32_t userLevel,
                const uint16_t clientType,
@@ -20,23 +20,23 @@ struct CH_ENTER {
     emplace(AID, AuthCode, userLevel, clientType, Sex);
   }
 
-  uint32_t AID() const {
+  inline uint32_t AID() const {
     return AID_;
   }
 
-  int32_t AuthCode() const {
+  inline int32_t AuthCode() const {
     return AuthCode_;
   }
 
-  uint32_t userLevel() const {
+  inline uint32_t userLevel() const {
     return userLevel_;
   }
 
-  uint16_t clientType() const {
+  inline uint16_t clientType() const {
     return clientType_;
   }
 
-  uint8_t Sex() const {
+  inline uint8_t Sex() const {
     return Sex_;
   }
   
