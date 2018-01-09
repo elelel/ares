@@ -16,6 +16,7 @@ namespace ares {
     static const uint16_t AC_ACCEPT_LOGIN = 0xac4;
     static const uint16_t CH_ENTER = 0x65;
     static const uint16_t HC_REFUSE_ENTER = 0x6c;
+    static const uint16_t CZ_REQUEST_MOVE = 0x85;
 
     // Athena packets
     static const uint16_t ATHENA_HA_LOGIN_REQ = 0x2710;
