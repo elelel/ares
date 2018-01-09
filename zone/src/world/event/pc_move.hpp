@@ -5,12 +5,6 @@ namespace ares {
         /*! PC move command from client
          */
         struct pc_move_command {
-          struct shared {
-            uint32_t gid;
-            uint16_t to_x;
-            uint16_t to_y;
-          };
-
           explicit pc_move_command(const uint32_t gid,
                                    const uint16_t to_x,
                                    const uint16_t to_y) :
@@ -20,6 +14,11 @@ namespace ares {
             data->to_y = to_y;
           }
             
+          struct shared {
+            uint32_t gid;
+            uint16_t to_x;
+            uint16_t to_y;
+          };
           std::shared_ptr<shared> data;
         };
       }
