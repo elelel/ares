@@ -24,9 +24,14 @@ namespace ares {
         size_t dispatch(const uint16_t PacketType);
 
         // Data
+        /*! Account ID */
         uint16_t aid;
+        /*! Athena auth code 1 */
         int32_t auth_code1;
+        /*! Athena auth code 2 */
         int32_t auth_code2;
+        /*! Character ID  */
+        uint32_t gid;
       private:
         std::shared_ptr<spdlog::logger> log_;
         server& server_;

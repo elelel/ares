@@ -34,6 +34,7 @@ set(SOURCES
   ${SRC}/character_server/timers.cpp
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/client/state.cpp
+  ${SRC}/client/CZ_REQUEST_MOVE.cpp
   )
 
 if (NOT TARGET config) 
@@ -53,6 +54,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/spdlog/include
   ${CONTRIB}/json
   ${CONTRIB}/network_buffer/include
+  ${CONTRIB}/RxCpp/Rx/v2/src
   ${ARES_DIR})
 
 message("Zone server compile definitions: ${ARES_COMPILE_DEFINITIONS}")
