@@ -51,6 +51,7 @@ size_t ares::zone::character_server::state::dispatch(const uint16_t PacketType) 
   SPDLOG_TRACE(log_, "character_server::state::dispatch() switching on PacketType = {0:#x}", PacketType);
   switch (PacketType) {
     ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_LOGIN_RESULT);
+    ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_PRIVATE_MSG_NAME);
   }
   log_->error("Unexpected PacketType {0:#x} for character_server::state session", PacketType);
   throw ares::network::terminate_session();

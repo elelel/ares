@@ -17,7 +17,8 @@ namespace ares {
       ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
 
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_LOGIN_RESULT);      
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_LOGIN_RESULT);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_PRIVATE_MSG_NAME);
       // Packet handlers that store state/structured
 
     }
