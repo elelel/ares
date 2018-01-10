@@ -56,7 +56,7 @@ private:
   uint32_t Version_;
 public: // To allow sizeof
   char ID_[24];
-  char Passwd_[4];
+  char Passwd_[24];
 private:  
   uint8_t clienttype_;
 };
