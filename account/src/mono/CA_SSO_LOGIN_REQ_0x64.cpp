@@ -1,5 +1,7 @@
 #include "packet_handlers.hpp"
 
+#include <iostream>
+
 #include <optional>
 #include <tuple>
 #include <string>
@@ -103,24 +105,17 @@ void ares::account::mono::packet_handler<ares::packet::CA_SSO_LOGIN_REQ_0x64>::a
 
 void ares::account::mono::packet_handler<ares::packet::CA_SSO_LOGIN_REQ_0x64>::check(const std::string& login, const std::string& password) {
   if (server_.conf().client_version) {
-    if (server_.conf().client_version == p_->Version()) {
-      if (server_.db().password_matches(login, password)) {
-        accept(login);
-      } else {
-        log()->info("Login attempt failed for login {}, incorrect password", login);
-        refuse(1); // 1 = Incorrect Password
-      }
-    } else {
+    if (server_.conf().client_version != p_->Version()) {
       log()->info("Login attempt failed for login {}, incorrect client version {}, expected {}", login, p_->Version(), *server_.conf().client_version);
       refuse(5);
+      return;
     }
+  }
+  if (server_.db().password_matches(login, password)) {
+    accept(login);
   } else {
-    if (server_.db().password_matches(login, password)) {
-      accept(login);
-    } else {
-      log()->info("Login attempt failed for login {}, incorrect password", login);
-      refuse(1); // 1 = Incorrect Password
-    }
+    log()->info("Login attempt failed for login {}, incorrect password", login);
+    refuse(1); // 1 = Incorrect Password
   }
 }
   
