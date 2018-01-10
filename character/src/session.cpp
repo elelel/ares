@@ -49,7 +49,7 @@ void ares::character::session::on_operation_aborted() {
 }
 
 
-auto ares::character::session::state_variant() -> state_variant_type& {
+auto ares::character::session::state_variant() -> session_state_variant_type& {
   return state_;
 }
 

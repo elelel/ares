@@ -9,6 +9,7 @@
 
 namespace ares {
   namespace character {
-    using state_variant_type = std::variant<mono::state, client::state, zone_server::state, account_server::state>;
+    using session_state_variant_type = std::variant<mono::state, client::state, zone_server::state, account_server::state>;
+
   }
 }

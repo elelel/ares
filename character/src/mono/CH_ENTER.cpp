@@ -34,12 +34,14 @@ void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::from_zone_se
 
 void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::from_account_server() {
   SPDLOG_TRACE(log(), "Sending ATHENA_HA_AID_AUTH_REQ");
+  auto request_id = random_int32::get();
+  server_.add_auth_aid_request(request_id, session_.shared_from_this());
   server_.account_server()->emplace_and_send<packet::ATHENA_HA_AID_AUTH_REQ>(p_->AID(),
                                                                              p_->AuthCode(),
                                                                              (int32_t)p_->userLevel(),
                                                                              p_->Sex(),
                                                                              0,
-                                                                             random_int32::get());
+                                                                             request_id);
 }
 
 void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::refuse(const uint8_t error_code) {
