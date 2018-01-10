@@ -31,6 +31,7 @@ namespace ares {
       // Needed to allow changing of state type
       friend struct mono::packet_handler<ares::packet::CH_ENTER>;
       friend struct mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>;
+      friend struct account_server::packet_handler<ares::packet::ATHENA_AH_AID_AUTH_RESULT>;
       
       session(server& server, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
@@ -47,7 +48,7 @@ namespace ares {
       void on_inactivity_timer();
       void reset_inactivity_timer();
 
-      state_variant_type& state_variant();
+      session_state_variant_type& state_variant();
 
       bool is_account_server() const;
       account_server::state& as_account_server();
@@ -61,7 +62,7 @@ namespace ares {
 
       server& server_;
     private:
-      state_variant_type state_;
+      session_state_variant_type state_;
 
       std::chrono::seconds inactivity_timeout_{120};
     };

@@ -70,6 +70,13 @@ void ares::character::server::remove(session_ptr s) {
       serv(serv), s(s) {};
 
     void operator()(const mono::state&) {
+      decltype(auth_aid_requests_)::iterator found;
+      while ((found =
+              std::find_if(serv.auth_aid_requests_.begin(), serv.auth_aid_requests_.end(), [this] (auto p) {
+                  return p.second.first == s;
+                })) != serv.auth_aid_requests_.end()) {
+        serv.auth_aid_requests_.erase(found);
+      }
       serv.mono_.erase(s);
     }
 
@@ -147,3 +154,30 @@ void ares::character::server::unlink_aid_from_zone_server(const uint32_t aid, se
   }
 }
  
+void ares::character::server::add_auth_aid_request(const int32_t request_id, session_ptr s) {
+  prune_auth_aid_requests();
+  auto now = std::chrono::steady_clock::now();
+  auth_aid_requests_.insert({request_id, {s, now}});
+}
+
+auto ares::character::server::session_by_auth_request_id(const int32_t request_id) -> session_ptr {
+  prune_auth_aid_requests();
+  auto found = auth_aid_requests_.find(request_id);
+  if (found != auth_aid_requests_.end()) return found->second.first;
+  return nullptr;
+}
+
+void ares::character::server::remove_auth_aid_request(const int32_t request_id) {
+  auth_aid_requests_.erase(request_id);
+}
+
+void ares::character::server::prune_auth_aid_requests() {
+  auto now = std::chrono::steady_clock::now();
+  std::vector<session_ptr> timed_out;
+  for (const auto& p : auth_aid_requests_) {
+    if (now - p.second.second > std::chrono::seconds{60}) {
+      timed_out.push_back(p.second.first);
+    }
+  }
+  for (auto s : timed_out) remove(s);
+}

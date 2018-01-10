@@ -21,6 +21,8 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/client/CZ_REQUEST_MOVE.cpp
+
   ${SRC}/main.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
@@ -33,6 +35,8 @@ set(SOURCES
   ${SRC}/character_server/state.cpp
   ${SRC}/character_server/timers.cpp
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
+  ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
+  ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
   ${SRC}/client/state.cpp
   )
 
@@ -53,6 +57,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/spdlog/include
   ${CONTRIB}/json
   ${CONTRIB}/network_buffer/include
+  ${CONTRIB}/RxCpp/Rx/v2/src
   ${ARES_DIR})
 
 message("Zone server compile definitions: ${ARES_COMPILE_DEFINITIONS}")

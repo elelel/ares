@@ -34,6 +34,9 @@ namespace ares {
         timer::reconnect reconnect_timer;
         timer::ping_request ping_request_timer;
         timer::ping_timeout ping_timeout_timer;
+
+        // Data
+        std::string private_msg_name{"Character server"};        
       };
     }
   }

@@ -100,3 +100,7 @@ auto ares::zone::server::client_by_aid(const uint32_t aid) -> session_ptr {
 auto ares::zone::server::char_server() const -> const session_ptr& {
   return char_server_;
 }
+
+auto ares::zone::server::world() -> ares::zone::world::state& {
+  return world_;
+}

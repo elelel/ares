@@ -19,6 +19,7 @@ namespace ares {
       // Simple packet handlers that do not define their own class structure
       ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_LOGIN_RESULT);
       ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_PING_ACK);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_AID_AUTH_RESULT);
       
       // Packet handlers that store state/structured
     }

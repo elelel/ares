@@ -12,7 +12,7 @@ namespace ares {
   struct packets<packet_version::base> {
     using packet_id = packet_ids<packet_version::base>;
     
-    // Common client
+    // Servers <-> Client
     #include "SC/SC_NOTIFY_BAN.hpp"
 
     // Account <-> Client
@@ -25,6 +25,9 @@ namespace ares {
     // Char <-> Client
     #include "CH/CH_ENTER.hpp"
     #include "HC/HC_REFUSE_ENTER.hpp"
+
+    // Zone <-> Client
+    #include "CZ/CZ_REQUEST_MOVE.hpp"
 
     // Account <-> Char
     #include "ATHENA/ATHENA_HA_PING_REQ.hpp"

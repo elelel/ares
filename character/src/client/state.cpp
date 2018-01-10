@@ -12,6 +12,12 @@ ares::character::client::state::state(std::shared_ptr<spdlog::logger> log, serve
   session_(sess) {
   }
 
+ares::character::client::state::state(const mono::state& mono_state) :
+  log_(mono_state.log_),
+  server_(mono_state.server_),
+  session_(mono_state.session_) {
+}
+
 void ares::character::client::state::defuse_asio() {
 }
 
