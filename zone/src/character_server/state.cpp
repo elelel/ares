@@ -52,6 +52,7 @@ size_t ares::zone::character_server::state::dispatch(const uint16_t PacketType) 
   switch (PacketType) {
     ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_LOGIN_RESULT);
     ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_PRIVATE_MSG_NAME);
+    ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_PING_ACK);
   }
   log_->error("Unexpected PacketType {0:#x} for character_server::state session", PacketType);
   throw ares::network::terminate_session();

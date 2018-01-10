@@ -22,7 +22,6 @@ set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
   ${SRC}/client/CZ_REQUEST_MOVE.cpp
-  ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
 
   ${SRC}/main.cpp
   ${SRC}/server.cpp
@@ -36,8 +35,9 @@ set(SOURCES
   ${SRC}/character_server/state.cpp
   ${SRC}/character_server/timers.cpp
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
+  ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
+  ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
   ${SRC}/client/state.cpp
-
   )
 
 if (NOT TARGET config) 
