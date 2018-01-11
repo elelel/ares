@@ -8,7 +8,7 @@ struct ATHENA_HA_ACCOUNT_DATA_REQ {
     emplace(aid);
   }
 
-  uint32_t aid() const {
+  inline uint32_t aid() const {
     return aid_;
   }
 

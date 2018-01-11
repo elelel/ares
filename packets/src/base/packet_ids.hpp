@@ -27,7 +27,7 @@ namespace ares {
     static const uint16_t ATHENA_AH_AID_AUTH_RESULT = 0x2713;
     static const uint16_t ATHENA_HA_USER_COUNT = 0x2714;
     static const uint16_t ATHENA_HA_ACCOUNT_DATA_REQ = 0x2716;
-    static const uint16_t ATHENA_AH_ACCOUNT_DATA = 0x2717;
+    static const uint16_t ATHENA_AH_ACCOUNT_DATA_RESULT = 0x2717;
     static const uint16_t ATHENA_HA_SET_AID_ONLINE = 0x272b;
     static const uint16_t ATHENA_HA_SET_AID_OFFLINE = 0x272c;
     static const uint16_t ATHENA_HA_ONLINE_AIDS = 0x272d;

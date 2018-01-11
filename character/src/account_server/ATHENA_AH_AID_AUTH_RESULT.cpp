@@ -15,14 +15,13 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_AID
           server_.remove_auth_aid_request(p_->request_id());
           auto new_state = client::state(std::get<mono::state>(s->state_));
           s->state_.emplace<client::state>(std::move(new_state));
+          auto& c = s->as_client();
+          c.aid = p_->aid();
+          c.auth_code1 = p_->auth_code1();
+          c.auth_code2 = p_->auth_code2();
+          server_.add(s);
         }
-
-        auto& c = s->as_client();
-        c.aid = p_->aid();
-        c.auth_code1 = p_->auth_code1();
-        c.auth_code2 = p_->auth_code2();
-        
-        // TODO continue with client
+        session_.emplace_and_send<packet::ATHENA_HA_ACCOUNT_DATA_REQ>(p_->aid());
       } else {
         log()->error("Received authentication result from account server for aid {}, but it's session is not in mono state!", p_->aid());
         std::lock_guard<std::mutex> lock(server_.mutex());
@@ -30,6 +29,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_AID
       }
     } else {
       log()->warn("Aid {} is not authenticated by account server, closing session!", p_->aid());
+      s->emplace_and_send<packet::AC_REFUSE_LOGIN>(8); // Rejected by server
       std::lock_guard<std::mutex> lock(server_.mutex());
       server_.remove(s);
     }

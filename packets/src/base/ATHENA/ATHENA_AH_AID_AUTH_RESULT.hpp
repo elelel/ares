@@ -29,35 +29,35 @@ struct ATHENA_AH_AID_AUTH_RESULT {
     emplace(aid, auth_code1, auth_code2, sex, fail, request_id, version, clienttype);
   }
 
-  uint32_t aid() const {
+  inline uint32_t aid() const {
     return aid_;
   }
 
-  int32_t auth_code1() const {
+  inline int32_t auth_code1() const {
     return auth_code1_;
   }
   
-  int32_t auth_code2() const {
+  inline int32_t auth_code2() const {
     return auth_code2_;
   }
   
-  uint8_t sex() const {
+  inline uint8_t sex() const {
     return sex_;
   }
   
-  uint8_t fail() const {
+  inline uint8_t fail() const {
     return fail_;
   }
 
-  int32_t request_id() const {
+  inline int32_t request_id() const {
     return request_id_;
   }
   
-  uint32_t version() const {
+  inline uint32_t version() const {
     return version_;
   }
   
-  uint8_t clienttype() const {
+  inline uint8_t clienttype() const {
     return clienttype_;
   }
   

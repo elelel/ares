@@ -35,6 +35,7 @@ namespace ares {
     #include "ATHENA/ATHENA_HA_LOGIN_REQ.hpp"
     #include "ATHENA/ATHENA_AH_LOGIN_RESULT.hpp"
     #include "ATHENA/ATHENA_HA_ACCOUNT_DATA_REQ.hpp"
+    #include "ATHENA/ATHENA_AH_ACCOUNT_DATA_RESULT.hpp"
     #include "ATHENA/ATHENA_HA_AID_AUTH_REQ.hpp"
     #include "ATHENA/ATHENA_HA_ONLINE_AIDS.hpp"
     #include "ATHENA/ATHENA_HA_USER_COUNT.hpp"
@@ -42,7 +43,6 @@ namespace ares {
     #include "ATHENA/ATHENA_HA_SET_AID_OFFLINE.hpp"
     #include "ATHENA/ATHENA_HA_SET_ALL_AIDS_OFFLINE.hpp"
     #include "ATHENA/ATHENA_AH_AID_AUTH_RESULT.hpp"
-    #include "ATHENA/ATHENA_AH_ACCOUNT_DATA.hpp"
 
     // Char <-> Zone
     #include "ATHENA/ATHENA_ZH_LOGIN_REQ.hpp"

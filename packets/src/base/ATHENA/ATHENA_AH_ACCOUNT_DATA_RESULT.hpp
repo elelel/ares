@@ -1,11 +1,11 @@
-struct ATHENA_AH_ACCOUNT_DATA {
+struct ATHENA_AH_ACCOUNT_DATA_RESULT {
 
   void emplace(const uint32_t aid,
                const char* email,
                const size_t email_sz,
                const uint32_t expiration_time,
                const uint8_t gmlevel) {
-    PacketType = packet_id::ATHENA_AH_ACCOUNT_DATA;
+    PacketType = packet_id::ATHENA_AH_ACCOUNT_DATA_RESULT;
     aid_ = aid;
     expiration_time_ = expiration_time;
     gmlevel_ = gmlevel;
@@ -47,7 +47,7 @@ struct ATHENA_AH_ACCOUNT_DATA {
     }
   }
   
-  explicit ATHENA_AH_ACCOUNT_DATA(const uint32_t aid,
+  explicit ATHENA_AH_ACCOUNT_DATA_RESULT(const uint32_t aid,
                                   const char* email,
                                   const size_t email_sz,
                                   const uint32_t expiration_time,
@@ -59,7 +59,7 @@ struct ATHENA_AH_ACCOUNT_DATA {
     emplace(aid, email, email_sz, expiration_time, gmlevel, birthdate, birthdate_sz, pin, pin_sz);
   }
 
-  explicit ATHENA_AH_ACCOUNT_DATA(const uint32_t aid,
+  explicit ATHENA_AH_ACCOUNT_DATA_RESULT(const uint32_t aid,
                                   const std::string& email,
                                   const std::optional<std::chrono::system_clock::time_point>& expiration_time,
                                   const uint8_t gmlevel,
@@ -69,12 +69,36 @@ struct ATHENA_AH_ACCOUNT_DATA {
     emplace(aid, email, expiration_time, gmlevel, birthdate, pin);
   }
   
-  explicit ATHENA_AH_ACCOUNT_DATA(const uint32_t aid,
+  explicit ATHENA_AH_ACCOUNT_DATA_RESULT(const uint32_t aid,
                                   const char* email,
                                   const size_t email_sz,
                                   const uint32_t expiration_time,
                                   const uint8_t gmlevel) {
     emplace(aid, email, email_sz, expiration_time, gmlevel);
+  }
+
+  inline uint32_t aid() const {
+    return aid_;
+  }
+
+  inline const char* email() const {
+    return email_;
+  }
+
+  inline uint32_t expiration_time() const {
+    return expiration_time_;
+  }
+
+  inline uint8_t gmlevel() const {
+    return gmlevel_;
+  }
+
+  inline const char* birthdate() const {
+    return birthdate_;
+  }
+
+  inline const char* pin() const {
+    return pin_;
   }
   
 public:

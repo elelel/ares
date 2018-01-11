@@ -29,6 +29,15 @@ namespace ares {
         int32_t auth_code1{0};
         /*! Athena auth code 2 (original userLevel) */
         int32_t auth_code2{0};
+        /*! Expiration time in epoch format */
+        uint32_t expiration_time{0};
+        /*! User's email */
+        std::string email;
+        /*! User's pin */
+        std::string pin;
+        /*! GM level */
+        uint8_t gmlevel;
+        
       private:
         std::shared_ptr<spdlog::logger> log_;
         server& server_;
