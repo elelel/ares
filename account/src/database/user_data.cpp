@@ -45,7 +45,7 @@ SELECT "id", "login", "email", "level", "sex", "expiration_time", "birthdate", "
       };
 
       struct user_data_for_aid : pqxx::transactor<> {
-        user_data_for_aid(const size_t aid, std::optional<record::user_data>& rslt) :
+        user_data_for_aid(const uint32_t aid, std::optional<record::user_data>& rslt) :
           aid_(aid),
           rslt_(rslt) {
         }
