@@ -10,6 +10,7 @@ set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(SOURCES
   src/string_conv.cpp
   src/random.cpp
+  src/map_name_index.cpp
   )
 
 add_library(common STATIC ${SOURCES})
