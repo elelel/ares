@@ -11,6 +11,7 @@ set(SOURCES
   src/string_conv.cpp
   src/random.cpp
   src/map_name_index.cpp
+  src/config.cpp
   )
 
 add_library(common STATIC ${SOURCES})

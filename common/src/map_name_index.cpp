@@ -46,7 +46,7 @@ void ares::map_name_index::load_json(const nlohmann::json& j) {
       ++i;
     }
   } else {
-    log_->error("map_name_index: map_names array must exist in map name index list");
+    log_->error("map_name_index: 'map_names' array must exist in map name index list");
   }
   log_->info("map_name_index: loaded {} map names", names_.size());
 }

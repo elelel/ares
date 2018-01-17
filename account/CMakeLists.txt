@@ -13,7 +13,6 @@ endif()
 include(${ARES_DIR}/projects/CMake/shared.cmake)
 
 set(NETWORK "${ARES_DIR}/network")
-set(CONFIG "${ARES_DIR}/config")
 set(COMMON "${ARES_DIR}/common")
 set(PACKETS "${ARES_DIR}/packets")
 set(DATABASE "${ARES_DIR}/database")
@@ -50,9 +49,6 @@ set(SOURCES
   ${SRC}/database/user_data.cpp
   )
 
-if (NOT TARGET config) 
-  add_subdirectory(${CONFIG} config)
-endif()
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)
 endif()
