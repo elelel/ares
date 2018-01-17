@@ -11,9 +11,7 @@ namespace ares {
           qr[0]["login"].to(r.login);
           qr[0]["email"].to(r.email);
           qr[0]["level"].to(r.level);
-          int sex;
-          qr[0]["sex"].to(sex);
-          r.sex = uint8_t(sex);
+          qr[0]["sex"].to(r.sex);
           if (!qr[0]["expiration_time"].to(r.expiration_time)) r.expiration_time.reset();
           if (!qr[0]["birthdate"].to(r.birthdate)) r.birthdate.reset();
           if (!qr[0]["pin"].is_null()) {

@@ -45,6 +45,7 @@ set(SOURCES
   ${SRC}/zone_server/ATHENA_ZH_GAME_RATES.cpp
   ${SRC}/zone_server/ATHENA_ZH_PING_REQ.cpp
   ${SRC}/database/database.cpp
+  ${SRC}/database/char_data.cpp
   )
 
 if (NOT TARGET config) 

@@ -48,4 +48,46 @@ namespace pqxx {
     }
   };
 
+  template <>
+  struct PQXX_LIBEXPORT string_traits<uint8_t> {
+    using data_type = uint8_t;
+
+    static const char* name() { return "uint8_t"; };
+
+    static bool has_null() { return false; };
+
+    static bool is_null(const data_type&) { return false; };
+
+    static data_type null() { return data_type(); };
+
+    static void from_string(const char* str, data_type& t) {
+      t = std::stoi(str);
+    }
+
+    static std::string to_string(const data_type& d) {
+      return std::to_string(d);
+    }
+  };
+
+  template <>
+  struct PQXX_LIBEXPORT string_traits<int8_t> {
+    using data_type = int8_t;
+
+    static const char* name() { return "int8_t"; };
+
+    static bool has_null() { return false; };
+
+    static bool is_null(const data_type&) { return false; };
+
+    static data_type null() { return data_type(); };
+
+    static void from_string(const char* str, data_type& t) {
+      t = std::stoi(str);
+    }
+
+    static std::string to_string(const data_type& d) {
+      return std::to_string(d);
+    }
+  };
+  
 }
