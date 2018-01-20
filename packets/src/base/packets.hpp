@@ -22,14 +22,17 @@ namespace ares {
     #include "AC/AC_ACCEPT_LOGIN.hpp"
     #include "AC/AC_REFUSE_LOGIN.hpp"
 
-    // Char <-> Client
+    // Character <-> Client
     #include "CH/CH_ENTER.hpp"
     #include "HC/HC_REFUSE_ENTER.hpp"
+    #include "HC/HC_ACCEPT_ENTER.hpp"
+    #include "CH/CH_MAKE_CHAR.hpp"
 
     // Zone <-> Client
     #include "CZ/CZ_REQUEST_MOVE.hpp"
 
-    // Account <-> Char
+    // Athena packets
+    // Account <-> Character
     #include "ATHENA/ATHENA_HA_PING_REQ.hpp"
     #include "ATHENA/ATHENA_AH_PING_ACK.hpp"
     #include "ATHENA/ATHENA_HA_LOGIN_REQ.hpp"
@@ -44,7 +47,7 @@ namespace ares {
     #include "ATHENA/ATHENA_HA_SET_ALL_AIDS_OFFLINE.hpp"
     #include "ATHENA/ATHENA_AH_AID_AUTH_RESULT.hpp"
 
-    // Char <-> Zone
+    // Character <-> Zone
     #include "ATHENA/ATHENA_ZH_LOGIN_REQ.hpp"
     #include "ATHENA/ATHENA_HZ_LOGIN_RESULT.hpp"
     #include "ATHENA/ATHENA_HZ_PRIVATE_MSG_NAME.hpp"

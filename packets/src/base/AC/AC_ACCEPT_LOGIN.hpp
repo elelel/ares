@@ -2,14 +2,14 @@ static const size_t MAX_CHAR_SERVERS = 30;
 static const size_t TWITTER_TOKEN_SIZE = 128;
 
 struct AC_ACCEPT_LOGIN {
-  void emplace(const int32_t AuthCode,
-               const uint32_t AID,
-               const uint32_t userLevel,
-               const uint32_t lastLoginIP,
-               const char* lastLoginTime,
-               const size_t lastLoginTime_sz,
-               const uint8_t Sex,
-               const size_t servers_count) {
+  inline void emplace(const int32_t AuthCode,
+                      const uint32_t AID,
+                      const uint32_t userLevel,
+                      const uint32_t lastLoginIP,
+                      const char* lastLoginTime,
+                      const size_t lastLoginTime_sz,
+                      const uint8_t Sex,
+                      const size_t servers_count) {
     PacketType = packet_id::AC_ACCEPT_LOGIN;
     PacketLength = sizeof(*this) + servers_count * sizeof(SERVER_ADDR);
     AuthCode_ = AuthCode;
@@ -22,13 +22,13 @@ struct AC_ACCEPT_LOGIN {
     memset(someNewBuf_, 0, sizeof(someNewBuf_));
   }
 
-  void emplace(const int32_t AuthCode,
-               const uint32_t AID,
-               const uint32_t userLevel,
-               const uint32_t lastLoginIP,
-               const std::string& lastLoginTime,
-               const uint8_t Sex,
-               const size_t servers_count) {
+  inline void emplace(const int32_t AuthCode,
+                      const uint32_t AID,
+                      const uint32_t userLevel,
+                      const uint32_t lastLoginIP,
+                      const std::string& lastLoginTime,
+                      const uint8_t Sex,
+                      const size_t servers_count) {
     emplace(AuthCode, AID, userLevel, lastLoginIP, lastLoginTime.c_str(), lastLoginTime.size() + 1, Sex, servers_count);
   }
 
@@ -108,39 +108,39 @@ struct AC_ACCEPT_LOGIN {
     uint8_t twitter_token_[TWITTER_TOKEN_SIZE];
   };
 
-  int32_t AuthCode() const {
+  inline int32_t AuthCode() const {
     return AuthCode_;
   }
 
-  uint32_t AID() const {
+  inline uint32_t AID() const {
     return AID_;
   }
 
-  uint32_t userLevel() const {
+  inline uint32_t userLevel() const {
     return userLevel_;
   }
 
-  uint32_t lastLoginIP() const {
+  inline uint32_t lastLoginIP() const {
     return lastLoginIP_;
   }
 
-  const char* lastLoginTime() const {
+  inline const char* lastLoginTime() const {
     return lastLoginTime_;
   }
 
-  uint8_t Sex() const {
+  inline uint8_t Sex() const {
     return Sex_;
   }
 
-  const char* someNewBuf() const {
+  inline const char* someNewBuf() const {
     return someNewBuf_;
   }
 
-  uint8_t someNewByte() const {
+  inline uint8_t someNewByte() const {
     return someNewByte_;
   }
 
-  const SERVER_ADDR* ServerList() const {
+  inline const SERVER_ADDR* ServerList() const {
     return ServerList_;
   }
   

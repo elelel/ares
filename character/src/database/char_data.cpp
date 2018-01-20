@@ -4,7 +4,7 @@ namespace ares {
   namespace character {
     namespace db {
       template <typename QueryResult>
-      void assign_result(std::vector<record::char_data>& rslt, QueryResult& qr) {
+      inline void assign_result(std::vector<record::char_data>& rslt, QueryResult& qr) {
         rslt.clear();
         for (const auto& sql : qr) {
           rslt.push_back(record::char_data());
@@ -61,7 +61,7 @@ namespace ares {
 SELECT "id", "slot", "name", "sex", "char_class", "base_level", "job_level", "base_exp", "job_exp", "zeny",
   "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp", "status_point", "skill_point", "option", "karma", "manner",
   "hair", "hair_color", "clothes_color", "weapon", "shield", "head_top", "head_mid", "head_bottom", "robe", "last_map_name", "last_map_x", "last_map_y"
-FROM "characters" WHERE ("account_id" = $1) AND ("slot" < 2) LIMIT $2
+FROM "characters" WHERE ("account_id" = $1) AND ("slot" < $2) LIMIT $2
 )");
           auto qr = trans.prepared("char_data")(aid_)(max_chars_).exec();
           assign_result(rslt_, qr);

@@ -8,17 +8,32 @@
 namespace ares {
   template <>
   struct packet_ids<packet_version::base> {
-    static const uint16_t AC_REFUSE_LOGIN = 0x6a;
+    // Server <-> Client
     static const uint16_t SC_NOTIFY_BAN = 0x81;
+
+    // Account <-> Client
+    static const uint16_t AC_REFUSE_LOGIN = 0x6a;
     static const uint16_t CA_EXE_HASHCHECK = 0x204;
     static const uint16_t CA_SSO_LOGIN_REQ_0x64 = 0x64;
     static const uint16_t CA_SSO_LOGIN_REQ = 0x825;
     static const uint16_t AC_ACCEPT_LOGIN = 0xac4;
+    // Character <-> Client
     static const uint16_t CH_ENTER = 0x65;
+    static const uint16_t CH_MAKE_CHAR = 0x67;
+    static const uint16_t CH_MAKE_CHAR_0x970 = 0x970;
+    static const uint16_t CH_MAKE_CHAR_0xa39 = 0xa39;
+    static const uint16_t CH_DELETE_CHAR = 0x68;
+    static const uint16_t HC_ACCEPT_ENTER_0x6b = 0x6b;
+    static const uint16_t HC_ACCEPT_ENTER = 0x82d;
     static const uint16_t HC_REFUSE_ENTER = 0x6c;
+    static const uint16_t HC_ACCEPT_MAKECHAR = 0x6d;
+    static const uint16_t HC_REFUSE_MAKECHAR = 0x6e;
+
+    // Zone <-> Client
     static const uint16_t CZ_REQUEST_MOVE = 0x85;
 
     // Athena packets
+    // Account <-> Character
     static const uint16_t ATHENA_HA_LOGIN_REQ = 0x2710;
     static const uint16_t ATHENA_AH_LOGIN_RESULT = 0x2711;
     static const uint16_t ATHENA_HA_PING_REQ = 0x2719;
@@ -33,6 +48,7 @@ namespace ares {
     static const uint16_t ATHENA_HA_ONLINE_AIDS = 0x272d;
     static const uint16_t ATHENA_HA_SET_ALL_AIDS_OFFLINE = 0x2737;
 
+    // Character <-> Zone
     static const uint16_t ATHENA_ZH_LOGIN_REQ = 0x2af8;
     static const uint16_t ATHENA_HZ_LOGIN_RESULT = 0x2af9;
     static const uint16_t ATHENA_ZH_MAP_NAMES = 0x2afa;

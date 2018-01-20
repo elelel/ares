@@ -8,7 +8,20 @@ namespace ares {
   namespace character {
     namespace db {
       namespace record {
-        /*! Char data record in account server's database
+        /*! Account data record in character server's database
+         */
+        struct acc_data {
+          uint32_t aid;
+          uint8_t normal_slots;
+          uint8_t premium_slots;
+          uint8_t billing_slots;
+          uint8_t creatable_slots;
+          uint8_t playable_slots;
+          uint32_t bank_vault;
+          uint32_t max_storage;
+        };
+        
+        /*! Char data record in character server's database
          */
         struct char_data {
           // TODO: Check Signed -> Unsigned (taken from badly maintained Athena source)
