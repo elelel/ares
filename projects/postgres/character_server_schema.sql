@@ -11,6 +11,7 @@ CREATE TABLE accounts (
   max_storage bigint
 );
 
+DROP TABLE IF EXISTS characters;
 CREATE TABLE characters )
   id serial PRIMARY KEY,
   slot smallint,
