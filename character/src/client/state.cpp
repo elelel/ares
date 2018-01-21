@@ -48,6 +48,8 @@ void ares::character::client::state::on_operation_aborted() {
 size_t ares::character::client::state::dispatch(const uint16_t PacketType) {
   SPDLOG_TRACE(log_, "client::state::dispatch() switching on PacketType = {0:#x}", PacketType);
   switch (PacketType) {
+    ARES_DISPATCH_PACKET_CASE(PING);
+    ARES_DISPATCH_PACKET_CASE(CH_MAKE_CHAR);
   }
   SPDLOG_TRACE(log_, "client::state::dispatch() done");
   log_->error("Unexpected PacketType {0:#x} for client::state session", PacketType);

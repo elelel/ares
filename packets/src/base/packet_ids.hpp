@@ -10,6 +10,7 @@ namespace ares {
   struct packet_ids<packet_version::base> {
     // Server <-> Client
     static const uint16_t SC_NOTIFY_BAN = 0x81;
+    static const uint16_t PING = 0x187;
 
     // Account <-> Client
     static const uint16_t AC_REFUSE_LOGIN = 0x6a;
@@ -19,9 +20,9 @@ namespace ares {
     static const uint16_t AC_ACCEPT_LOGIN = 0xac4;
     // Character <-> Client
     static const uint16_t CH_ENTER = 0x65;
-    static const uint16_t CH_MAKE_CHAR = 0x67;
+    static const uint16_t CH_MAKE_CHAR_0x67 = 0x67;
     static const uint16_t CH_MAKE_CHAR_0x970 = 0x970;
-    static const uint16_t CH_MAKE_CHAR_0xa39 = 0xa39;
+    static const uint16_t CH_MAKE_CHAR = 0xa39;
     static const uint16_t CH_DELETE_CHAR = 0x68;
     static const uint16_t HC_ACCEPT_ENTER_0x6b = 0x6b;
     static const uint16_t HC_ACCEPT_ENTER = 0x82d;

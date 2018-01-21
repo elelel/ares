@@ -14,6 +14,7 @@ namespace ares {
     
     // Servers <-> Client
     #include "SC/SC_NOTIFY_BAN.hpp"
+    #include "CS/PING.hpp"
 
     // Account <-> Client
     #include "CA/CA_EXE_HASHCHECK.hpp"

@@ -20,8 +20,6 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/account_server/ATHENA_AH_ACCOUNT_DATA_RESULT.cpp
-
   ${SRC}/main.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
@@ -34,12 +32,14 @@ set(SOURCES
   ${SRC}/account_server/ATHENA_AH_LOGIN_RESULT.cpp
   ${SRC}/account_server/ATHENA_AH_PING_ACK.cpp
   ${SRC}/account_server/ATHENA_AH_AID_AUTH_RESULT.cpp
-
+  ${SRC}/account_server/ATHENA_AH_ACCOUNT_DATA_RESULT.cpp
   ${SRC}/account_server/ATHENA_AH_KICK_AID.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CH_ENTER.cpp
   ${SRC}/mono/ATHENA_ZH_LOGIN_REQ.cpp
   ${SRC}/client/state.cpp
+  ${SRC}/client/PING.cpp
+  ${SRC}/client/CH_MAKE_CHAR.cpp
   ${SRC}/zone_server/state.cpp
   ${SRC}/zone_server/ATHENA_ZH_MAP_NAMES.cpp
   ${SRC}/zone_server/ATHENA_ZH_ONLINE_USERS.cpp

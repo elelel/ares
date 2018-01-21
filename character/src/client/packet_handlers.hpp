@@ -17,6 +17,7 @@ namespace ares {
       ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
 
       // Simple packet handlers that do not define their own class structure
+      ARES_SIMPLE_PACKET_HANDLER(PING);
       ARES_SIMPLE_PACKET_HANDLER(CH_MAKE_CHAR);
       
       // Packet handlers that store state/structured
