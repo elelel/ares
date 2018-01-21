@@ -28,6 +28,7 @@ namespace ares {
           
           /*! Character id (cid) in SQL database */
           uint32_t cid;
+          uint32_t aid;
           uint8_t slot;
           std::string name;
           uint8_t sex;
