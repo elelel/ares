@@ -31,10 +31,10 @@ namespace ares {
           sql["sp"].to(r.sp);
           sql["status_point"].to(r.status_point);
           sql["skill_point"].to(r.skill_point);
-          sql["option"].to(r.option);
-          sql["karma"].to(r.karma);
-          sql["manner"].to(r.manner);
-          sql["hair"].to(r.hair);
+          sql["effect_state"].to(r.option);
+          sql["virtue"].to(r.karma);
+          sql["honor"].to(r.manner);
+          sql["head"].to(r.head);
           sql["hair_color"].to(r.hair_color);
           sql["clothes_color"].to(r.clothes_color);
           sql["weapon"].to(r.weapon);
@@ -46,6 +46,12 @@ namespace ares {
           sql["last_map_name"].to(r.last_map_name);
           sql["last_map_x"].to(r.last_map_x);
           sql["last_map_y"].to(r.last_map_y);
+          sql["delete_date"].to(r.delete_date);
+
+          // weapon can't be != 0 if the option is 'riding'
+          if (r.option & 0x7e80020) {
+            r.weapon = 0;
+          }
         }
       }
 
@@ -60,7 +66,7 @@ namespace ares {
           trans.conn().prepare("char_data", R"(
 SELECT "id", "slot", "name", "sex", "char_class", "base_level", "job_level", "base_exp", "job_exp", "zeny",
   "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp", "status_point", "skill_point", "option", "karma", "manner",
-  "hair", "hair_color", "clothes_color", "weapon", "shield", "head_top", "head_mid", "head_bottom", "robe", "last_map_name", "last_map_x", "last_map_y"
+  "hair", "hair_color", "clothes_color", "weapon", "shield", "head_top", "head_mid", "head_bottom", "robe", "last_map_name", "last_map_x", "last_map_y", "delete_date"
 FROM "characters" WHERE ("account_id" = $1) AND ("slot" < $2) LIMIT $2
 )");
           auto qr = trans.prepared("char_data")(aid_)(max_chars_).exec();

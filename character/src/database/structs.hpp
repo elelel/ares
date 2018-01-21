@@ -55,7 +55,7 @@ namespace ares {
           uint8_t karma;
           int16_t manner;
           
-          int16_t hair;
+          int16_t head;
           int16_t hair_color;
           int16_t clothes_color;
           int16_t body;
@@ -67,12 +67,11 @@ namespace ares {
           int16_t robe;
 
           std::string last_map_name;
-          uint16_t last_map;
           uint16_t last_map_x;
           uint16_t last_map_y;
           
           int16_t rename;
-          time_t delete_date;
+          std::optional<std::chrono::system_clock::time_point> delete_date;
         };
       }
     }

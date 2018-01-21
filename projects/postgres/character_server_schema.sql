@@ -34,10 +34,12 @@ CREATE TABLE characters (
   sp int,
   status_point smallint,
   skill_point smallint,
-  "option" smallint,
-  karma smallint,
-  manner smallint,
-  hair smallint,
+  body_state smallint,
+  health_state smallint,
+  effect_state smallint,
+  virtue smallint,
+  honor smallint,
+  head smallint,
   hair_color smallint,
   clothes_color smallint,
   body smallint,
@@ -49,6 +51,7 @@ CREATE TABLE characters (
   robe smallint,
   lastmap_name varchar,
   last_map_x smallint,
-  last_map_y smallint
+  last_map_y smallint,
+  delete_date timestamp
 );
 
