@@ -10,6 +10,13 @@ ares::character::config::config(std::shared_ptr<spdlog::logger> log,
   load_account_server();
   load_server_name();
   load_priv_msg_server_name();
+  load_normal_slots();
+  load_premium_slots();
+  load_billing_slots();
+  load_creatable_slots();
+  load_playable_slots();
+  load_bank_vault();
+  load_max_storage();
   validate();
 }
 
@@ -31,6 +38,8 @@ void ares::character::config::validate() {
     msg += "zone servers are missing";
     need_comma = true;
   }
+
+  // TODO: Check that numbers in slots parameters make sense
 
   if (msg.size() > 0) {
     msg = "Configuration check failed: " + msg;
@@ -122,3 +131,90 @@ void ares::character::config::load_server_name() {
   };
   with_catch("server_name", load_server_name);
 }
+
+void ares::character::config::load_normal_slots() {
+  auto load_normal_slots = [this] () {
+    auto j_normal_slots = json_.find("normal_slots");
+    if ((j_normal_slots != json_.end()) && (j_normal_slots->is_number())) {
+      normal_slots = *j_normal_slots;
+    } else {
+      normal_slots = 9;
+    }
+  };
+  with_catch("normal_slots", load_normal_slots);
+}
+
+void ares::character::config::load_premium_slots() {
+  auto load_premium_slots = [this] () {
+    auto j_premium_slots = json_.find("premium_slots");
+    if ((j_premium_slots != json_.end()) && (j_premium_slots->is_number())) {
+      premium_slots = *j_premium_slots;
+    } else {
+      premium_slots = 0;
+    }
+  };
+  with_catch("premium_slots", load_premium_slots);
+}
+
+void ares::character::config::load_billing_slots() {
+  auto load_billing_slots = [this] () {
+    auto j_billing_slots = json_.find("billing_slots");
+    if ((j_billing_slots != json_.end()) && (j_billing_slots->is_number())) {
+      billing_slots = *j_billing_slots;
+    } else {
+      billing_slots = 0;
+    }
+  };
+  with_catch("billing_slots", load_billing_slots);
+}
+
+void ares::character::config::load_creatable_slots() {
+  auto load_creatable_slots = [this] () {
+    auto j_creatable_slots = json_.find("creatable_slots");
+    if ((j_creatable_slots != json_.end()) && (j_creatable_slots->is_number())) {
+      creatable_slots = *j_creatable_slots;
+    } else {
+      creatable_slots = 9;
+    }
+  };
+  with_catch("creatable_slots", load_creatable_slots);
+}
+
+void ares::character::config::load_playable_slots() {
+  auto load_playable_slots = [this] () {
+    auto j_playable_slots = json_.find("playable_slots");
+    if ((j_playable_slots != json_.end()) && (j_playable_slots->is_number())) {
+      playable_slots = *j_playable_slots;
+    } else {
+      playable_slots = 9;
+    }
+  };
+  with_catch("playable_slots", load_playable_slots);
+}
+
+void ares::character::config::load_bank_vault() {
+  auto load_bank_vault = [this] () {
+    auto j_bank_vault = json_.find("bank_vault");
+    if ((j_bank_vault != json_.end()) && (j_bank_vault->is_number())) {
+      bank_vault = *j_bank_vault;
+    } else {
+      bank_vault = 0;
+    }
+  };
+  with_catch("bank_vault", load_bank_vault);
+}
+
+void ares::character::config::load_max_storage() {
+  auto load_max_storage = [this] () {
+    auto j_max_storage = json_.find("max_storage");
+    if ((j_max_storage != json_.end()) && (j_max_storage->is_number())) {
+      max_storage = *j_max_storage;
+    } else {
+      max_storage = 0;
+    }
+  };
+  with_catch("max_storage", load_max_storage);
+}
+
+
+

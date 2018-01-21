@@ -1,13 +1,13 @@
 DROP TABLE IF EXISTS accounts;
 CREATE TABLE accounts (
-  id int PRIMARY KEY,
-  normal_slots smallint,
-  premium_slots smallint,
-  billing_slots smallint,
-  creatable_slots smallint,
-  playable_slots smallint,
-  bank_vault bigint,
-  max_storage bigint
+  id int PRIMARY KEY NOT NULL,
+  normal_slots smallint NOT NULL,
+  premium_slots smallint NOT NULL,
+  billing_slots smallint NOT NULL,
+  creatable_slots smallint NOT NULL,
+  playable_slots smallint NOT NULL,
+  bank_vault bigint NOT NULL,
+  max_storage bigint NOT NULL
 );
 
 DROP TABLE IF EXISTS characters;
