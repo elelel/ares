@@ -6,13 +6,12 @@ CREATE TABLE accounts (
   billing_slots smallint,
   creatable_slots smallint,
   playable_slots smallint,
-  playable_slots smallint,
   bank_vault bigint,
   max_storage bigint
 );
 
 DROP TABLE IF EXISTS characters;
-CREATE TABLE characters )
+CREATE TABLE characters (
   id serial PRIMARY KEY,
   slot smallint,
   "name" varchar,
