@@ -13,6 +13,7 @@ CREATE TABLE accounts (
 DROP TABLE IF EXISTS characters;
 CREATE TABLE characters (
   id serial PRIMARY KEY,
+  aid int NOT NULL,
   slot smallint NOT NULL,
   "name" varchar NOT NULL,
   sex smallint NOT NULL,
@@ -53,7 +54,7 @@ CREATE TABLE characters (
   head_palette smallint NOT NULL,
   body_palette smallint NOT NULL,
 
-  lastmap_name varchar NOT NULL,
+  last_map_name varchar NOT NULL,
   last_map_x smallint NOT NULL,
   last_map_y smallint NOT NULL,
   delete_date timestamp,

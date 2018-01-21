@@ -91,9 +91,9 @@ void ares::account::mono::packet_handler<ares::packet::CA_SSO_LOGIN_REQ_0x64>::a
       } else {
         log()->info("AID {} session already exists, refusing new connection and kicking existing", user_data->aid);
         for (const auto& c : server_.char_servers()) {
-          session_.emplace_and_send<packet::ATHENA_AH_KICK_AID>(user_data->aid);
+          c->emplace_and_send<packet::ATHENA_AH_KICK_AID>(user_data->aid);
         }
-        server_.remove(session_.shared_from_this());
+        server_.remove(found);
         notify_ban(8); // 08 = Server still recognizes your last login
       }
     } else {

@@ -66,7 +66,7 @@ INSERT INTO "accounts" ("id", "normal_slots", "premium_slots", "billing_slots", 
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 )");
           trans.prepared("acc_data_create")
-            (aid_)(normal_slots_)(premium_slots_)(billing_slots_)(creatable_slots_)(playable_slots_)(bank_vault_)(max_storage_);
+            (aid_)(normal_slots_)(premium_slots_)(billing_slots_)(creatable_slots_)(playable_slots_)(bank_vault_)(max_storage_).exec();
         }
         
       private:

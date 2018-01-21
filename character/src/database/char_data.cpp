@@ -75,7 +75,7 @@ namespace ares {
 SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp", "job_exp", "zeny",
   "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "virtue", "honor",
   "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette", "last_map_name", "last_map_x", "last_map_y", "delete_date", "rename"
-FROM "characters" WHERE ("account_id" = $1) AND ("slot" < $2) LIMIT $2
+FROM "characters" WHERE ("aid" = $1) AND ("slot" < $2) LIMIT $2
 )");
           auto qr = trans.prepared("char_data")(aid_)(max_chars_).exec();
           assign_result(rslt_, qr);
