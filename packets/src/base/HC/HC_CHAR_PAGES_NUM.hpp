@@ -30,6 +30,7 @@ struct HC_CHAR_PAGES_NUM {
                         const int16_t speed,
                         const int16_t job,
                         const int16_t head,
+                        const int16_t body,
                         const int16_t weapon,
                         const int16_t level,
                         const int16_t sppoint,
@@ -48,14 +49,15 @@ struct HC_CHAR_PAGES_NUM {
                         const uint8_t Dex,
                         const uint8_t Luk,
                         const uint8_t CharNum,
-                        uint16_t rename,
+                        const uint8_t haircolor,
+                        const uint8_t rename,
                         const char* last_map_name,
                         const size_t last_map_name_sz,
                         const int32_t delete_timeout,
-                        const uint32_t robe,
-                        uint8_t slot_enabled,
-                        const bool rename_enabled,
-                        const uint8_t haircolor) {
+                        const int32_t robe,
+                        const uint32_t change_slot_enabled,
+                        const uint32_t rename_enabled,
+                        const uint8_t sex) {
       GID_ = GID;
       exp_ = exp;
       money_ = money;
@@ -74,6 +76,7 @@ struct HC_CHAR_PAGES_NUM {
       speed_ = speed;
       job_ = job;
       head_ = head;
+      body_ = body;
       weapon_ = weapon;
       level_ = level;
       sppoint_ = sppoint;
@@ -90,9 +93,17 @@ struct HC_CHAR_PAGES_NUM {
       Dex_ = Dex;
       Luk_ = Luk;
       CharNum_ = CharNum;
+      rename_ = rename;
       haircolor_ = haircolor;
+      delete_timeout_ = delete_timeout;
+      robe_ = robe;
+      change_slot_enabled_ = change_slot_enabled;
+      rename_enabled_ = rename_enabled;
+      haircolor_ = haircolor;
+      sex_ = sex;
 
       copy_buf_with_zero_pad(name_, sizeof(name_), name, name_sz);
+      copy_buf_with_zero_pad(last_map_name_, sizeof(last_map_name_), last_map_name, last_map_name_sz);
     }
 
     inline void emplace(const uint32_t GID,
@@ -113,6 +124,7 @@ struct HC_CHAR_PAGES_NUM {
                         const int16_t speed,
                         const int16_t job,
                         const int16_t head,
+                        const int16_t body,
                         const int16_t weapon,
                         const int16_t level,
                         const int16_t sppoint,
@@ -122,7 +134,7 @@ struct HC_CHAR_PAGES_NUM {
                         const int16_t accessory3,
                         const int16_t headpalette,
                         const int16_t bodypalette,
-                        const std::string& name,
+                        const std::string&  name,
                         const uint8_t Str,
                         const uint8_t Agi,
                         const uint8_t Vit,
@@ -130,48 +142,18 @@ struct HC_CHAR_PAGES_NUM {
                         const uint8_t Dex,
                         const uint8_t Luk,
                         const uint8_t CharNum,
-                        const uint8_t haircolor) {
-      emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed, job, head, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name.c_str(), name.size(), Str, Agi, Vit, Int, Dex, Luk, CharNum, haircolor);
-    }
-  
-    explicit CHARACTER_INFO(const uint32_t GID,
-                            const int32_t exp,
-                            const int32_t money,
-                            const int32_t jobexp,
-                            const int32_t joblevel,
-                            const int32_t bodystate,
-                            const int32_t healthstate,
-                            const int32_t effectstate,
-                            const int32_t virtue,
-                            const int32_t honor,
-                            const int16_t jobpoint,
-                            const int32_t hp,
-                            const int32_t maxhp,
-                            const int16_t sp,
-                            const int16_t maxsp,
-                            const int16_t speed,
-                            const int16_t job,
-                            const int16_t head,
-                            const int16_t weapon,
-                            const int16_t level,
-                            const int16_t sppoint,
-                            const int16_t accessory,
-                            const int16_t shield,
-                            const int16_t accessory2,
-                            const int16_t accessory3,
-                            const int16_t headpalette,
-                            const int16_t bodypalette,
-                            const char* name,
-                            const size_t name_sz,
-                            const uint8_t Str,
-                            const uint8_t Agi,
-                            const uint8_t Vit,
-                            const uint8_t Int,
-                            const uint8_t Dex,
-                            const uint8_t Luk,
-                            const uint8_t CharNum,
-                            const uint8_t haircolor) {
-      emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed, job, head, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name, name_sz, Str, Agi, Vit, Int, Dex, Luk, CharNum, haircolor);
+                        const uint8_t haircolor,
+                        const uint8_t rename,
+                        const std::string& last_map_name,
+                        const int32_t delete_timeout,
+                        const int32_t robe,
+                        const uint32_t change_slot_enabled,
+                        const uint32_t rename_enabled,
+                        const uint8_t sex) {
+      emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed,
+              job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name,
+              Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name, delete_timeout, robe,
+              change_slot_enabled, rename_enabled, sex);
     }
 
     explicit CHARACTER_INFO(const uint32_t GID,
@@ -192,6 +174,7 @@ struct HC_CHAR_PAGES_NUM {
                             const int16_t speed,
                             const int16_t job,
                             const int16_t head,
+                            const int16_t body,
                             const int16_t weapon,
                             const int16_t level,
                             const int16_t sppoint,
@@ -201,7 +184,8 @@ struct HC_CHAR_PAGES_NUM {
                             const int16_t accessory3,
                             const int16_t headpalette,
                             const int16_t bodypalette,
-                            const std::string& name,
+                            const char*  name,
+                            const size_t name_sz,
                             const uint8_t Str,
                             const uint8_t Agi,
                             const uint8_t Vit,
@@ -209,9 +193,71 @@ struct HC_CHAR_PAGES_NUM {
                             const uint8_t Dex,
                             const uint8_t Luk,
                             const uint8_t CharNum,
-                            const uint8_t haircolor) {
-      emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed, job, head, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name, Str, Agi, Vit, Int, Dex, Luk, CharNum, haircolor);
+                            const uint8_t haircolor,
+                            const uint8_t rename,
+                            const char* last_map_name,
+                            const size_t last_map_name_sz,
+                            const int32_t delete_timeout,
+                            const int32_t robe,
+                            const uint32_t change_slot_enabled,
+                            const uint32_t rename_enabled,
+                            const uint8_t sex) {
+      emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed,
+              job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name, name_sz,
+              Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name, last_map_name_sz, delete_timeout, robe,
+              change_slot_enabled, rename_enabled, sex);
     }
+
+    explicit CHARACTER_INFO(const uint32_t GID,
+                            const int32_t exp,
+                            const int32_t money,
+                            const int32_t jobexp,
+                            const int32_t joblevel,
+                            const int32_t bodystate,
+                            const int32_t healthstate,
+                            const int32_t effectstate,
+                            const int32_t virtue,
+                            const int32_t honor,
+                            const int16_t jobpoint,
+                            const int32_t hp,
+                            const int32_t maxhp,
+                            const int16_t sp,
+                            const int16_t maxsp,
+                            const int16_t speed,
+                            const int16_t job,
+                            const int16_t head,
+                            const int16_t body,
+                            const int16_t weapon,
+                            const int16_t level,
+                            const int16_t sppoint,
+                            const int16_t accessory,
+                            const int16_t shield,
+                            const int16_t accessory2,
+                            const int16_t accessory3,
+                            const int16_t headpalette,
+                            const int16_t bodypalette,
+                            const std::string&  name,
+                            const uint8_t Str,
+                            const uint8_t Agi,
+                            const uint8_t Vit,
+                            const uint8_t Int,
+                            const uint8_t Dex,
+                            const uint8_t Luk,
+                            const uint8_t CharNum,
+                            const uint8_t haircolor,
+                            const uint8_t rename,
+                            const std::string& last_map_name,
+                            const int32_t delete_timeout,
+                            const int32_t robe,
+                            const uint32_t change_slot_enabled,
+                            const uint32_t rename_enabled,
+                            const uint8_t sex) {
+      emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed,
+              job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name,
+              Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name, delete_timeout, robe,
+              change_slot_enabled, rename_enabled, sex);
+    }
+
   
   private:
     uint32_t GID_;
@@ -232,6 +278,7 @@ struct HC_CHAR_PAGES_NUM {
     int16_t speed_;
     int16_t job_;
     int16_t head_;
+    int16_t body_;
     int16_t weapon_;
     int16_t level_;
     int16_t sppoint_;
@@ -250,6 +297,13 @@ struct HC_CHAR_PAGES_NUM {
     uint8_t Luk_;
     uint8_t CharNum_;
     uint8_t haircolor_;
+    uint8_t rename_;
+    char last_map_name_[16];
+    int32_t delete_timeout_;
+    int32_t robe_;
+    uint32_t change_slot_enabled_;
+    uint32_t rename_enabled_;
+    uint8_t sex_;
   };
 
   uint32_t npages() const {

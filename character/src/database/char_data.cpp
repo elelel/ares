@@ -13,43 +13,51 @@ namespace ares {
           sql["slot"].to(r.slot);
           sql["name"].to(r.name);
           sql["sex"].to(r.sex);
-          sql["char_class"].to(r.char_class);
+          sql["job"].to(r.job);
           sql["base_level"].to(r.base_level);
           sql["job_level"].to(r.job_level);
           sql["base_exp"].to(r.base_exp);
           sql["job_exp"].to(r.job_exp);
           sql["zeny"].to(r.zeny);
+          
           sql["str"].to(r.Str);
           sql["agi"].to(r.Agi);
           sql["vit"].to(r.Vit);
           sql["int"].to(r.Int);
           sql["dex"].to(r.Dex);
           sql["luk"].to(r.Luk);
+          
           sql["max_hp"].to(r.max_hp);
           sql["hp"].to(r.hp);
           sql["max_sp"].to(r.max_sp);
           sql["sp"].to(r.sp);
-          sql["status_point"].to(r.status_point);
+          sql["job_point"].to(r.job_point);
           sql["skill_point"].to(r.skill_point);
-          sql["effect_state"].to(r.option);
-          sql["virtue"].to(r.karma);
-          sql["honor"].to(r.manner);
+          sql["effect_state"].to(r.effect_state);
+          sql["body_state"].to(r.body_state);
+          sql["health_state"].to(r.health_state);
+          sql["virtue"].to(r.virtue);
+          sql["honor"].to(r.honor);
+          
           sql["head"].to(r.head);
-          sql["hair_color"].to(r.hair_color);
-          sql["clothes_color"].to(r.clothes_color);
+          sql["body"].to(r.body);
           sql["weapon"].to(r.weapon);
+          sql["robe"].to(r.robe);          
           sql["shield"].to(r.shield);
           sql["head_top"].to(r.head_top);
           sql["head_mid"].to(r.head_mid);
           sql["head_bottom"].to(r.head_bottom);
-          sql["robe"].to(r.robe);
+          sql["head_palette"].to(r.head_palette);
+          sql["body_palette"].to(r.body_palette);
+
           sql["last_map_name"].to(r.last_map_name);
           sql["last_map_x"].to(r.last_map_x);
           sql["last_map_y"].to(r.last_map_y);
           sql["delete_date"].to(r.delete_date);
+          sql["rename"].to(r.rename);
 
           // weapon can't be != 0 if the option is 'riding'
-          if (r.option & 0x7e80020) {
+          if (r.effect_state & 0x7e80020) {
             r.weapon = 0;
           }
         }
@@ -64,9 +72,9 @@ namespace ares {
 
         void operator()(argument_type& trans) {
           trans.conn().prepare("char_data", R"(
-SELECT "id", "slot", "name", "sex", "char_class", "base_level", "job_level", "base_exp", "job_exp", "zeny",
-  "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp", "status_point", "skill_point", "option", "karma", "manner",
-  "hair", "hair_color", "clothes_color", "weapon", "shield", "head_top", "head_mid", "head_bottom", "robe", "last_map_name", "last_map_x", "last_map_y", "delete_date"
+SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp", "job_exp", "zeny",
+  "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "virtue", "honor",
+  "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette", "last_map_name", "last_map_x", "last_map_y", "delete_date", "rename"
 FROM "characters" WHERE ("account_id" = $1) AND ("slot" < $2) LIMIT $2
 )");
           auto qr = trans.prepared("char_data")(aid_)(max_chars_).exec();

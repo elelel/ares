@@ -31,7 +31,7 @@ namespace ares {
           uint8_t slot;
           std::string name;
           uint8_t sex;
-          uint16_t char_class;
+          uint16_t job;
           uint32_t base_level;
           uint32_t job_level;
           uint32_t base_exp;
@@ -49,28 +49,30 @@ namespace ares {
           int32_t hp;
           int32_t max_sp;
           int32_t sp;
-          uint8_t status_point;
+          uint8_t job_point;
           uint8_t skill_point;
-          uint8_t option;
-          uint8_t karma;
-          int16_t manner;
+          int32_t body_state;
+          int32_t health_state;
+          int32_t effect_state;
+          uint8_t virtue;
+          int16_t honor;
           
           int16_t head;
-          int16_t hair_color;
-          int16_t clothes_color;
           int16_t body;
           int16_t weapon;
           int16_t shield;
-          int16_t head_top;
-          int16_t head_mid;
-          int16_t head_bottom;
-          int16_t robe;
+          int16_t head_top; // accessory2
+          int16_t head_mid; // accessory3
+          int16_t head_bottom; // accessory
+          int16_t head_palette;
+          int16_t body_palette;
+          int32_t robe;
 
           std::string last_map_name;
           uint16_t last_map_x;
           uint16_t last_map_y;
-          
-          int16_t rename;
+
+          int8_t rename;
           std::optional<std::chrono::system_clock::time_point> delete_date;
         };
       }

@@ -55,44 +55,45 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
     for (const auto& c : chars) {
       long delete_timeout{0};
       if (c.delete_date) {
-        auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(c.delete_date - std::chrono::system_clock::now());
-        delete_timeout = diff.value();
-        if (diff < 0) {
-          log_.error("Character {} of AID {} should already have been deleted for {} seconds", c.cid, p_->aid(), (delete_timeout / 1000) * -1);
+        auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*c.delete_date - std::chrono::system_clock::now());
+        delete_timeout = diff.count();
+        if (delete_timeout < 0) {
+          server_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", c.cid, p_->aid(), (delete_timeout / 1000) * -1);
         }
       }
 
       auto sex = c.sex;
       if (sex == 99) {
-        // TODO: Sex should be obtained from account information
+        // TODO: Sex should be obtained from account information, obsolete?
       }
       s->emplace_and_send<packet::HC_CHAR_PAGES_NUM::CHARACTER_INFO>(c.cid,
                                                                      c.base_exp,
                                                                      c.zeny,
                                                                      c.job_exp,
                                                                      c.job_level,
-                                                                     0,  // TODO: Body state
-                                                                     0,  // TODO: Health state
+                                                                     c.body_state,  // Unused?
+                                                                     c.health_state, // Unused?
                                                                      c.effect_state,
                                                                      c.virtue,
                                                                      c.honor,
-                                                                     c.status_point,
+                                                                     c.job_point,
                                                                      c.hp,
                                                                      c.max_hp,
                                                                      c.sp,
                                                                      c.max_sp,
                                                                      150, // TODO: Walk speed
-                                                                     c.char_class,
+                                                                     c.job,
                                                                      c.head,
                                                                      c.body,
                                                                      c.weapon,
                                                                      c.base_level,
                                                                      c.skill_point,
-                                                                     c.head_bottom;
+                                                                     c.head_bottom, // accessory
                                                                      c.shield,
-                                                                     c.head_top,
-                                                                     c.head_mid,
-                                                                     c.hair_color,
+                                                                     c.head_top, // accessory2 
+                                                                     c.head_mid, // accessory3
+                                                                     c.head_palette,
+                                                                     c.body_palette,
                                                                      c.name,
                                                                      c.Str,
                                                                      c.Agi,
@@ -101,14 +102,13 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
                                                                      c.Dex,
                                                                      c.Luk,
                                                                      c.slot,
+                                                                     0, // haircolor ?
                                                                      c.rename,
                                                                      c.last_map_name,
-                                                                     c.last_map_x,
-                                                                     c.last_map_y,
                                                                      delete_timeout,
                                                                      c.robe,
-                                                                     (c.slot < ad.playable_slots) ? 1 : 0,
-                                                                     (c.rename > 0) && (c.slot < sd->ad.playable_slots) ? true : false,
+                                                                     (c.slot < ad->playable_slots) ? 1 : 0,
+                                                                     (c.rename > 0) && (c.slot < ad->playable_slots) ? 1 : 0,
                                                                      sex
                                                                      );
     }
