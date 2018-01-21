@@ -46,6 +46,7 @@ namespace ares {
     #include "ATHENA/ATHENA_HA_SET_AID_ONLINE.hpp"
     #include "ATHENA/ATHENA_HA_SET_AID_OFFLINE.hpp"
     #include "ATHENA/ATHENA_HA_SET_ALL_AIDS_OFFLINE.hpp"
+    #include "ATHENA/ATHENA_AH_KICK_AID.hpp"
     #include "ATHENA/ATHENA_AH_AID_AUTH_RESULT.hpp"
 
     // Character <-> Zone

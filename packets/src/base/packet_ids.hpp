@@ -47,6 +47,7 @@ namespace ares {
     static const uint16_t ATHENA_HA_SET_AID_ONLINE = 0x272b;
     static const uint16_t ATHENA_HA_SET_AID_OFFLINE = 0x272c;
     static const uint16_t ATHENA_HA_ONLINE_AIDS = 0x272d;
+    static const uint16_t ATHENA_AH_KICK_AID = 0x2734;
     static const uint16_t ATHENA_HA_SET_ALL_AIDS_OFFLINE = 0x2737;
 
     // Character <-> Zone

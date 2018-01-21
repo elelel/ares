@@ -93,8 +93,11 @@ void ares::account::mono::packet_handler<ares::packet::CA_SSO_LOGIN_REQ>::accept
           }
         }
       } else {
-        log()->info("AID {} session already exists", user_data->aid);
-        // TODO: Kick from char server 0x2734
+        log()->info("AID {} session already exists, refusing new connection and kicking existing", user_data->aid);
+        for (const auto& c : server_.char_servers()) {
+          session_.emplace_and_send<packet::ATHENA_AH_KICK_AID>(user_data->aid);
+        }
+        server_.remove(session_.shared_from_this());
         notify_ban(8); // 08 = Server still recognizes your last login
       }
     } else {

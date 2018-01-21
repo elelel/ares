@@ -28,7 +28,7 @@ namespace ares {
 
         void operator()(argument_type& trans) {
           trans.conn().prepare("acc_data_for_aid", R"(
-SELECT "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots", "bank_vault", "max_storage",
+SELECT "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots", "bank_vault", "max_storage"
 FROM "accounts" WHERE ("id" = $1) 
 )");
           auto qr = trans.prepared("acc_data_for_aid")(aid_).exec();
