@@ -37,17 +37,24 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
         server_.remove(s);
       }
     }
+    // Confirm account acceptance and send slots info
     session_.emplace_and_send<packet::HC_ACCEPT_ENTER>(ad->normal_slots,
                                                        ad->premium_slots,
                                                        ad->billing_slots,
                                                        ad->creatable_slots,
                                                        ad->creatable_slots, // playable_slots = creatable slots
                                                        0);
-    
-      auto chars = server_.db().char_data_for_aid(p_->aid(), ad->normal_slots +
-                                                  ad->premium_slots +
-                                                  ad->billing_slots
-                                                  );
+
+    // Send existing characters information
+    auto chars = server_.db().char_data_for_aid(p_->aid(), ad->normal_slots +
+                                                ad->premium_slots +
+                                                ad->billing_slots
+                                                );
+    const uint32_t npages = chars.size() / 3 + ((chars.size() % 3) ? 1 : 0);
+    session_.emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, chars.size());
+    for (const auto& c : chars) {
+      
+    }
   } else {
     log()->warn("Received account data from account server for aid {}, but no session with such aid found", p_->aid());
   }
