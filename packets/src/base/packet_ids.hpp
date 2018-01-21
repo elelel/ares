@@ -26,6 +26,7 @@ namespace ares {
     static const uint16_t HC_ACCEPT_ENTER_0x6b = 0x6b;
     static const uint16_t HC_ACCEPT_ENTER = 0x82d;
     static const uint16_t HC_CHAR_PAGES_NUM = 0x9a0;
+    static const uint16_t HC_CHAR_PAGES = 0x99d;
     static const uint16_t HC_REFUSE_ENTER = 0x6c;
     static const uint16_t HC_ACCEPT_MAKECHAR = 0x6d;
     static const uint16_t HC_REFUSE_MAKECHAR = 0x6e;

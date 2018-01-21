@@ -27,6 +27,7 @@ namespace ares {
     #include "HC/HC_REFUSE_ENTER.hpp"
     #include "HC/HC_ACCEPT_ENTER.hpp"
     #include "HC/HC_CHAR_PAGES_NUM.hpp"
+    #include "HC/HC_CHAR_PAGES.hpp"
     #include "CH/CH_MAKE_CHAR.hpp"
 
     // Zone <-> Client

@@ -50,6 +50,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
       const uint32_t npages = chars.size() / 3 + ((chars.size() % 3) ? 1 : 0);
       s->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, chars.size());
       server_.log()->info("Sending {} characters for aid {}", chars.size(), p_->aid());
+      s->emplace_and_send<packet::HC_CHAR_PAGES>(chars.size());
       for (const auto& c : chars) {
         long delete_timeout{0};
         if (c.delete_date) {
@@ -64,51 +65,51 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
         if (sex == 99) {
           // TODO: Sex should be obtained from account information, obsolete?
         }
-        s->emplace_and_send<packet::HC_CHAR_PAGES_NUM::CHARACTER_INFO>(c.cid,
-                                                                       c.base_exp,
-                                                                       c.zeny,
-                                                                       c.job_exp,
-                                                                       c.job_level,
-                                                                       c.body_state,  // Unused?
-                                                                       c.health_state, // Unused?
-                                                                       c.effect_state,
-                                                                       c.virtue,
-                                                                       c.honor,
-                                                                       c.job_point,
-                                                                       c.hp,
-                                                                       c.max_hp,
-                                                                       c.sp,
-                                                                       c.max_sp,
-                                                                       150, // TODO: Walk speed
-                                                                       c.job,
-                                                                       c.head,
-                                                                       c.body,
-                                                                       c.weapon,
-                                                                       c.base_level,
-                                                                       c.skill_point,
-                                                                       c.head_bottom, // accessory
-                                                                       c.shield,
-                                                                       c.head_top, // accessory2 
-                                                                       c.head_mid, // accessory3
-                                                                       c.head_palette,
-                                                                       c.body_palette,
-                                                                       c.name,
-                                                                       c.Str,
-                                                                       c.Agi,
-                                                                       c.Vit,
-                                                                       c.Int,
-                                                                       c.Dex,
-                                                                       c.Luk,
-                                                                       c.slot,
-                                                                       0, // haircolor ?
-                                                                       c.rename,
-                                                                       c.last_map_name,
-                                                                       delete_timeout,
-                                                                       c.robe,
-                                                                       (c.slot < ad->playable_slots) ? 1 : 0,
-                                                                       (c.rename > 0) && (c.slot < ad->playable_slots) ? 1 : 0,
-                                                                       sex
-                                                                       );
+        s->emplace_and_send<packet::HC_CHAR_PAGES::CHARACTER_INFO>(c.cid,
+                                                                   c.base_exp,
+                                                                   c.zeny,
+                                                                   c.job_exp,
+                                                                   c.job_level,
+                                                                   c.body_state,  // Unused?
+                                                                   c.health_state, // Unused?
+                                                                   c.effect_state,
+                                                                   c.virtue,
+                                                                   c.honor,
+                                                                   c.job_point,
+                                                                   c.hp,
+                                                                   c.max_hp,
+                                                                   c.sp,
+                                                                   c.max_sp,
+                                                                   150, // TODO: Walk speed
+                                                                   c.job,
+                                                                   c.head,
+                                                                   c.body,
+                                                                   c.weapon,
+                                                                   c.base_level,
+                                                                   c.skill_point,
+                                                                   c.head_bottom, // accessory
+                                                                   c.shield,
+                                                                   c.head_top, // accessory2 
+                                                                   c.head_mid, // accessory3
+                                                                   c.head_palette,
+                                                                   c.body_palette,
+                                                                   c.name,
+                                                                   c.Str,
+                                                                   c.Agi,
+                                                                   c.Vit,
+                                                                   c.Int,
+                                                                   c.Dex,
+                                                                   c.Luk,
+                                                                   c.slot,
+                                                                   0, // haircolor ?
+                                                                   c.rename,
+                                                                   c.last_map_name,
+                                                                   delete_timeout,
+                                                                   c.robe,
+                                                                   (c.slot < ad->playable_slots) ? 1 : 0,
+                                                                   (c.rename > 0) && (c.slot < ad->playable_slots) ? 1 : 0,
+                                                                   sex
+                                                                   );
       }
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing client session", p_->aid());
