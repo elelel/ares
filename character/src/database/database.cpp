@@ -30,7 +30,31 @@ SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp"
 FROM "characters", "char_appearance", "char_stats", "char_location"
 WHERE ("aid" = $1) AND ("slot" < $2) LIMIT $2
 )");
-  
+
+    pqxx_conn_->prepare("make_char_create_cid", R"(
+INSERT INTO "characters" ("aid", "slot", "name", "sex", "job", "rename") VALUES ($1, $2, $3, $4, $5, 0)
+)");
+
+    pqxx_conn_->prepare("cid_by_name", R"(
+SELECT "id" FROM "characters" WHERE "name" = $1
+)");
+
+    pqxx_conn_->prepare("make_char_create_stats", R"(
+INSERT INTO "char_stats" ("cid", "base_level", "job_level", "base_exp", "job_exp", "zeny",
+ "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp",
+ "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor")
+VALUES ($1, 1, 1, 0, 0, $2, 1, 1, 1, 1, 1, 1, $3, $3, $4, $4, 48, 0, 0, 0, 0, 0, 0)
+)");
+
+    pqxx_conn_->prepare("make_char_create_appearance", R"(
+INSERT INTO "char_appearance" ("cid", "head", "body", "weapon", "shield", "robe", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette")
+VALUES ($1, $2, 0, 0, 0, 0, 0, 0, 0, $3, 0)
+)");
+
+    pqxx_conn_->prepare("make_char_create_location", R"(
+INSERT INTO "char_location" ("cid", "map_name", "map_x", "map_y")
+VALUES ($1, $2, $3, $4)
+)");
     SPDLOG_TRACE(log, "ares::character::database::database done preparing statements");
   }
 }

@@ -25,6 +25,7 @@ namespace ares {
 
         // Data
         uint32_t aid{0};
+        uint32_t cid{0};
         /*! Athena auth code 1 */
         int32_t auth_code1{0};
         /*! Athena auth code 2 (original userLevel) */

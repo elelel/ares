@@ -20,6 +20,9 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/database/make_char.cpp
+  ${SRC}/client/CH_MAKE_CHAR.cpp
+  
   ${SRC}/main.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
@@ -35,7 +38,7 @@ set(SOURCES
   ${SRC}/account_server/ATHENA_AH_ACCOUNT_DATA_RESULT.cpp
   ${SRC}/client/state.cpp
   ${SRC}/client/PING.cpp
-  ${SRC}/client/CH_MAKE_CHAR.cpp
+
   ${SRC}/account_server/ATHENA_AH_KICK_AID.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CH_ENTER.cpp

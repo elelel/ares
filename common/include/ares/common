@@ -2,3 +2,4 @@
 
 #include "../../src/string_conv.hpp"
 #include "../../src/random.hpp"
+#include "../../src/constants.hpp"

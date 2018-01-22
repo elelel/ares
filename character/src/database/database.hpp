@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ares/database>
+#include <ares/common>
 
 #include "../config.hpp"
 #include "structs.hpp"
@@ -35,6 +36,17 @@ namespace ares {
                                           const uint8_t sex);
 
       std::vector<db::record::character_info> character_info_for_aid(const uint32_t aid, const size_t max_chars);
+      std::optional<uint32_t> make_char(const uint32_t aid,
+                                        const std::string& name,
+                                        const uint8_t slot,
+                                        const uint16_t head_palette,
+                                        const uint16_t head,
+                                        const ares::JOB job,
+                                        const uint8_t sex,
+                                        const uint32_t zeny,
+                                        const std::string& map,
+                                        const uint16_t map_x,
+                                        const uint16_t map_y);
 
     };      
   }
