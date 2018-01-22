@@ -1,0 +1,48 @@
+#include "database.hpp"
+
+namespace ares {
+  namespace character {
+    namespace db {
+      struct account_slots_for_aid : pqxx::transactor<> {
+        account_slots_for_aid(const uint32_t aid, std::optional<record::account_slots>& rslt) :
+          aid_(aid),
+          rslt_(rslt) {
+        }
+        
+        void operator()(argument_type& trans) {
+          trans.conn().prepare("account_slots_for_aid", R"(
+SELECT "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots", "bank_vault", "max_storage"
+FROM "account_slots" WHERE ("aid" = $1) 
+)");
+          auto qr = trans.prepared("account_slots_for_aid")(aid_).exec();
+          if (qr.size() == 1) {
+            record::account_slots r;
+            qr[0]["normal_slots"].to(r.normal_slots);
+            qr[0]["premium_slots"].to(r.premium_slots);
+            qr[0]["billing_slots"].to(r.billing_slots);
+            qr[0]["creatable_slots"].to(r.creatable_slots);
+            qr[0]["playable_slots"].to(r.playable_slots);
+            rslt_.emplace(std::move(r));
+          } else {
+            rslt_.reset();
+          }
+        }
+
+      private:
+        uint32_t aid_;
+        std::optional<record::account_slots>& rslt_;
+      };
+
+    }
+  }
+}
+
+auto ares::character::database::account_slots_for_aid(const uint32_t aid) -> std::optional<db::record::account_slots> {
+  std::optional<db::record::account_slots> rslt;
+  with_wait_lock([this, &aid, &rslt] () {
+      db::account_slots_for_aid t(aid, rslt);
+      pqxx_conn_->perform(t);
+    });
+  return rslt;
+}
+

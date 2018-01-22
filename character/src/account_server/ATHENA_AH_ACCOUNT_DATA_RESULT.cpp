@@ -18,20 +18,20 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
     c.pin = p_->pin();
     // TODO: birthdate conversion
 
-    auto ad = server_.db().acc_data_for_aid(p_->aid());
+    auto ad = server_.db().account_slots_for_aid(p_->aid());
     if (!ad) {
       // Does not exist or other error, try to create default account data i
-      server_.db().acc_data_create(p_->aid(),
-                                   server_.conf().normal_slots,
-                                   server_.conf().premium_slots,
-                                   server_.conf().billing_slots,
-                                   server_.conf().playable_slots,
-                                   server_.conf().creatable_slots,
-                                   server_.conf().bank_vault,
-                                   server_.conf().max_storage);
+      server_.db().account_create(p_->aid(),
+                                  server_.conf().normal_slots,
+                                  server_.conf().premium_slots,
+                                  server_.conf().billing_slots,
+                                  server_.conf().playable_slots,
+                                  server_.conf().creatable_slots,
+                                  server_.conf().bank_vault,
+                                  server_.conf().max_storage);
 
       // Read account data again
-      ad = server_.db().acc_data_for_aid(p_->aid());
+      ad = server_.db().account_slots_for_aid(p_->aid());
     }
     if (ad) {
       // Confirm account acceptance and send slots info

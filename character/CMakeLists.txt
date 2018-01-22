@@ -20,6 +20,9 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/database/account_create.cpp
+  ${SRC}/database/account_storage.cpp
+  ${SRC}/database/account_slots.cpp
   ${SRC}/main.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
@@ -47,8 +50,6 @@ set(SOURCES
   ${SRC}/zone_server/ATHENA_ZH_GAME_RATES.cpp
   ${SRC}/zone_server/ATHENA_ZH_PING_REQ.cpp
   ${SRC}/database/database.cpp
-  ${SRC}/database/acc_data.cpp
-  ${SRC}/database/char_data.cpp
   )
 
 if (NOT TARGET common) 
