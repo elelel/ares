@@ -24,13 +24,9 @@ namespace ares {
         }
 
         void operator()(argument_type& trans) {
-          trans.conn().prepare("account_create", R"(
-INSERT INTO "account_slots" ("aid", "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots") VALUES ($1, $2, $3, $4, $5, $6);
-INSERT INTO "account_storage" ("aid", "bank_vault", "max_storage") VALUES ($1, $7, $8);
-)");
           trans.prepared("account_create")
             (aid_)(normal_slots_)(premium_slots_)(billing_slots_)(creatable_slots_)(playable_slots_)
-            (aid_)(bank_vault_)(max_storage_).exec();
+            (bank_vault_)(max_storage_).exec();
         }
 
       private:

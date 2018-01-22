@@ -44,6 +44,30 @@ struct CH_MAKE_CHAR {
     emplace(name.c_str(), name.size(), CharNum, head_palette, head, job, sex);
   }
 
+  inline const char* name() const {
+    return name_;
+  }
+
+  inline uint8_t CharNum() const {
+    return CharNum_;
+  }
+
+  inline uint16_t head_palette() const {
+    return head_palette_;
+  }
+
+  inline uint8_t head() const {
+    return head_;
+  }
+
+  inline uint16_t job() const {
+    return job_;
+  }
+
+  inline uint8_t sex() const {
+    return sex_;
+  }
+
   uint16_t PacketType;
 private:
   char name_[24];

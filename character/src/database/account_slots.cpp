@@ -10,10 +10,6 @@ namespace ares {
         }
         
         void operator()(argument_type& trans) {
-          trans.conn().prepare("account_slots_for_aid", R"(
-SELECT "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots", "bank_vault", "max_storage"
-FROM "account_slots" WHERE ("aid" = $1) 
-)");
           auto qr = trans.prepared("account_slots_for_aid")(aid_).exec();
           if (qr.size() == 1) {
             record::account_slots r;

@@ -6,10 +6,10 @@
 void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operator()() {
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR begin");
   const auto& c = session_.as_client();
-  auto ad = server_.db().acc_data_for_aid(c.aid);
-  if (ad) {
+  auto slots = server_.db().account_slots_for_aid(c.aid);
+  if (slots) {
     // TODO: Check if new char creation is allowed in server configuration
-    if (p_->CharNum() < ad->creatable_slots) {
+    if (p_->CharNum() < slots->creatable_slots) {
       // TODO: Create char in sql
       // TODO: Load data from sql
       // TODO: Send data in HC_ACCEPT_MAKECHAR

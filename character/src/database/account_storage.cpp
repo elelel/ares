@@ -10,9 +10,6 @@ namespace ares {
         }
 
         void operator()(argument_type& trans) {
-          trans.conn().prepare("account_storage_for_aid", R"(
-SELECT "bank_vault", "max_storage" FROM "account_storage" WHERE ("aid" = $1)
-)");
           auto qr = trans.prepared("account_storage_for_aid")(aid_).exec();
           if (qr.size() == 1) {
             record::account_storage r;

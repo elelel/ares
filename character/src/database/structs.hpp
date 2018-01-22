@@ -26,9 +26,11 @@ namespace ares {
           uint32_t max_storage;
         };
 
+        // TODO: Fields should be moved between character, char_appearance, char_stats; e.g. job may be more logical to store in stats, _state fields are more about appearance
+        
         /*! Key character information
          */
-        struct characters {
+        struct character {
           /*! Character id (cid) in SQL database */
           uint32_t cid;
           uint32_t aid;
@@ -80,7 +82,7 @@ namespace ares {
           uint8_t skill_point;
           int32_t body_state;
           int32_t health_state;
-          int32_t effect_state;
+          int32_t effect_state;  // 'option'
           uint8_t virtue;
           int16_t honor;
         };
@@ -91,6 +93,15 @@ namespace ares {
           std::string map_name;
           uint16_t map_x;
           uint16_t map_y;
+        };
+
+        /*! For CHARACTER_INFO client structure (sent on logon to char server)
+         */
+        struct character_info {
+          character info;
+          char_appearance appearance;
+          char_stats stats;
+          char_location location;
         };
       }
     }
