@@ -121,7 +121,7 @@ struct CHARACTER_INFO {
                       const int16_t accessory3,
                       const int16_t headpalette,
                       const int16_t bodypalette,
-                      const std::string&  name,
+                      const std::string& name,
                       const uint8_t Str,
                       const uint8_t Agi,
                       const uint8_t Vit,
@@ -138,8 +138,8 @@ struct CHARACTER_INFO {
                       const uint32_t rename_enabled,
                       const uint8_t sex) {
     emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed,
-            job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name,
-            Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name, delete_timeout, robe,
+            job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name.c_str(), name.size(),
+            Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name.c_str(), last_map_name.size(), delete_timeout, robe,
             change_slot_enabled, rename_enabled, sex);
   }
 
