@@ -35,6 +35,8 @@ namespace ares {
                                           const std::string& name,
                                           const uint8_t sex);
 
+      std::optional<size_t> num_chars_for_aid(const uint32_t aid, const size_t max_chars);
+      
       std::vector<db::record::character_info> character_info_for_aid(const uint32_t aid, const size_t max_chars);
 
       std::optional<db::record::character_info> character_info(const uint32_t cid);

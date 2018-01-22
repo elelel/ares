@@ -43,12 +43,21 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
                                                    0);
 
       // Send existing characters information
+      const auto max_slots = ad->normal_slots + ad->premium_slots + ad->billing_slots;
+      auto nchars = server_.db().num_chars_for_aid(p_->aid(), max_slots);
+      if (nchars) {
+        const uint32_t npages = *nchars / 3 + ((*nchars % 3) ? 1 : 0);
+        client->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, *nchars);
+      } else {
+        server_.log()->error("Failed to count characters for AID {}", p_->aid());
+        server_.remove(client);
+      }
+      /*
       auto chars = server_.db().character_info_for_aid(p_->aid(), ad->normal_slots +
                                                        ad->premium_slots +
                                                        ad->billing_slots
                                                        );
-      const uint32_t npages = chars.size() / 3 + ((chars.size() % 3) ? 1 : 0);
-      client->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, chars.size());
+
       server_.log()->info("Sending {} characters for aid {}", chars.size(), p_->aid());
       client->emplace_and_send<packet::HC_CHAR_PAGES>(chars.size());
       for (const auto& ci : chars) {
@@ -64,6 +73,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
             server_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", i.cid, p_->aid(), (delete_timeout / 1000) * -1);
           }
         }
+        server_.log()->info("Done checking time");
 
         client->emplace_and_send<packet::CHARACTER_INFO>(i.cid,
                                                          s.base_exp,
@@ -110,7 +120,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
                                                          (i.rename > 0) && (i.slot < ad->playable_slots) ? 1 : 0,
                                                          i.sex
                                                          );
-      }
+                                                         }*/
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing client session", p_->aid());
       server_.remove(client);

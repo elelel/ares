@@ -22,6 +22,10 @@ FROM "account_slots" WHERE ("aid" = $1)
 SELECT "bank_vault", "max_storage" FROM "account_storage" WHERE ("aid" = $1)
 )");
 
+    pqxx_conn_->prepare("num_chars_for_aid", R"(
+SELECT count(*) AS cnt FROM "characters" WHERE ("aid" = $1) AND ("slot" < $2)
+)");
+
     pqxx_conn_->prepare("character_info_for_aid", R"(
 SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp", "job_exp", "zeny",
   "str", "agi", "vit", "int", "dex", "luk",
@@ -29,7 +33,17 @@ SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp"
   "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette",
   "map_name", "map_x", "map_y", "delete_date", "rename"
 FROM "characters", "char_appearance", "char_stats", "char_location"
-WHERE ("aid" = $1) AND ("slot" < $2) LIMIT $2
+WHERE ("aid" = $1) AND ("slot" < $2)
+)");
+    
+    pqxx_conn_->prepare("character_info", R"(
+SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp", "job_exp", "zeny",
+  "str", "agi", "vit", "int", "dex", "luk",
+  "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor",
+  "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette",
+  "map_name", "map_x", "map_y", "delete_date", "rename"
+FROM "characters", "char_appearance", "char_stats", "char_location"
+WHERE ("cid" = $1)
 )");
 
     pqxx_conn_->prepare("make_char_create_cid", R"(
