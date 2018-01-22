@@ -11,6 +11,8 @@ namespace ares {
   template <>
   struct packets<packet_version::base> {
     using packet_id = packet_ids<packet_version::base>;
+
+    #include "CHARACTER_INFO.hpp"
     
     // Servers <-> Client
     #include "SC/SC_NOTIFY_BAN.hpp"
@@ -31,6 +33,7 @@ namespace ares {
     #include "HC/HC_CHAR_PAGES.hpp"
     #include "CH/CH_MAKE_CHAR_0x67.hpp"
     #include "CH/CH_MAKE_CHAR.hpp"
+    #include "HC/HC_ACCEPT_MAKECHAR.hpp"
 
     // Zone <-> Client
     #include "CZ/CZ_REQUEST_MOVE.hpp"

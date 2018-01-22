@@ -20,6 +20,8 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/database/character_info.cpp
+  ${SRC}/account_server/ATHENA_AH_ACCOUNT_DATA_RESULT.cpp
   ${SRC}/database/make_char.cpp
   ${SRC}/client/CH_MAKE_CHAR.cpp
   
@@ -35,7 +37,7 @@ set(SOURCES
   ${SRC}/account_server/ATHENA_AH_LOGIN_RESULT.cpp
   ${SRC}/account_server/ATHENA_AH_PING_ACK.cpp
   ${SRC}/account_server/ATHENA_AH_AID_AUTH_RESULT.cpp
-  ${SRC}/account_server/ATHENA_AH_ACCOUNT_DATA_RESULT.cpp
+
   ${SRC}/client/state.cpp
   ${SRC}/client/PING.cpp
 
@@ -53,7 +55,7 @@ set(SOURCES
   ${SRC}/database/account_create.cpp
   ${SRC}/database/account_storage.cpp
   ${SRC}/database/account_slots.cpp
-  ${SRC}/database/character_info.cpp
+
   )
 
 if (NOT TARGET common) 

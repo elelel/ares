@@ -24,7 +24,8 @@ SELECT "bank_vault", "max_storage" FROM "account_storage" WHERE ("aid" = $1)
 
     pqxx_conn_->prepare("character_info_for_aid", R"(
 SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp", "job_exp", "zeny",
-  "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "virtue", "honor",
+  "str", "agi", "vit", "int", "dex", "luk",
+  "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor",
   "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette",
   "map_name", "map_x", "map_y", "delete_date", "rename"
 FROM "characters", "char_appearance", "char_stats", "char_location"

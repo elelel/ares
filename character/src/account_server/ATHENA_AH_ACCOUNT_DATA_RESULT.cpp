@@ -65,51 +65,51 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
           }
         }
 
-        client->emplace_and_send<packet::HC_CHAR_PAGES::CHARACTER_INFO>(i.cid,
-                                                                   s.base_exp,
-                                                                   s.zeny,
-                                                                   s.job_exp,
-                                                                   s.job_level,
-                                                                   s.body_state,  // Unused?
-                                                                   s.health_state, // Unused?
-                                                                   s.effect_state,
-                                                                   s.virtue,
-                                                                   s.honor,
-                                                                   s.job_point,
-                                                                   s.hp,
-                                                                   s.max_hp,
-                                                                   s.sp,
-                                                                   s.max_sp,
-                                                                   150, // TODO: Walk speed
-                                                                   i.job,
-                                                                   a.head,
-                                                                   a.body,
-                                                                   a.weapon,
-                                                                   s.base_level,
-                                                                   s.skill_point,
-                                                                   a.head_bottom, // accessory
-                                                                   a.shield,
-                                                                   a.head_top, // accessory2 
-                                                                   a.head_mid, // accessory3
-                                                                   a.head_palette,
-                                                                   a.body_palette,
-                                                                   i.name,
-                                                                   s.Str,
-                                                                   s.Agi,
-                                                                   s.Vit,
-                                                                   s.Int,
-                                                                   s.Dex,
-                                                                   s.Luk,
-                                                                   i.slot,
-                                                                   0, // haircolor ?
-                                                                   i.rename,
-                                                                   l.map_name,
-                                                                   delete_timeout,
-                                                                   a.robe,
-                                                                   (i.slot < ad->playable_slots) ? 1 : 0,
-                                                                   (i.rename > 0) && (i.slot < ad->playable_slots) ? 1 : 0,
-                                                                   i.sex
-                                                                   );
+        client->emplace_and_send<packet::CHARACTER_INFO>(i.cid,
+                                                         s.base_exp,
+                                                         s.zeny,
+                                                         s.job_exp,
+                                                         s.job_level,
+                                                         s.body_state,  // Unused?
+                                                         s.health_state, // Unused?
+                                                         s.effect_state,
+                                                         s.virtue,
+                                                         s.honor,
+                                                         s.job_point,
+                                                         s.hp,
+                                                         s.max_hp,
+                                                         s.sp,
+                                                         s.max_sp,
+                                                         150, // TODO: Walk speed
+                                                         i.job,
+                                                         a.head,
+                                                         a.body,
+                                                         a.weapon,
+                                                         s.base_level,
+                                                         s.skill_point,
+                                                         a.head_bottom, // accessory
+                                                         a.shield,
+                                                         a.head_top, // accessory2 
+                                                         a.head_mid, // accessory3
+                                                         a.head_palette,
+                                                         a.body_palette,
+                                                         i.name,
+                                                         s.Str,
+                                                         s.Agi,
+                                                         s.Vit,
+                                                         s.Int,
+                                                         s.Dex,
+                                                         s.Luk,
+                                                         i.slot,
+                                                         0, // haircolor ?
+                                                         i.rename,
+                                                         l.map_name,
+                                                         delete_timeout,
+                                                         a.robe,
+                                                         (i.slot < ad->playable_slots) ? 1 : 0,
+                                                         (i.rename > 0) && (i.slot < ad->playable_slots) ? 1 : 0,
+                                                         i.sex
+                                                         );
       }
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing client session", p_->aid());
