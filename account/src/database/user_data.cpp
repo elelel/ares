@@ -30,11 +30,7 @@ namespace ares {
         }
 
         void operator()(argument_type& trans) {
-          trans.conn().prepare("user_data_for_login_query", R"(
-SELECT "id", "login", "email", "level", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
-    WHERE ("login" = $1) LIMIT 1;
-)");
-          auto qr = trans.prepared("user_data_for_login_query")(login_).exec();
+          auto qr = trans.prepared("user_data_for_login")(login_).exec();
           assign_result(rslt_, qr);
         }
       private:
@@ -49,11 +45,7 @@ SELECT "id", "login", "email", "level", "sex", "expiration_time", "birthdate", "
         }
 
         void operator()(argument_type& trans) {
-          trans.conn().prepare("user_data_for_aid_query", R"(
-SELECT "id", "login", "level", "email", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
-  WHERE ("id" = $1) LIMIT 1;
-)");
-          auto qr = trans.prepared("user_data_for_aid_query")(aid_).exec();
+          auto qr = trans.prepared("user_data_for_aid")(aid_).exec();
           assign_result(rslt_, qr);
         }
       private:

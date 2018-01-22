@@ -11,10 +11,7 @@ namespace ares {
         }
 
         void operator()(argument_type& trans) {
-          trans.conn().prepare("user_exists_query", R"(
-SELECT "id" FROM "users" WHERE (login = $1) LIMIT 1;
-)");
-          auto result = trans.prepared("user_exists_query")(login_).exec();
+          auto result = trans.prepared("user_exists")(login_).exec();
           if (result.size() > 0) rslt_ = true; else rslt_ = false;
         }
       private:
