@@ -50,9 +50,8 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
                                                                          );
       
       //      const auto nchars = c.char_select_character_info.size();
-      const auto nchars = 50;
-      const uint32_t npages = nchars / 3 + ((nchars % 3) ? 1 : 0);
-      client->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, nchars);
+      const uint32_t npages = (ad->creatable_slots > 3) ? (ad->creatable_slots / 3) : 1;
+      client->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, ad->creatable_slots);
       client->emplace_and_send<packet::HC_BLOCK_CHARACTER>();
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing client session", p_->aid());

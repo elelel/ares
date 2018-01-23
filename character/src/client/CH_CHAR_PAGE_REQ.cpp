@@ -19,7 +19,7 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
       auto& i = ci.info;
       auto& s = ci.stats;
       auto& a = ci.appearance;
-      //3      auto& l = ci.location;
+      auto& l = ci.location;
       if (i.delete_date) {
         auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*i.delete_date - std::chrono::system_clock::now());
         delete_timeout = diff.count();
@@ -30,7 +30,6 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
 
       server_.log()->info("Sending charinfo {}", sizeof(packet::CHARACTER_INFO));
 
-      /*
       session_.emplace_and_send<packet::CHARACTER_INFO>(i.cid,
                                                         s.base_exp,
                                                         s.zeny,
@@ -74,14 +73,9 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
                                                         (i.slot < c.playable_slots) ? 1 : 0,
                                                         (i.rename > 0) && (i.slot < c.playable_slots) ? 1 : 0,
                                                         i.sex
-                                                        );*/
-
+                                                        );
       unsent_chars.pop_back();
     }
-    if (unsent_chars.size() % 3 == 0) session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
-  } else {
-    server_.log()->error("Client requested char info page with CH_CHAR_PAGE_REQ packet, but unsent character info vector is empty");
-    server_.remove(session_.shared_from_this());
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");
 }
