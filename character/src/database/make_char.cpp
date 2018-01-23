@@ -11,7 +11,7 @@ namespace ares {
                   const uint16_t& head,
                   const ares::JOB& job,
                   const uint8_t& sex,
-                  const uint32_t& zeny,
+                  const uint64_t& zeny,
                   const std::string& map,
                   const uint16_t& map_x,
                   const uint16_t& map_y,
@@ -76,7 +76,7 @@ namespace ares {
         const uint16_t& head_;
         const ares::JOB& job_;
         const uint8_t& sex_;
-        const uint32_t& zeny_;
+        const uint64_t& zeny_;
         const std::string& map_;
         const uint16_t& map_x_;
         const uint16_t& map_y_;
@@ -95,7 +95,7 @@ auto ares::character::database::make_char(const uint32_t aid,
                                           const uint16_t head,
                                           const ares::JOB job,
                                           const uint8_t sex,
-                                          const uint32_t zeny,
+                                          const uint64_t zeny,
                                           const std::string& map,
                                           const uint16_t map_x,
                                           const uint16_t map_y) -> std::optional<uint32_t> {

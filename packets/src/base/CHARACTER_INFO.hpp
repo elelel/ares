@@ -1,7 +1,7 @@
 struct CHARACTER_INFO {
   inline void emplace(const uint32_t GID,
-                      const int32_t exp,
-                      const int32_t money,
+                      const int64_t exp,
+                      const int64_t money,
                       const int32_t jobexp,
                       const int32_t joblevel,
                       const int32_t bodystate,
@@ -35,9 +35,8 @@ struct CHARACTER_INFO {
                       const uint8_t Int,
                       const uint8_t Dex,
                       const uint8_t Luk,
-                      const uint8_t CharNum,
-                      const uint8_t haircolor,
-                      const uint8_t rename,
+                      const uint16_t CharNum,
+                      const uint16_t rename,
                       const char* last_map_name,
                       const size_t last_map_name_sz,
                       const int32_t delete_timeout,
@@ -81,12 +80,10 @@ struct CHARACTER_INFO {
     Luk_ = Luk;
     CharNum_ = CharNum;
     rename_ = rename;
-    haircolor_ = haircolor;
     delete_timeout_ = delete_timeout;
     robe_ = robe;
     change_slot_enabled_ = change_slot_enabled;
     rename_enabled_ = rename_enabled;
-    haircolor_ = haircolor;
     sex_ = sex;
 
     copy_buf_with_zero_pad(name_, sizeof(name_), name, name_sz);
@@ -94,8 +91,8 @@ struct CHARACTER_INFO {
   }
 
   inline void emplace(const uint32_t GID,
-                      const int32_t exp,
-                      const int32_t money,
+                      const int64_t exp,
+                      const int64_t money,
                       const int32_t jobexp,
                       const int32_t joblevel,
                       const int32_t bodystate,
@@ -128,9 +125,8 @@ struct CHARACTER_INFO {
                       const uint8_t Int,
                       const uint8_t Dex,
                       const uint8_t Luk,
-                      const uint8_t CharNum,
-                      const uint8_t haircolor,
-                      const uint8_t rename,
+                      const uint16_t CharNum,
+                      const uint16_t rename,
                       const std::string& last_map_name,
                       const int32_t delete_timeout,
                       const int32_t robe,
@@ -139,13 +135,13 @@ struct CHARACTER_INFO {
                       const uint8_t sex) {
     emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed,
             job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name.c_str(), name.size(),
-            Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name.c_str(), last_map_name.size(), delete_timeout, robe,
+            Str, Agi,Vit, Int, Dex, Luk, CharNum, rename, last_map_name.c_str(), last_map_name.size(), delete_timeout, robe,
             change_slot_enabled, rename_enabled, sex);
   }
 
   explicit CHARACTER_INFO(const uint32_t GID,
-                          const int32_t exp,
-                          const int32_t money,
+                          const int64_t exp,
+                          const int64_t money,
                           const int32_t jobexp,
                           const int32_t joblevel,
                           const int32_t bodystate,
@@ -179,9 +175,8 @@ struct CHARACTER_INFO {
                           const uint8_t Int,
                           const uint8_t Dex,
                           const uint8_t Luk,
-                          const uint8_t CharNum,
-                          const uint8_t haircolor,
-                          const uint8_t rename,
+                          const uint16_t CharNum,
+                          const uint16_t rename,
                           const char* last_map_name,
                           const size_t last_map_name_sz,
                           const int32_t delete_timeout,
@@ -191,13 +186,13 @@ struct CHARACTER_INFO {
                           const uint8_t sex) {
     emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed,
             job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name, name_sz,
-            Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name, last_map_name_sz, delete_timeout, robe,
+            Str, Agi,Vit, Int, Dex, Luk, CharNum, rename, last_map_name, last_map_name_sz, delete_timeout, robe,
             change_slot_enabled, rename_enabled, sex);
   }
 
   explicit CHARACTER_INFO(const uint32_t GID,
-                          const int32_t exp,
-                          const int32_t money,
+                          const int64_t exp,
+                          const int64_t money,
                           const int32_t jobexp,
                           const int32_t joblevel,
                           const int32_t bodystate,
@@ -230,9 +225,8 @@ struct CHARACTER_INFO {
                           const uint8_t Int,
                           const uint8_t Dex,
                           const uint8_t Luk,
-                          const uint8_t CharNum,
-                          const uint8_t haircolor,
-                          const uint8_t rename,
+                          const uint16_t CharNum,
+                          const uint16_t rename,
                           const std::string& last_map_name,
                           const int32_t delete_timeout,
                           const int32_t robe,
@@ -241,14 +235,14 @@ struct CHARACTER_INFO {
                           const uint8_t sex) {
     emplace(GID, exp, money, jobexp, joblevel, bodystate, healthstate, effectstate, virtue, honor, jobpoint, hp, maxhp, sp, maxsp, speed,
             job, head, body, weapon, level, sppoint, accessory, shield, accessory2, accessory3, headpalette, bodypalette, name,
-            Str, Agi,Vit, Int, Dex, Luk, CharNum, haircolor, rename, last_map_name, delete_timeout, robe,
+            Str, Agi,Vit, Int, Dex, Luk, CharNum, rename, last_map_name, delete_timeout, robe,
             change_slot_enabled, rename_enabled, sex);
   }
   
 private:
   uint32_t GID_;
-  int32_t exp_;
-  int32_t money_;
+  int64_t exp_;
+  int64_t money_;
   int32_t jobexp_;
   int32_t joblevel_;
   int32_t bodystate_;
@@ -281,9 +275,8 @@ private:
   uint8_t Int_;
   uint8_t Dex_;
   uint8_t Luk_;
-  uint8_t CharNum_;
-  uint8_t haircolor_;
-  uint8_t rename_;
+  uint16_t CharNum_;
+  uint16_t rename_;
   char last_map_name_[16];
   int32_t delete_timeout_;
   int32_t robe_;

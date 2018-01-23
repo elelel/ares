@@ -48,7 +48,7 @@ namespace ares {
                                         const uint16_t head,
                                         const ares::JOB job,
                                         const uint8_t sex,
-                                        const uint32_t zeny,
+                                        const uint64_t zeny,
                                         const std::string& map,
                                         const uint16_t map_x,
                                         const uint16_t map_y);

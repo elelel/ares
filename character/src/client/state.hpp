@@ -5,6 +5,7 @@
 #include <ares/network>
 
 #include "../predeclare.hpp"
+#include "../database/database.hpp"
 
 namespace ares {
   namespace character {
@@ -38,6 +39,10 @@ namespace ares {
         std::string pin;
         /*! GM level */
         uint8_t gmlevel;
+
+        size_t playable_slots{0};
+        /*! Character info for char select */
+        std::vector<db::record::character_info> char_select_character_info;
         
       private:
         std::shared_ptr<spdlog::logger> log_;

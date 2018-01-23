@@ -20,6 +20,7 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/client/CH_CHAR_PAGE_REQ.cpp
   ${SRC}/database/num_chars_for_aid.cpp
   ${SRC}/database/character_info.cpp
   ${SRC}/account_server/ATHENA_AH_ACCOUNT_DATA_RESULT.cpp

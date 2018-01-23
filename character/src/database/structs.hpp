@@ -63,9 +63,9 @@ namespace ares {
         struct char_stats {
           uint32_t base_level;
           uint32_t job_level;
-          uint32_t base_exp;
+          uint64_t base_exp;
           uint32_t job_exp;
-          int32_t zeny;
+          uint64_t zeny;
           
           int8_t Str;
           int8_t Agi;

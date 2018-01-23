@@ -91,7 +91,6 @@ void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operat
                                                               s.Dex,
                                                               s.Luk,
                                                               i.slot,
-                                                              0, // haircolor ?
                                                               i.rename,
                                                               l.map_name,
                                                               delete_timeout,
