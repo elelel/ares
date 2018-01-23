@@ -18,7 +18,7 @@ CREATE TABLE account_storage (
 DROP TABLE IF EXISTS characters CASCADE;
 CREATE TABLE characters (
   id serial PRIMARY KEY,
-  aid int NOT NULL UNIQUE,
+  aid int NOT NULL,
   slot smallint NOT NULL,
   "name" varchar NOT NULL UNIQUE,
   sex smallint NOT NULL,
