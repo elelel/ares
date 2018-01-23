@@ -38,12 +38,13 @@ namespace ares {
         /*! User's pin */
         std::string pin;
         /*! GM level */
-        uint8_t gmlevel;
+        uint8_t gmlevel{0};
 
         size_t playable_slots{0};
         size_t creatable_slots{0};
         /*! Character info for char select */
         std::vector<db::record::character_info> char_select_character_info;
+        bool char_select_all_sent{false};
         
       private:
         std::shared_ptr<spdlog::logger> log_;

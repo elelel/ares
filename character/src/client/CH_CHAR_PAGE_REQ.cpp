@@ -79,11 +79,19 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
       
       unsent_chars.pop_back();
     }
-    if ((unsent_chars.size() % 3) == 0) {
+    if (unsent_chars.size() % 3 == 0) {
       // Send page terminator if we filled the whole page
       session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
     }
+    if (unsent_chars.size() == 0) {
+      c.char_select_all_sent = true;
+    }
   } else {
+    if (!c.char_select_all_sent) {
+      // Send page terminator if there were no chars at all
+      session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
+      c.char_select_all_sent = true;
+    }
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");
 }
