@@ -32,7 +32,10 @@ SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp"
   "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor",
   "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette",
   "map_name", "map_x", "map_y", "delete_date", "rename"
-FROM "characters", "char_appearance", "char_stats", "char_location"
+FROM "characters"
+JOIN "char_appearance" ON ("char_appearance"."cid" = "id")
+JOIN "char_stats" ON ("char_stats"."cid" = "id")
+JOIN "char_location" ON ("char_location"."cid" = "id")
 WHERE ("aid" = $1) AND ("slot" < $2)
 )");
     
@@ -42,8 +45,11 @@ SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp"
   "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor",
   "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette",
   "map_name", "map_x", "map_y", "delete_date", "rename"
-FROM "characters", "char_appearance", "char_stats", "char_location"
-WHERE ("cid" = $1)
+FROM "characters"
+JOIN "char_appearance" ON ("char_appearance"."cid" = "id")
+JOIN "char_stats" ON ("char_stats"."cid" = "id")
+JOIN "char_location" ON ("char_location"."cid" = "id")
+WHERE ("id" = $1)
 )");
 
     pqxx_conn_->prepare("make_char_create_cid", R"(
