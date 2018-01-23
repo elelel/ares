@@ -28,8 +28,6 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
         }
       }
 
-      server_.log()->info("Sending charinfo {}", sizeof(packet::CHARACTER_INFO));
-
       session_.emplace_and_send<packet::CHARACTER_INFO>(i.cid,
                                                         s.base_exp,
                                                         s.zeny,
@@ -76,6 +74,8 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
                                                         );
       unsent_chars.pop_back();
     }
+  } else {
+    session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");
 }
