@@ -5,7 +5,11 @@
 
 void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_AID_AUTH_RESULT>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_AID_AUTH_RESULT: begin");
-  auto s = server_.session_by_auth_request_id(p_->request_id());
+  session_ptr s;
+  {
+    std::lock_guard<std::mutex> lock(server_.mutex());
+    s = server_.session_by_auth_request_id(p_->request_id());
+  }
   if (s != nullptr) {
     if (p_->fail() == 0) {
       if (std::holds_alternative<mono::state>(s->state_)) {
