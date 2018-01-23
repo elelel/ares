@@ -52,6 +52,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
       //      const auto nchars = c.char_select_character_info.size();
       
       const uint32_t npages = (ad->creatable_slots / 3) + ((ad->creatable_slots % 3) != 0 ? 1 : 0);
+      log()->info("Sending pages num: npages = {}, nslots = {}", npages, ad->creatable_slots);
       client->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, ad->creatable_slots);
       client->emplace_and_send<packet::HC_BLOCK_CHARACTER>();
     } else {

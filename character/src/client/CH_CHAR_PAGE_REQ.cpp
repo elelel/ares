@@ -9,6 +9,7 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ begin");
   auto& c = session_.as_client();
   auto& unsent_chars = c.char_select_character_info;
+  log()->info("Got char page req");
   if (unsent_chars.size() > 0) {
     size_t num_to_send = 3;
     if (unsent_chars.size() < 3) num_to_send = unsent_chars.size();
@@ -27,6 +28,8 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
           server_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", i.cid, c.aid, (delete_timeout / 1000) * -1);
         }
       }
+
+      log()->info("Sending character {} in response to char page req", i.cid);
 
       session_.emplace_and_send<packet::CHARACTER_INFO>(i.cid,
                                                         s.base_exp,
@@ -75,7 +78,7 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
       unsent_chars.pop_back();
     }
   } else {
-    session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
+    //    session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");
 }
