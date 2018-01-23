@@ -17,7 +17,7 @@ struct HC_ACCEPT_ENTER {
     code_ = 0;
     time1_ = 0;
     time2_ = 0;
-    billing_dummy2_[7] = {0};
+    memset(billing_dummy2_, 0, sizeof(billing_dummy2_));
   }
 
   explicit HC_ACCEPT_ENTER(const uint8_t normal_slots,
