@@ -34,8 +34,10 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
       ad = server_.db().account_slots_for_aid(p_->aid());
     }
     if (ad) {
+      c.creatable_slots = ad->creatable_slots;
       c.playable_slots = ad->playable_slots;
       // Confirm account acceptance and send slots info
+      SPDLOG_TRACE(log(), "sending HC_ACCEPT_ENTER");
       client->emplace_and_send<packet::HC_ACCEPT_ENTER>(ad->normal_slots,
                                                         ad->premium_slots,
                                                         ad->billing_slots,
@@ -43,17 +45,17 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
                                                         ad->playable_slots,
                                                         0);
 
+      SPDLOG_TRACE(log(), "sending HC_ACCEPT_ENTER done");
       // Send existing characters information
       c.char_select_character_info = server_.db().character_info_for_aid(p_->aid(), ad->normal_slots +
                                                                          ad->premium_slots +
                                                                          ad->billing_slots
                                                                          );
+      const uint32_t nchars = 50;
+      const uint32_t npages = (nchars / 3) + ((nchars % 3) != 0 ? 1 : 0);
       
-      //      const auto nchars = c.char_select_character_info.size();
-      
-      const uint32_t npages = (ad->creatable_slots / 3) + ((ad->creatable_slots % 3) != 0 ? 1 : 0);
-      log()->info("Sending pages num: npages = {}, nslots = {}", npages, ad->creatable_slots);
-      client->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, ad->creatable_slots);
+      SPDLOG_TRACE(log(), "Have {} characters, Sending pages num: npages = {}, nslots = {}", c.char_select_character_info.size(), npages, c.creatable_slots);
+      client->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, c.creatable_slots);
       client->emplace_and_send<packet::HC_BLOCK_CHARACTER>();
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing client session", p_->aid());

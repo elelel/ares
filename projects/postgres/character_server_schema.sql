@@ -29,7 +29,7 @@ CREATE TABLE characters (
 
 DROP TABLE IF EXISTS char_appearance;
 CREATE TABLE char_appearance (
-  cid int REFERENCES characters(id) UNIQUE, 
+  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
   head smallint NOT NULL,
   body smallint NOT NULL,
   weapon smallint NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE char_appearance (
 
 DROP TABLE IF EXISTS char_stats;
 CREATE TABLE char_stats (
-  cid int REFERENCES characters(id) UNIQUE, 
+  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
   base_level smallint NOT NULL,
   job_level smallint NOT NULL,
   base_exp int NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE char_stats (
 
 DROP TABLE IF EXISTS char_location;
 CREATE TABLE char_location (
-  cid int REFERENCES characters(id) UNIQUE,
+  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
   map_name varchar NOT NULL,
   map_x smallint NOT NULL,
   map_y smallint NOT NULL

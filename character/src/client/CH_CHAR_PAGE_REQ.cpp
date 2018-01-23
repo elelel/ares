@@ -9,13 +9,14 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ begin");
   auto& c = session_.as_client();
   auto& unsent_chars = c.char_select_character_info;
-  log()->info("Got char page req");
+  SPDLOG_TRACE(log(), "Got char page req, unsent chars {}", unsent_chars.size());
+
   if (unsent_chars.size() > 0) {
     size_t num_to_send = 3;
     if (unsent_chars.size() < 3) num_to_send = unsent_chars.size();
+    session_.emplace_and_send<packet::HC_CHAR_PAGES>(num_to_send);
     for (size_t k = 0; k < num_to_send; ++k) {
-      session_.emplace_and_send<packet::HC_CHAR_PAGES>(num_to_send);
-      const auto& ci = unsent_chars[k];
+      const auto& ci = unsent_chars[unsent_chars.size() - 1];
       long delete_timeout{0};
       auto& i = ci.info;
       auto& s = ci.stats;
@@ -29,7 +30,7 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
         }
       }
 
-      log()->info("Sending character {} in response to char page req", i.cid);
+      SPDLOG_TRACE(log(), "Sending character {} in response to char page req", i.cid);
 
       session_.emplace_and_send<packet::CHARACTER_INFO>(i.cid,
                                                         s.base_exp,
@@ -75,10 +76,14 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
                                                         (i.rename > 0) && (i.slot < c.playable_slots) ? 1 : 0,
                                                         i.sex
                                                         );
+      
       unsent_chars.pop_back();
     }
+    if ((unsent_chars.size() % 3) == 0) {
+      // Send page terminator if we filled the whole page
+      session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
+    }
   } else {
-    //    session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");
 }

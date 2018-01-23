@@ -71,7 +71,7 @@ private:
   uint32_t code_;
   uint32_t time1_;
   uint32_t time2_;
-  int8_t billing_dummy2_[7];
+  char billing_dummy2_[7];
   /*! character descriptors, always empty in modern clients */
   CHARACTER_INFO characters_[];
 };
