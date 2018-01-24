@@ -101,11 +101,36 @@ namespace ares {
             rslt_.emplace(std::move(r));
           }
         }
-        
+
       private:
         uint32_t cid_;
         std::optional<record::character_info>& rslt_;
       };
+      
+      struct character_info_for_slot : pqxx::transactor<> {
+        character_info_for_slot(const uint32_t cid, const uint16_t slot, std::optional<record::character_info>& rslt) :
+          cid_(cid),
+          slot_(slot),
+          rslt_(rslt) {
+        }
+
+        void operator()(argument_type& trans) {
+          rslt_.reset();
+          auto qr = trans.prepared("character_info_for_slot")(cid_)(slot_).exec();
+          if (qr.size() > 0) {
+            record::character_info r;
+            assign(r, qr[0]);
+            rslt_emplace(std::move(r));
+          }
+        }
+        
+      private:
+        uint32_t cid_;
+        uint16_t slot_;
+        std::optional<record::character_info>& rslt_;
+      };
+        
+      
     }
   }
 }
@@ -128,3 +153,13 @@ auto ares::character::database::character_info(const uint32_t cid) -> std::optio
     });
   return rslt;
 }
+
+auto ares::character::database::character_info_for_slot(const uint32_t cid, const uint16_t slot) -> std::optional<db::record::character_info> {
+  std::optional<db::record::character_info> rslt;
+  with_wait_lock([this, &cid, slot, &rslt] () {
+      db::character_info t(cid, slot, rslt);
+      pqxx_conn_->perform(t);
+    });
+  return rslt;
+}
+  

@@ -27,6 +27,7 @@ namespace ares {
 
     // Character <-> Client
     #include "CH/CH_ENTER.hpp"
+    #include "CH/CH_SELECT_CHAR.hpp"
     #include "HC/HC_REFUSE_ENTER.hpp"
     #include "HC/HC_ACCEPT_ENTER.hpp"
     #include "HC/HC_BLOCK_CHARACTER.hpp"

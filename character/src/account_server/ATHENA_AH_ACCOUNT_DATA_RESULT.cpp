@@ -59,7 +59,10 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
       client->emplace_and_send<packet::HC_BLOCK_CHARACTER>();
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing client session", p_->aid());
-      server_.remove(client);
+      {
+        std::lock_guard<std::mutex> lock(server_.mutex());
+        server_.remove(client);
+      }
     }
   } else {
     log()->warn("Received account data from account server for aid {}, but no session with such aid found", p_->aid());

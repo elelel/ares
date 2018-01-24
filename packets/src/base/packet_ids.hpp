@@ -20,6 +20,7 @@ namespace ares {
     static const uint16_t AC_ACCEPT_LOGIN = 0xac4;
     // Character <-> Client
     static const uint16_t CH_ENTER = 0x65;
+    static const uint16_t CH_SELECT_CHAR = 0x66;
     static const uint16_t CH_MAKE_CHAR_0x67 = 0x67;
     static const uint16_t CH_MAKE_CHAR_0x970 = 0x970;
     static const uint16_t CH_MAKE_CHAR = 0xa39;

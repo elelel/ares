@@ -45,6 +45,9 @@ namespace ares {
         /*! Character info for char select */
         std::vector<db::record::character_info> char_select_character_info;
         bool char_select_all_sent{false};
+
+        /*! Character info for active session */
+        std::optional<db::record::character_info> char_info;
         
       private:
         std::shared_ptr<spdlog::logger> log_;

@@ -51,7 +51,20 @@ JOIN "char_stats" ON ("char_stats"."cid" = "id")
 JOIN "char_location" ON ("char_location"."cid" = "id")
 WHERE ("id" = $1)
 )");
-
+    
+    pqxx_conn_->prepare("character_info_for_slot", R"(
+SELECT "id", "slot", "name", "sex", "job", "base_level", "job_level", "base_exp", "job_exp", "zeny",
+  "str", "agi", "vit", "int", "dex", "luk",
+  "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor",
+  "head", "body", "weapon", "robe", "shield", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette",
+  "map_name", "map_x", "map_y", "delete_date", "rename"
+FROM "characters"
+JOIN "char_appearance" ON ("char_appearance"."cid" = "id")
+JOIN "char_stats" ON ("char_stats"."cid" = "id")
+JOIN "char_location" ON ("char_location"."cid" = "id")
+WHERE ("id" = $1) AND ("slot" = $2)
+)");
+    
     pqxx_conn_->prepare("make_char_create_cid", R"(
 INSERT INTO "characters" ("aid", "slot", "name", "sex", "job", "rename") VALUES ($1, $2, $3, $4, $5, 0)
 )");

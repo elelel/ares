@@ -40,6 +40,8 @@ namespace ares {
       std::vector<db::record::character_info> character_info_for_aid(const uint32_t aid, const size_t max_chars);
 
       std::optional<db::record::character_info> character_info(const uint32_t cid);
+
+      std::optional<db::record::character_info> character_info_for_slot(const uint32_t cid, const uint16_t slot);
       
       std::optional<uint32_t> make_char(const uint32_t aid,
                                         const std::string& name,
