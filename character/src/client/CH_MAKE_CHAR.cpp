@@ -101,22 +101,22 @@ void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operat
                                                               );
           } else {
             log()->error("Failed to get character info for newly created cid {} ", *cid);
-            server_.remove(session_.shared_from_this());
+            throw network::terminate_session();            
           }
         } else {
           log()->error("Failed to make character for AID {}", c.aid);
-          server_.remove(session_.shared_from_this());
+          throw network::terminate_session();            
         }
       } else {
         log()->error("Client with aid {} requested to create char with invalid job {}", c.aid, p_->job());
-        server_.remove(session_.shared_from_this());
+        throw network::terminate_session();            
       }
     } else {
       // TODO: Send "Can't use this slot"
     }
   } else {
     log()->error("Could not find account data record for aid {} in SQL database, closing client session", c.aid);
-    server_.remove(session_.shared_from_this());
+    throw network::terminate_session();            
   }
 
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR end");

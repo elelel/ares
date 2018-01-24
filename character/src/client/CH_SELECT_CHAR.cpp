@@ -14,18 +14,12 @@ void ares::character::client::packet_handler<ares::packet::CH_SELECT_CHAR>::oper
       // TODO: Find zone server with last map and send zone server info
     } else {
       log()->warn("AID {} requested slot number {}, but char info is not found in database", c.aid, p_->CharNum());
-      {
-        std::lock_guard<std::mutex> lock(server_.mutex());
-        server_.remove(session_.shared_from_this());
-      }
+      throw network::terminate_session();            
     }
   } else {
     log()->warn("AID {} requested slot number {} above playable slots {}", c.aid, p_->CharNum(), c.playable_slots);
     // TODO: Send slot is not usable
-    {
-      std::lock_guard<std::mutex> lock(server_.mutex());
-      server_.remove(session_.shared_from_this());
-    }
+    throw network::terminate_session();            
   }
   SPDLOG_TRACE(log(), "CH_SELECT_CHAR end");
 }

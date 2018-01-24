@@ -120,7 +120,7 @@ namespace ares {
           if (qr.size() > 0) {
             record::character_info r;
             assign(r, qr[0]);
-            rslt_emplace(std::move(r));
+            rslt_.emplace(std::move(r));
           }
         }
         
@@ -157,7 +157,7 @@ auto ares::character::database::character_info(const uint32_t cid) -> std::optio
 auto ares::character::database::character_info_for_slot(const uint32_t cid, const uint16_t slot) -> std::optional<db::record::character_info> {
   std::optional<db::record::character_info> rslt;
   with_wait_lock([this, &cid, slot, &rslt] () {
-      db::character_info t(cid, slot, rslt);
+      db::character_info_for_slot t(cid, slot, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

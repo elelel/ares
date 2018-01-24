@@ -29,13 +29,13 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_AID
       } else {
         log()->error("Received authentication result from account server for aid {}, but it's session is not in mono state!", p_->aid());
         std::lock_guard<std::mutex> lock(server_.mutex());
-        server_.remove(s);
+        s->remove_from_server();
       }
     } else {
       log()->warn("Aid {} is not authenticated by account server, closing session!", p_->aid());
       s->emplace_and_send<packet::AC_REFUSE_LOGIN>(8); // Rejected by server
       std::lock_guard<std::mutex> lock(server_.mutex());
-      server_.remove(s);
+      s->remove_from_server();
     }
   } else {
     log()->error("ATHENA_AH_AID_AUTH_RESULT account server rejected login request. Check login/password configuration");
