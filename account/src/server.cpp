@@ -19,7 +19,7 @@ void ares::account::server::start() {
   }
 }
 
-void ares::account::server::create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
+void ares::account::server::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "account::server::create_session");
   auto s = std::make_shared<session>(state_, socket);
   s->reset_inactivity_timer();

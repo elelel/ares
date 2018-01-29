@@ -4,12 +4,12 @@
 
 template <typename Server>
 inline ares::network::server<Server>::server(std::shared_ptr<spdlog::logger> log,
-                             std::shared_ptr<boost::asio::io_service> io_service,
+                             std::shared_ptr<asio::io_service> io_service,
                              const size_t num_threads) :
   log_(log),
   io_service_(io_service),
   num_threads_(num_threads),
-  work_(new boost::asio::io_service::work(*io_service_)) {
+  work_(new asio::io_service::work(*io_service_)) {
   for (size_t i = 0; i < num_threads_; ++i) {
     auto th = std::unique_ptr<std::thread>(new std::thread([this] () {io_service_->run(); }));
     thread_pool_.push_back(std::move(th));
@@ -54,7 +54,7 @@ inline void ares::network::server<Server>::stop() {
 }
 
 template <typename Server>
-inline void ares::network::server<Server>::create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
+inline void ares::network::server<Server>::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "ares::network::server::create_session acquiring server lock");
   std::lock_guard lock(mutex_);
   SPDLOG_TRACE(log_, "ares::network::server::create_session server lock acquired");
@@ -67,7 +67,7 @@ inline std::mutex& ares::network::server<Server>::mutex() {
 }
 
 template <typename Server>
-inline std::shared_ptr<boost::asio::io_service> ares::network::server<Server>::io_service() const {
+inline std::shared_ptr<asio::io_service> ares::network::server<Server>::io_service() const {
   return io_service_;
 }
 

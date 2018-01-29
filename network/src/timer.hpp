@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
 
 /*! \file timer.hpp
   \brief ASIO timer abstraction
@@ -20,14 +20,14 @@ namespace ares {
       timer(const timer<Timer, Period, Session>& other);
 
       // Interface to asio
-      void operator()(const boost::system::error_code& ec);
+      void operator()(const std::error_code& ec);
 
       void fire();
       void set();
       void cancel();
     protected:
       Period period_;
-      std::shared_ptr<boost::asio::steady_timer> timer_;
+      std::shared_ptr<asio::steady_timer> timer_;
       std::atomic<bool> executing_;
     };
   }

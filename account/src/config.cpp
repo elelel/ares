@@ -1,7 +1,7 @@
 #include "config.hpp"
 
 ares::account::config::config(std::shared_ptr<spdlog::logger> log,
-                              std::shared_ptr<boost::asio::io_service> io_service,
+                              std::shared_ptr<asio::io_service> io_service,
                               std::optional<std::string> first_config_file) :
   ares::config(log, io_service, "account_server", first_config_file) {
   postgres = load_with_catch_as<postgres_config>("database", json_);

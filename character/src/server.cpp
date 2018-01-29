@@ -16,7 +16,7 @@ void ares::character::server::start() {
       ares::network::server<server>::start(listen);
     }
     if (state_.log() != nullptr) {
-      account_server_ = std::make_shared<session>(state_, std::shared_ptr<boost::asio::ip::tcp::socket>{});
+      account_server_ = std::make_shared<session>(state_, std::shared_ptr<asio::ip::tcp::socket>{});
       account_server_->variant().emplace<account_server::state>(state_, *account_server_);
       account_server_->as_account_server().reconnect_timer.fire();
     } else {
@@ -27,7 +27,7 @@ void ares::character::server::start() {
   }
 }
 
-void ares::character::server::create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
+void ares::character::server::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "character::server::create_session");
   auto s = std::make_shared<session>(state_, socket);
   add(s);

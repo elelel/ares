@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <spdlog/spdlog.h>
 #include <src/json.hpp>
 
@@ -12,13 +12,13 @@
 namespace ares {
   struct config {
     config(std::shared_ptr<spdlog::logger> log,
-           std::shared_ptr<boost::asio::io_service> io_service,
+           std::shared_ptr<asio::io_service> io_service,
            const std::string& service_name,
            const std::optional<std::string> config_fn);
 
-    using endpoint_config = std::optional<boost::asio::ip::tcp::endpoint>;
-    using endpoints_config = std::vector<boost::asio::ip::tcp::endpoint>;
-    using ipv4_addr_config = std::optional<boost::asio::ip::address>;
+    using endpoint_config = std::optional<asio::ip::tcp::endpoint>;
+    using endpoints_config = std::vector<asio::ip::tcp::endpoint>;
+    using ipv4_addr_config = std::optional<asio::ip::address>;
     
     // Database configuration
     struct postgres_config_record {
@@ -34,7 +34,7 @@ namespace ares {
 
   protected:
     std::shared_ptr<spdlog::logger> log_;
-    std::shared_ptr<boost::asio::io_service> io_service_;
+    std::shared_ptr<asio::io_service> io_service_;
     nlohmann::json json_;
 
     template <typename Config>

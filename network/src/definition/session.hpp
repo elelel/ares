@@ -4,19 +4,19 @@
 #include "../exceptions.hpp"
 
 template <typename Session>
-ares::network::session<Session>::session(std::shared_ptr<boost::asio::io_service> io_service,
+ares::network::session<Session>::session(std::shared_ptr<asio::io_service> io_service,
                                          std::shared_ptr<spdlog::logger> log,
-                                         std::shared_ptr<boost::asio::ip::tcp::socket> socket) :
+                                         std::shared_ptr<asio::ip::tcp::socket> socket) :
   io_service_(io_service),
   log_(log), 
   socket_(socket),
   connected_(true),
-  inactivity_timer_(boost::asio::steady_timer{*io_service_}),
+  inactivity_timer_(asio::steady_timer{*io_service_}),
   receiving_(false),
   sending_(false) {
   if (socket_) {
     // TODO: Make configurable
-    socket_->set_option(boost::asio::ip::tcp::no_delay(true));
+    socket_->set_option(asio::ip::tcp::no_delay(true));
   } else {
     connected_ = false;
   }
@@ -36,7 +36,7 @@ inline void ares::network::session<Session>::receive(const size_t receive_sz) {
       auto handler = static_cast<Session&>(*this).make_recv_handler();
       if (recv_buf_.unfragmented_free_size() < sz) recv_buf_.defragment();
       SPDLOG_TRACE(log_, "receive requesting {} bytes", sz);
-      this->socket_->async_read_some(boost::asio::buffer(recv_buf_.end(), sz), handler);
+      this->socket_->async_read_some(asio::buffer(recv_buf_.end(), sz), handler);
     } else {
       log_->error("receive: out of buffer space, session {0:#x}", (uintptr_t)this);
       throw out_of_buffer_space();
@@ -80,7 +80,7 @@ inline void ares::network::session<Session>::send_wake_up(const void* data_start
     sending_ = true;
     SPDLOG_TRACE(log_, "Send handler wakeup, {} bytes to send", send_buf_.size());
     auto handler = static_cast<Session&>(*this).make_send_handler();
-    socket_->async_write_some(boost::asio::buffer(data_start, send_buf_.head_size()), handler);
+    socket_->async_write_some(asio::buffer(data_start, send_buf_.head_size()), handler);
   }
 }
 
@@ -138,7 +138,7 @@ inline void ares::network::session<Session>::close_socket() {
   if (socket_) {
     SPDLOG_TRACE(log_, "closing socket");
     try {
-      socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both); 
+      socket_->shutdown(asio::ip::tcp::socket::shutdown_both); 
     } catch (...) {
     }
     socket_->cancel();
@@ -150,12 +150,12 @@ inline void ares::network::session<Session>::close_socket() {
 }
 
 template <typename Session>
-inline std::shared_ptr<boost::asio::io_service> ares::network::session<Session>::io_service() const {
+inline std::shared_ptr<asio::io_service> ares::network::session<Session>::io_service() const {
   return io_service_;
 }
 
 template <typename Session>
-inline std::shared_ptr<boost::asio::ip::tcp::socket>& ares::network::session<Session>::socket() {
+inline std::shared_ptr<asio::ip::tcp::socket>& ares::network::session<Session>::socket() {
   return socket_;
 }
 

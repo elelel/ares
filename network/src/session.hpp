@@ -7,8 +7,8 @@
 
 #include <atomic>
 
-#include <boost/asio.hpp>
-#include <boost/asio/steady_timer.hpp>
+#include <asio.hpp>
+#include <asio/steady_timer.hpp>
 #include <spdlog/spdlog.h>
 #include <elelel/network_buffer>
 
@@ -37,9 +37,9 @@ namespace ares {
         \param log pointer to a logger
         \param socket pointer to session's network socket 
       */
-      session(std::shared_ptr<boost::asio::io_service> io_service,
+      session(std::shared_ptr<asio::io_service> io_service,
               std::shared_ptr<spdlog::logger> log,
-              std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+              std::shared_ptr<asio::ip::tcp::socket> socket);
       ~session();
 
       /*! Receives bytes from socket into receive buffer
@@ -75,10 +75,10 @@ namespace ares {
 
       /*! Returns reference to the shared pointer for the socket
        */
-      std::shared_ptr<boost::asio::ip::tcp::socket>& socket();
+      std::shared_ptr<asio::ip::tcp::socket>& socket();
       /*! Returns a copy of shared pointer for ASIO io_service
        */
-      std::shared_ptr<boost::asio::io_service> io_service() const;
+      std::shared_ptr<asio::io_service> io_service() const;
 
       /*! Check if the session is connected
        */
@@ -92,12 +92,12 @@ namespace ares {
        */
       void set_connected();
     protected:
-      std::shared_ptr<boost::asio::io_service> io_service_;
+      std::shared_ptr<asio::io_service> io_service_;
       std::shared_ptr<spdlog::logger> log_;
-      std::shared_ptr<boost::asio::ip::tcp::socket> socket_;
+      std::shared_ptr<asio::ip::tcp::socket> socket_;
       std::atomic<bool> connected_;
 
-      boost::asio::steady_timer inactivity_timer_;
+      asio::steady_timer inactivity_timer_;
       std::mutex recv_mutex_;
       elelel::network_buffer recv_buf_;
       std::mutex send_mutex_;

@@ -6,7 +6,7 @@
 #include "mono/state.hpp"
 
 ares::zone::session::session(zone::state& zone_state,
-                             std::shared_ptr<boost::asio::ip::tcp::socket> socket) :
+                             std::shared_ptr<asio::ip::tcp::socket> socket) :
   ares::network::session<session>(zone_state.io_service(), zone_state.log(), socket),
   session_state_(std::in_place_type<mono::state>, zone_state, *this),
   server_state_(zone_state) {
@@ -103,6 +103,6 @@ void ares::zone::session::on_inactivity_timer() {
   remove_from_server();
 }
 
-void ares::zone::session::inactivity_timer_handler::operator()(const boost::system::error_code& ec) {
+void ares::zone::session::inactivity_timer_handler::operator()(const std::error_code& ec) {
   if (ec.value() == 0) session_->on_inactivity_timer();
 }

@@ -3,7 +3,7 @@
 #include "../receive.hpp"
 
 template <typename Handler, typename Session>
-inline void ares::network::handler::asio::receive<Handler, Session>::operator()(const boost::system::error_code& ec, const size_t received_sz) {
+inline void ares::network::handler::asio::receive<Handler, Session>::operator()(const std::error_code& ec, const size_t received_sz) {
   SPDLOG_TRACE(this->log(), "handler::asio::receive begin, ec = {}, received_sz = {}", ec.value(), received_sz);
   if (ec.value() == 0) {
     try {
@@ -49,14 +49,14 @@ inline void ares::network::handler::asio::receive<Handler, Session>::operator()(
   } else {
     this->session_->receiving_ = false;
     switch (ec.value()) {
-    case boost::asio::error::operation_aborted:
+    case ::asio::error::operation_aborted:
       static_cast<Handler&>(*this).on_operation_aborted();
       break;
-    case boost::asio::error::connection_reset:
+    case ::asio::error::connection_reset:
       this->session_->connected_ = false;
       static_cast<Handler&>(*this).on_connection_reset();
       break;
-    case boost::asio::error::eof:
+    case ::asio::error::eof:
       this->session_->connected_ = false;
       static_cast<Handler&>(*this).on_eof();
       break;

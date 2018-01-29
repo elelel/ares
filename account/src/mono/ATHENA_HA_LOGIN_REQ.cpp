@@ -4,7 +4,7 @@
 
 void ares::account::mono::packet_handler<typename ares::packet::ATHENA_HA_LOGIN_REQ>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HA_LOGIN_REQ: begin");
-  boost::asio::ip::address_v4 ip_v4(ntohl(p_->ip()));
+  asio::ip::address_v4 ip_v4(ntohl(p_->ip()));
   uint16_t port(ntohs(p_->port()));
   log()->info("Connection request from char server {} state {}, invites to listening point at {}:{}", p_->server_name(), p_->state(), ip_v4.to_string(), port);
 

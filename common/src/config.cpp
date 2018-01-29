@@ -1,9 +1,10 @@
 #include "config.hpp"
 
 #include <fstream>
+#include <system_error>
 
 ares::config::config(std::shared_ptr<spdlog::logger> log,
-                     std::shared_ptr<boost::asio::io_service> io_service,
+                     std::shared_ptr<asio::io_service> io_service,
                      const std::string& service_name,
                      const std::optional<std::string> config_fn) :
   log_(log),
@@ -80,11 +81,11 @@ auto ares::config::load<ares::config::postgres_config>(const nlohmann::json& j) 
 
 template <>
 auto ares::config::load<ares::config::ipv4_addr_config>(const nlohmann::json& j) -> ipv4_addr_config {
-  using namespace boost::asio;
+  using namespace asio;
   ipv4_addr_config rslt;
   if (j.is_string()) {
     auto host = j.get<std::string>();
-    boost::system::error_code ec;
+    std::error_code ec;
     auto addr = ip::address::from_string(host, ec);
     if (ec.value() == 0) {
       rslt.emplace(addr);
@@ -107,13 +108,13 @@ auto ares::config::load<ares::config::ipv4_addr_config>(const nlohmann::json& j)
 
 template <>
 auto ares::config::load<ares::config::endpoint_config>(const nlohmann::json& j) -> endpoint_config {
-  using namespace boost::asio;
+  using namespace asio;
   endpoint_config rslt;
   if (j.is_object()) {
     if ((j.find("host") != j.end()) && (j.find("port") != j.end())) {
       std::string host = j.at("host");
       uint16_t port = j.at("port");
-      boost::system::error_code ec;
+      std::error_code ec;
       auto addr = ip::address::from_string(host, ec);
       if (ec.value() == 0) {
         rslt.emplace(ip::tcp::endpoint(addr, port));
@@ -139,7 +140,7 @@ auto ares::config::load<ares::config::endpoint_config>(const nlohmann::json& j) 
 
 template <>
 auto ares::config::load<ares::config::endpoints_config>(const nlohmann::json& j) -> endpoints_config {
-  using namespace boost::asio;
+  using namespace asio;
   endpoints_config rslt;
   if (j.is_array()) {
     for (const auto& r : j) {

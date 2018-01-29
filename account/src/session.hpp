@@ -25,7 +25,7 @@ namespace ares {
       
       struct inactivity_timer_handler : ares::network::handler::asio::base<inactivity_timer_handler, session> {
         using ares::network::handler::asio::base<inactivity_timer_handler, session>::base;
-        void operator()(const boost::system::error_code& ec);
+        void operator()(const std::error_code& ec);
       };
 
       friend struct recv_handler;
@@ -40,7 +40,7 @@ namespace ares {
         \param server reference to account server
         \param socket pointer to TCP socket
       */
-      session(account::state& server_state, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+      session(account::state& server_state, std::shared_ptr<asio::ip::tcp::socket> socket);
 
       /*! Removes this session from server */
       void remove_from_server();

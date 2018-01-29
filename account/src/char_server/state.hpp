@@ -38,7 +38,7 @@ namespace ares {
         /*! Character server's name */
         std::string name;
         /*! Character server's IPv4 address */
-        boost::asio::ip::address_v4 ip_v4;
+        asio::ip::address_v4 ip_v4;
         /*! Character server's IPv4 port */
         uint16_t port;
         uint16_t state_num;

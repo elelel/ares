@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include <boost/asio.hpp>
 #include <spdlog/spdlog.h>
 
 #include "state.hpp"

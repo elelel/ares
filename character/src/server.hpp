@@ -14,7 +14,7 @@ namespace ares {
       server(state& state_);
 
       void start();
-      void create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
 
       void add(session_ptr s);
       void remove(session_ptr s);

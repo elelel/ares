@@ -8,8 +8,8 @@ void ares::zone::character_server::timer::reconnect::on_timer() {
   if (!session_->connected()) {
     auto& state = session_->server_state_;
     std::lock_guard<std::mutex> lock(state.server.mutex());
-    session_->socket() = std::make_shared<boost::asio::ip::tcp::socket>(*session_->io_service());
-    boost::system::error_code ec;
+    session_->socket() = std::make_shared<asio::ip::tcp::socket>(*session_->io_service());
+    std::error_code ec;
     auto& ep = *state.conf.character_server->connect;
     log()->info("Connection to character server is not established. Connecting to {}:{}...",
                 ep.address().to_string(), ep.port());
@@ -17,7 +17,7 @@ void ares::zone::character_server::timer::reconnect::on_timer() {
 
     if (ec.value() == 0) {
       auto session_copy = session_;
-      session_->socket()->async_connect(ep, [session_copy] (const boost::system::error_code ec) {
+      session_->socket()->async_connect(ep, [session_copy] (const std::error_code ec) {
           auto& state = session_copy->server_state_;
           std::lock_guard<std::mutex> lock(state.server.mutex());
           if (ec.value() == 0) {

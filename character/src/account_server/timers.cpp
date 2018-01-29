@@ -9,8 +9,8 @@ void ares::character::account_server::timer::reconnect::on_timer() {
     auto& server = session_->server_state_.server;
     auto& conf = session_->server_state_.conf;
     std::lock_guard<std::mutex> lock(server.mutex());
-    session_->socket() = std::make_shared<boost::asio::ip::tcp::socket>(*session_->io_service());
-    boost::system::error_code ec;
+    session_->socket() = std::make_shared<asio::ip::tcp::socket>(*session_->io_service());
+    std::error_code ec;
     auto& ep = *conf.account_server->connect;
     log()->info("Connection to account server is not established. Connecting to {}:{}...",
                 ep.address().to_string(), ep.port());
@@ -18,7 +18,7 @@ void ares::character::account_server::timer::reconnect::on_timer() {
 
     if (ec.value() == 0) {
       auto session_copy = session_;
-      session_->socket()->async_connect(ep, [session_copy] (const boost::system::error_code ec) {
+      session_->socket()->async_connect(ep, [session_copy] (const std::error_code ec) {
           auto& server_state = session_copy->server_state_;
           auto& server = server_state.server;
           auto& conf = server_state.conf;

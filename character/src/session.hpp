@@ -23,7 +23,7 @@ namespace ares {
       
       struct inactivity_timer_handler : ares::network::handler::asio::base<inactivity_timer_handler, session> {
         using ares::network::handler::asio::base<inactivity_timer_handler, session>::base;
-        void operator()(const boost::system::error_code& ec);
+        void operator()(const std::error_code& ec);
       };
 
       friend struct recv_handler;
@@ -34,7 +34,7 @@ namespace ares {
       friend struct mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>;
       friend struct account_server::packet_handler<ares::packet::ATHENA_AH_AID_AUTH_RESULT>;
       
-      session(character::state& server_state, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+      session(character::state& server_state, std::shared_ptr<asio::ip::tcp::socket> socket);
 
       void defuse_asio();
       void remove_from_server();

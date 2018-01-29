@@ -7,7 +7,6 @@
 #include <atomic>
 #include <memory>
 
-#include <boost/asio.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ares {
@@ -25,8 +24,8 @@ namespace ares {
        */
       acceptor(std::shared_ptr<spdlog::logger> log,
                Server& server,
-               boost::asio::io_service& io_service,
-               const boost::asio::ip::tcp::endpoint& listen_ep);
+               asio::io_service& io_service,
+               const asio::ip::tcp::endpoint& listen_ep);
 
       /*! Starts the acceptor, if the acceptor has already started, closes previous ASIO acceptor
        */
@@ -43,11 +42,11 @@ namespace ares {
     private:
       std::shared_ptr<spdlog::logger> log_;
       Server& server_;
-      boost::asio::io_service& io_service_;
-      boost::asio::ip::tcp::endpoint ep_;
+      asio::io_service& io_service_;
+      asio::ip::tcp::endpoint ep_;
     
       std::atomic<bool> closed_;
-      std::unique_ptr<boost::asio::ip::tcp::acceptor> boost_acceptor_;
+      std::unique_ptr<asio::ip::tcp::acceptor> boost_acceptor_;
     };
   }
 }

@@ -1,12 +1,10 @@
 #include <iostream>
 
-#include <boost/asio.hpp>
-
 #include "state.hpp"
 
 int main() {
   // TODO: command line options: log destination, log level, config filename, foreground/background
-  auto io_service = std::make_shared<boost::asio::io_service>();
+  auto io_service = std::make_shared<asio::io_service>();
   try {
     ares::character::state s;
     s.server.start();

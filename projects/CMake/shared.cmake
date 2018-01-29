@@ -1,6 +1,6 @@
 option(LOG_TRACE "Enable trace in spdlog" OFF)
 
-set(ARES_COMPILE_DEFINITIONS "")
+set(ARES_COMPILE_DEFINITIONS "ASIO_STANDALONE")
 
 if (ARES_PACKET_VER)
   set(ARES_COMPILE_DEFINITIONS ${ARES_COMPILE_DEFINITIONS} "ARES_PACKET_VER=${ARES_PACKET_VER}")
@@ -12,13 +12,6 @@ if (LOG_TRACE)
 else()
   message("Trace log macro is off")
 endif()
-  
-find_package(Boost 1.57.0 REQUIRED system)
-if(NOT Boost_FOUND)
-  message(FATAL_ERROR "Could not find boost. Try setting BOOST_INCLUDEDIR and BOOST_LIBRARYDIR. See https://cmake.org/cmake/help/v3.0/module/FindBoost.html for more info.")
-endif()
-set(ARES_INCLUDE_DIRECTORIES ${ARES_INCLUDE_DIRECTORIES} ${Boost_INCLUDE_DIRS})
-set(ARES_LINK_LIBRARIES ${ARES_LINK_LIBRARIES} ${Boost_SYSTEM_LIBRARY})
 
 find_package(Threads REQUIRED)
 set(ARES_LINK_LIBRARIES ${ARES_LINK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

@@ -15,7 +15,7 @@ namespace ares {
           /*! Handles data send events. If session's buffer still contains unsent data, requests sending it
             \param ec error code
             \param sent_sz number of bytes that were sent */
-          void operator()(const boost::system::error_code& ec, size_t sent_sz);
+          void operator()(const std::error_code& ec, size_t sent_sz);
 
         protected:
           /*! Returns reference to current session's send buffer */

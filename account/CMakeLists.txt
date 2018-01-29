@@ -60,6 +60,7 @@ set(INCLUDE_DIRS
   ${COMMON}/include
   ${PACKETS}/include
   ${DATABASE}/include
+  ${CONTRIB}/asio/include
   ${CONTRIB}/spdlog/include
   ${CONTRIB}/json
   ${CONTRIB}/readerwriterqueue

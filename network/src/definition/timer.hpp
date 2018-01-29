@@ -5,7 +5,7 @@ ares::network::timer<Timer, Period, Session>::timer(std::shared_ptr<Session> ses
                                              const Period& period) :
   handler::asio::base<timer<Timer, Period, Session>, Session>(sess),
   period_(period),
-  timer_(std::make_shared<boost::asio::steady_timer>(*sess->io_service())),
+  timer_(std::make_shared<asio::steady_timer>(*sess->io_service())),
   executing_(false) {
   }
 
@@ -18,14 +18,14 @@ ares::network::timer<Timer, Period, Session>::timer(const timer<Timer, Period, S
 }
 
 template <typename Timer, typename Period, typename Session>
-inline void ares::network::timer<Timer, Period, Session>::operator()(const boost::system::error_code& ec) {
+inline void ares::network::timer<Timer, Period, Session>::operator()(const std::error_code& ec) {
   if (!executing_) {
     executing_ = true;
     switch (ec.value()) {
     case 0:
       static_cast<Timer&>(*this).on_timer();
       break;
-    case boost::asio::error::operation_aborted:
+    case asio::error::operation_aborted:
       SPDLOG_TRACE(this->log(), "{} timer operation aborted", static_cast<Timer&>(*this).name());
       break;
     default:

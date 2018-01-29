@@ -5,17 +5,17 @@
 template <typename Server>
 inline ares::network::acceptor<Server>::acceptor(std::shared_ptr<spdlog::logger> log,
                          Server& server,
-                         boost::asio::io_service& io_service,
-                         const boost::asio::ip::tcp::endpoint& listen_ep) :
+                         asio::io_service& io_service,
+                         const asio::ip::tcp::endpoint& listen_ep) :
   log_(log),
   server_(server),
   io_service_(io_service),
   ep_(listen_ep),
   closed_(true) {
   try {
-    using namespace boost::asio;
+    using namespace asio;
     boost_acceptor_ = std::make_unique<ip::tcp::acceptor>(io_service_, ep_);
-  } catch (boost::system::system_error& e) {
+  } catch (std::system_error& e) {
     log_->error("Failed to create boost acceptor for address {} - error {}. {}", ep_.address().to_string(), e.code().value(), e.code().message());
     throw e;
   }
@@ -34,7 +34,7 @@ inline void ares::network::acceptor<Server>::start() {
     }
     boost_acceptor_->listen();
     closed_ = false;
-  } catch (boost::system::system_error& e) {
+  } catch (std::system_error& e) {
     log_->error("Failed to listen on boost acceptor - error {}, {}", e.code().value(), e.code().message());
   }
   init();
@@ -52,11 +52,11 @@ inline bool ares::network::acceptor<Server>::closed() const {
 
 template <typename Server>
 inline void ares::network::acceptor<Server>::init() {
-  using namespace boost::asio;
+  using namespace asio;
   auto socket = std::make_shared<ip::tcp::socket>(ip::tcp::socket(io_service_));
   try {
-    boost_acceptor_->async_accept(*socket, [this, socket] (const boost::system::error_code& ec) {
-        if (ec == 0) {
+    boost_acceptor_->async_accept(*socket, [this, socket] (const std::error_code& ec) {
+        if (ec.value() == 0) {
           SPDLOG_TRACE(log_, "Acceptor received request");
           static_cast<Server*>(&server_)->create_session(socket);
         } else {
@@ -73,7 +73,7 @@ inline void ares::network::acceptor<Server>::init() {
           return;
         }
       });
-  } catch (boost::system::error_code& ec) {
+  } catch (std::error_code& ec) {
     log_->error("async_accept failed on boost acceptor {}, {}", ec.value(), ec.message());
     delete this;
     return;

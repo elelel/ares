@@ -16,7 +16,7 @@ namespace ares {
             \param ec error code
             \param received_sz number of bytes received
           */
-          void operator()(const boost::system::error_code& ec, const size_t received_sz);
+          void operator()(const std::error_code& ec, const size_t received_sz);
 
         protected:
           /*! Returns reference to current session's receive buffer */

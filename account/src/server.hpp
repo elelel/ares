@@ -19,7 +19,7 @@ namespace ares {
 
       /*! Creates a new session (interface for acceptor)
        \param socket session's TCP socket */
-      void create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
 
       /*! Adds a session to current sessions list 
        \param s session to add */

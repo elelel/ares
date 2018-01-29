@@ -3,7 +3,7 @@
 #include "../send.hpp"
 
 template <typename Handler, typename Session>
-inline void ares::network::handler::asio::send<Handler, Session>::operator()(const boost::system::error_code& ec, size_t sent_sz) {
+inline void ares::network::handler::asio::send<Handler, Session>::operator()(const std::error_code& ec, size_t sent_sz) {
   if (ec.value() == 0) {
     SPDLOG_TRACE(this->log(), "ares::send_handler acquiring send lock");
     std::lock_guard lock(mutex());
@@ -13,21 +13,21 @@ inline void ares::network::handler::asio::send<Handler, Session>::operator()(con
     this->session_->reset_inactivity_timer();
     if (buf().size() > 0) {
       SPDLOG_TRACE(this->log(), "Still {} bytes left to send", buf().size());
-      this->session_->socket_->async_write_some(boost::asio::buffer(buf().begin(), buf().head_size()), this->session_->make_send_handler());
+      this->session_->socket_->async_write_some(::asio::buffer(buf().begin(), buf().head_size()), this->session_->make_send_handler());
     } else {
       SPDLOG_TRACE(this->log(), "All bytes sent");
       this->session_->sending_ = false;
     }
   } else {
     switch (ec.value()) {
-    case boost::asio::error::operation_aborted:
+    case ::asio::error::operation_aborted:
       static_cast<Handler&>(*this).on_operation_aborted();
       break;
-    case boost::asio::error::connection_reset:
+    case ::asio::error::connection_reset:
       this->session_->connected_ = false;
       static_cast<Handler&>(*this).on_connection_reset();
       break;
-    case boost::asio::error::eof:
+    case ::asio::error::eof:
       this->session_->connected_ = false;
       static_cast<Handler&>(*this).on_eof();
       break;
