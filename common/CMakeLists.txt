@@ -26,7 +26,7 @@ set_target_properties(common PROPERTIES
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}
   ${CONTRIB}/json
-  ${CONTRIB}/asio/include
+  ${CONTRIB}/asio/asio/include
   ${CONTRIB}/spdlog/include
   )
 

@@ -68,7 +68,7 @@ set(INCLUDE_DIRS
   ${COMMON}/include
   ${PACKETS}/include
   ${DATABASE}/include
-  ${CONTRIB}/asio/include
+  ${CONTRIB}/asio/asio/include
   ${CONTRIB}/spdlog/include
   ${CONTRIB}/json
   ${CONTRIB}/network_buffer/include

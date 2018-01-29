@@ -9,7 +9,7 @@ The packet configuration is statically compiled (following Athena's path)
 # Ares server development architecture
 Ares codebase is C++17 under CMake project management potentially targeted
 to multiple deployment platforms. The project is based around asynchronous
-architecture using Boost ASIO.
+architecture using ASIO library.
 
 ## Build dependencies
 - CMake (Should be 3.8.2 or above for future C++17 config flags comaptibility)
@@ -17,7 +17,7 @@ architecture using Boost ASIO.
 - spdlog (included as git submodule)
 - Catch (for tests, included as git submodule)
 - Nlohmann JSON (for configuration files, included as git submodule)
-- Boost (for ASIO, probably will migrate to header-only ASIO version)
+- Asio (included as git submodule)
 - libpqxx (to communicate with Postgres). Tested with version 5.1. The 4.0 branch
 will probably work, but only if it is recent enough (source code newer than at least
 Mar 24, 2012 (?)) to have C++17 deprecation fixes.

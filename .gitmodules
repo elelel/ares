@@ -13,3 +13,6 @@
 [submodule "contrib/RxCpp"]
 	path = contrib/RxCpp
 	url = https://github.com/Reactive-Extensions/RxCpp
+[submodule "contrib/asio"]
+	path = contrib/asio
+	url = https://github.com/chriskohlhoff/asio.git
