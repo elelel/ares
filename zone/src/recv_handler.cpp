@@ -1,10 +1,6 @@
 #include "recv_handler.hpp"
 
 #include "session.hpp"
-
-#define ARES_STATE_DISPATCH_CASE(STATE)                                 \
-  if (std::holds_alternative<STATE::state>(session_->state_))           \
-    return std::get<STATE::state>(session_->state_).dispatch(PacketType); \
   
 size_t ares::zone::recv_handler::dispatch(const uint16_t PacketType) {
   struct visitor {
@@ -12,24 +8,22 @@ size_t ares::zone::recv_handler::dispatch(const uint16_t PacketType) {
       s(s), PacketType(PacketType) {};
 
     size_t operator()(const mono::state&) {
-      return std::get<mono::state>(s.state_).dispatch(PacketType);
+      return s.as_mono().dispatch(PacketType);
     }
 
     size_t operator()(const character_server::state&) {
-      return std::get<character_server::state>(s.state_).dispatch(PacketType);
+      return s.as_character_server().dispatch(PacketType);
     }
 
     size_t operator()(const client::state&) {
-      return std::get<client::state>(s.state_).dispatch(PacketType);
+      return s.as_client().dispatch(PacketType);
     }
   private:
     session& s;
     uint16_t PacketType;
   };
-  return std::visit(visitor(*session_, PacketType), session_->state_);
+  return std::visit(visitor(*session_, PacketType), session_->session_state_);
 }
-
-#undef ARES_STATE_DISPATCH_CASE
 
 void ares::zone::recv_handler::terminate_session() {
   session_->close_socket();

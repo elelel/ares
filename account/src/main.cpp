@@ -1,28 +1,23 @@
+#include <iostream>
+
 #include <boost/asio.hpp>
 #include <spdlog/spdlog.h>
 
-#include "server.hpp"
+#include "state.hpp"
 
 int main() {
   // TODO: command line options: log destination, log level, config filename, foreground/background
-  auto log = spdlog::stdout_color_mt("account");
-  log->set_level(spdlog::level::trace);
-  log->info("Starting");
-
-  auto io_service = std::make_shared<boost::asio::io_service>();
   try {
-    ares::account::config conf(log, io_service, std::optional<std::string>());
-    ares::account::server serv(log, io_service, conf, 2);
-    serv.start();
+    ares::account::state s;
+    s.server.start();
     while (true) {
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   } catch (const std::runtime_error e) {
-    log->error("main: terminated with runtime error {}", e.what());
+    std::cerr << "main: terminated with runtime error " << e.what() << std::endl;
   } catch (...) {
-    log->error("main: terminated with unknown exception");
+    std::cerr << "main: terminated with unknown exception" << std::endl;
     throw;
   }
-  log->info("Terminating");
   return 0;
 }

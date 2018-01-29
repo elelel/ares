@@ -2,10 +2,10 @@
 
 #include <ares/network>
 
-#include "predeclare.hpp"
-
 namespace ares {
   namespace character {
+    struct session;
+
     struct send_handler : ares::network::handler::asio::send<send_handler, session> {
       using ares::network::handler::asio::send<send_handler, session>::send;
       

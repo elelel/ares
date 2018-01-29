@@ -4,25 +4,26 @@
 
 #include "../../../packet_size.hpp"
 
-template <typename Handler, typename Packet, typename Server, typename Session, typename State>
-inline ares::network::handler::packet::base<Handler, Packet, Server, Session, State>::base(Server& server, Session& session, State& state) :
-  server_(server),
+template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
+inline ares::network::handler::packet::base<Handler, Packet, ServerState, Session, SessionState>::base
+(ServerState& server, Session& session, SessionState& session_state) :
+  server_state_(server),
   session_(session),
-  state_(state),
+  session_state_(session_state),
   p_((Packet*)session_.recv_buf_.begin()),
   need_pop_(true) {
 }
 
-template <typename Handler, typename Packet, typename Server, typename Session, typename State>
-inline ares::network::handler::packet::base<Handler, Packet, Server, Session, State>::~base() {
+template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
+inline ares::network::handler::packet::base<Handler, Packet, ServerState, Session, SessionState>::~base() {
   SPDLOG_TRACE(session_.log_, "handler::packet::base::~base");
   if (need_pop_) {
     pop_packet();
   }
 }
 
-template <typename Handler, typename Packet, typename Server, typename Session, typename State>
-inline void ares::network::handler::packet::base<Handler, Packet, Server, Session, State>::pop_packet() {
+template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
+inline void ares::network::handler::packet::base<Handler, Packet, ServerState, Session, SessionState>::pop_packet() {
   SPDLOG_TRACE(session_.log_, "handler::packet::base::pop_packet need_pop_ = {}", need_pop_);
   if (need_pop_) {
     session_.recv_buf_.pop_front(packet_size());
@@ -31,13 +32,13 @@ inline void ares::network::handler::packet::base<Handler, Packet, Server, Sessio
   }
 }
 
-template <typename Handler, typename Packet, typename Server, typename Session, typename State>
-inline size_t ares::network::handler::packet::base<Handler, Packet, Server, Session, State>::packet_size() const {
+template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
+inline size_t ares::network::handler::packet::base<Handler, Packet, ServerState, Session, SessionState>::packet_size() const {
   return packet_size_helper::size<Packet>(p_, session_.recv_buf_.size());
 }
 
-template <typename Handler, typename Packet, typename Server, typename Session, typename State>
-inline size_t ares::network::handler::packet::base<Handler, Packet, Server, Session, State>::handle() {
+template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
+inline size_t ares::network::handler::packet::base<Handler, Packet, ServerState, Session, SessionState>::handle() {
   auto& buf = session_.recv_buf_;
   // Since the Packet is defined, we have at least 2 bytes in buffer
   // Now check that we have the whole packet, both for static and dynamic packets
@@ -60,7 +61,7 @@ inline size_t ares::network::handler::packet::base<Handler, Packet, Server, Sess
   return needed;
 }
 
-template <typename Handler, typename Packet, typename Server, typename Session, typename State>
-inline std::shared_ptr<spdlog::logger>& ares::network::handler::packet::base<Handler, Packet, Server, Session, State>::log() {
+template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
+inline std::shared_ptr<spdlog::logger>& ares::network::handler::packet::base<Handler, Packet, ServerState, Session, SessionState>::log() {
   return session_.log_;
 }

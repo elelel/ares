@@ -3,22 +3,27 @@
 #include <array>
 #include <chrono>
 #include <memory>
+#include <variant>
 
 #include <spdlog/spdlog.h>
 
 #include <ares/network>
 #include <ares/packets>
 
-#include "predeclare.hpp"
-
-#include "state.hpp"
 #include "recv_handler.hpp"
 #include "send_handler.hpp"
 
+#include "mono/state.hpp"
+#include "client/state.hpp"
+#include "character_server/state.hpp"
+
 namespace ares {
   namespace zone {
-    struct session : ares::network::session<session>, std::enable_shared_from_this<session> {
+    struct state;
+    
+    struct session : ares::network::session<ares::zone::session>, std::enable_shared_from_this<ares::zone::session> {
 
+      using state_variant = std::variant<mono::state, client::state, character_server::state>;
 
       struct inactivity_timer_handler : ares::network::handler::asio::base<inactivity_timer_handler, session> {
         using ares::network::handler::asio::base<inactivity_timer_handler, session>::base;
@@ -29,12 +34,15 @@ namespace ares {
       friend struct send_handler;
 
       // Needed to allow changing of state type
-      friend struct mono::packet_handler<ares::packet::CH_ENTER>;
-      friend struct mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>;
+      //friend struct mono::packet_handler<ares::packet::CH_ENTER>;
+      //friend struct mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>;
       
-      session(server& server, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+      session(zone::state& zone_state, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
       void remove_from_server();
+      /*! Defuses ASIO: terminates outstanding operations that depend on the lifetime of this object */
+      void defuse_asio();
+
       void on_disconnect();
       
       void on_open();
@@ -47,8 +55,10 @@ namespace ares {
       void on_inactivity_timer();
       void reset_inactivity_timer();
 
-      state_variant_type& state_variant();
+      state_variant& variant();
 
+      bool is_mono() const;
+      mono::state& as_mono();
       bool is_character_server() const;
       character_server::state& as_character_server();
       bool is_client() const;
@@ -57,10 +67,11 @@ namespace ares {
       recv_handler make_recv_handler();
       send_handler make_send_handler();
 
-      server& server_;
     private:
-      state_variant_type state_;
-
+      state_variant session_state_;
+    public:
+      zone::state& server_state_;
+    private:
       std::chrono::seconds inactivity_timeout_{120};
     };
 

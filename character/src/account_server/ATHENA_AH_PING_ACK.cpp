@@ -1,7 +1,5 @@
-#include "packet_handlers.hpp"
-
 #include "state.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 
 void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_PING_ACK>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_AH_PING_ACK: begin");

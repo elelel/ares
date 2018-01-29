@@ -1,22 +1,31 @@
 #pragma once
 
-#include <spdlog/spdlog.h>
-
 #include <ares/network>
+#include <ares/packets>
 
-#include "../predeclare.hpp"
-#include "../character_server/state.hpp"
-#include "../client/state.hpp"
+#include "../macros.h"
 
 namespace ares {
   namespace zone {
+    struct state;
+    struct session;
+    
+    namespace client {
+      struct state;
+    }
+
+    namespace character_server {
+      struct state;
+    }
+    
     namespace mono {
       struct state {
         friend struct client::state;
         friend struct character_server::state;
         
-        state(std::shared_ptr<spdlog::logger> log, server& serv, session& sess);        
+        state(zone::state& zone_state, session& sess);        
         // Interface with zone::session
+        void defuse_asio();
         void on_open();
         void before_close();
         void on_connection_reset();
@@ -25,12 +34,13 @@ namespace ares {
         void on_operation_aborted();
         size_t dispatch(const uint16_t PacketType);
 
-        void defuse_asio();
       private:
-        std::shared_ptr<spdlog::logger> log_;
-        server& server_;
+        zone::state& server_state_;
         session& session_;
       };
+
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      
     }
   }
 }

@@ -2,10 +2,10 @@
 
 #include <ares/network>
 
-#include "predeclare.hpp"
-
 namespace ares {
   namespace account {
+    struct session;
+    
     struct recv_handler : ares::network::handler::asio::receive<recv_handler, session> {
       using ares::network::handler::asio::receive<recv_handler, session>::receive;
       

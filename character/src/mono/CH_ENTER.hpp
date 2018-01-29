@@ -1,10 +1,10 @@
 template <>
 struct packet_handler<packet::CH_ENTER>
   : network::handler::packet::base<packet_handler<packet::CH_ENTER>, packet::CH_ENTER,
-                                   server, session, state> {
+                                   character::state, session, state> {
 
   using network::handler::packet::base<packet_handler<packet::CH_ENTER>, packet::CH_ENTER,
-                                       server, session, state>::base;
+                                       character::state, session, state>::base;
 
   void operator()();
 

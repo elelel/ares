@@ -1,17 +1,16 @@
 #pragma once
 
-#include <spdlog/spdlog.h>
-
 #include <ares/network>
+#include <ares/packets>
 
-#include "../predeclare.hpp"
+#include "../mono/state.hpp"
 
 namespace ares {
   namespace account {
     namespace client {
       /*! State for sessions that are game clients */
       struct state {
-        state(std::shared_ptr<spdlog::logger> log, server& serv, session& sess);
+        state(account::state& server_state, session& sess);
         /*! Constructor to create the client state from monostate
           \param mono_state monostate to convert to client state  */
         state(const mono::state& mono_state);
@@ -27,8 +26,7 @@ namespace ares {
         size_t dispatch(const uint16_t PacketType);
 
       private:
-        std::shared_ptr<spdlog::logger> log_;
-        server& server_;
+        account::state& server_state_;
         session& session_;
 
       public:
@@ -53,6 +51,9 @@ namespace ares {
         bool online{false};
 
       };
+
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      
     }
   }
 }

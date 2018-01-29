@@ -55,9 +55,9 @@ inline void ares::network::server<Server>::stop() {
 
 template <typename Server>
 inline void ares::network::server<Server>::create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
-  SPDLOG_TRACE(log, "ares::network::server::create_session acquiring server lock");
+  SPDLOG_TRACE(log_, "ares::network::server::create_session acquiring server lock");
   std::lock_guard lock(mutex_);
-  SPDLOG_TRACE(log, "ares::network::server::create_session server lock acquired");
+  SPDLOG_TRACE(log_, "ares::network::server::create_session server lock acquired");
   static_cast<Server*>(this)->create_session(socket);
 }
 

@@ -1,17 +1,14 @@
-#include "packet_handlers.hpp"
-
 #include "state.hpp"
-#include "../server.hpp"
-
+#include "../state.hpp"
 
 void ares::account::char_server::packet_handler<ares::packet::ATHENA_HA_AID_AUTH_REQ>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HA_AID_AUTH_REQ: begin");
 
   SPDLOG_TRACE(log(), "ATHENA_HA_AID_AUTH_REQ acquiring server lock");
-  std::lock_guard<std::mutex> lock(server_.mutex());
+  std::lock_guard<std::mutex> lock(server_state_.server.mutex());
   SPDLOG_TRACE(log(), "ATHENA_HA_AID_AUTH_REQ server lock acquired");
 
-  auto found = server_.client_by_aid(p_->aid());
+  auto found = server_state_.server.client_by_aid(p_->aid());
   if (found) {
     const auto& data = found->as_client();
     if ((data.auth_code1 == p_->auth_code1()) &&

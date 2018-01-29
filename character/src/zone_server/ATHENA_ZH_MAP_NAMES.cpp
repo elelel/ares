@@ -1,10 +1,8 @@
-#include "packet_handlers.hpp"
-
 #include "state.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 
 void ares::character::zone_server::packet_handler<ares::packet::ATHENA_ZH_MAP_NAMES>::operator()() {
-  SPDLOG_TRACE(log(), "ATHENA_ZH_MAP_NAMES: begin, PacketLength = {}", p_->PacketLength);
+  SPDLOG_TRACE(server_state_.log(), "ATHENA_ZH_MAP_NAMES: begin, PacketLength = {}", p_->PacketLength);
   if (p_->PacketLength >= 4) {
     const size_t map_count = (p_->PacketLength - sizeof(*p_)) / sizeof(uint32_t);
     log()->info("Received {} maps form zone server", map_count);
@@ -17,5 +15,5 @@ void ares::character::zone_server::packet_handler<ares::packet::ATHENA_ZH_MAP_NA
   } else {
     log()->warn("Received ATHENA_ZH_MAP_NAMES packet with no map ids");
   }
-  SPDLOG_TRACE(log(), "ATHENA_ZH_MAP_NAMES: end");
+  SPDLOG_TRACE(server_state_.log(), "ATHENA_ZH_MAP_NAMES: end");
 }

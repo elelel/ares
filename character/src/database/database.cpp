@@ -62,7 +62,7 @@ FROM "characters"
 JOIN "char_appearance" ON ("char_appearance"."cid" = "id")
 JOIN "char_stats" ON ("char_stats"."cid" = "id")
 JOIN "char_location" ON ("char_location"."cid" = "id")
-WHERE ("id" = $1) AND ("slot" = $2)
+WHERE ("aid" = $1) AND ("slot" = $2)
 )");
     
     pqxx_conn_->prepare("make_char_create_cid", R"(

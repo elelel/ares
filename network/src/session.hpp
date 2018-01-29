@@ -23,7 +23,7 @@ namespace ares {
     */
     template <typename Session>
     struct session {
-      template <typename Handler, typename Packet, typename Session_, typename State>
+      template <typename Handler, typename Packet, typename Server, typename Session_, typename State>
       friend struct handler::packet::base;
       template <typename Handler, typename Session_>
       friend struct handler::asio::base;

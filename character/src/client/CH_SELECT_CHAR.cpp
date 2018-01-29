@@ -1,15 +1,13 @@
-#include "packet_handlers.hpp"
-
 #include <ares/common>
 
 #include "state.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 
 void ares::character::client::packet_handler<ares::packet::CH_SELECT_CHAR>::operator()() {
   SPDLOG_TRACE(log(), "CH_SELECT_CHAR begin");
   auto& c = session_.as_client();
   if (p_->CharNum() < c.playable_slots) {
-    auto ci = server_.db().character_info_for_slot(c.cid, p_->CharNum());
+    auto ci = server_state_.db.character_info_for_slot(c.aid, p_->CharNum());
     if (ci) {
       // TODO: Find zone server with last map and send zone server info
     } else {

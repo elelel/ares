@@ -4,9 +4,9 @@ template <>
 struct packet_handler<packet::CA_SSO_LOGIN_REQ_0x64>
   : network::handler::packet::base<packet_handler<packet::CA_SSO_LOGIN_REQ_0x64>,
                                    packet::CA_SSO_LOGIN_REQ_0x64,
-                                   server, session, state> {
+                                   account::state, session, state> {
   
-  packet_handler(server&, session&, state&);
+  packet_handler(account::state&, session&, state&);
 
   void operator()();
 

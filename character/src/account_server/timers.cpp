@@ -2,15 +2,16 @@
 
 #include "state.hpp"
 #include "../session.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 
 void ares::character::account_server::timer::reconnect::on_timer() {
   if (!session_->connected()) {
-    auto& server = session_->server_;
+    auto& server = session_->server_state_.server;
+    auto& conf = session_->server_state_.conf;
     std::lock_guard<std::mutex> lock(server.mutex());
     session_->socket() = std::make_shared<boost::asio::ip::tcp::socket>(*session_->io_service());
     boost::system::error_code ec;
-    auto& ep = *server.conf().account_server->connect;
+    auto& ep = *conf.account_server->connect;
     log()->info("Connection to account server is not established. Connecting to {}:{}...",
                 ep.address().to_string(), ep.port());
     session_->socket()->open(ep.protocol(), ec);
@@ -18,20 +19,22 @@ void ares::character::account_server::timer::reconnect::on_timer() {
     if (ec.value() == 0) {
       auto session_copy = session_;
       session_->socket()->async_connect(ep, [session_copy] (const boost::system::error_code ec) {
-          auto& server = session_copy->server_;
+          auto& server_state = session_copy->server_state_;
+          auto& server = server_state.server;
+          auto& conf = server_state.conf;
           std::lock_guard<std::mutex> lock(server.mutex());
           if (ec.value() == 0) {
             session_copy->set_connected();
             server.log()->info("Starting handshake with account server");
-            const auto my_ipv4 = server.conf().listen_ipv4[0].address().to_v4().to_ulong();
-            const auto my_port = server.conf().listen_ipv4[0].port();
-            session_copy->emplace_and_send<packet::ATHENA_HA_LOGIN_REQ>(server.conf().account_server->login,
-                                                                        server.conf().account_server->password,
+            const auto my_ipv4 = conf.listen_ipv4[0].address().to_v4().to_ulong();
+            const auto my_port = conf.listen_ipv4[0].port();
+            session_copy->emplace_and_send<packet::ATHENA_HA_LOGIN_REQ>(conf.account_server->login,
+                                                                        conf.account_server->password,
                                                                         htonl(my_ipv4),
                                                                         htons(my_port),
-                                                                        *server.conf().server_name,
-                                                                        server.state_num,
-                                                                        server.property);
+                                                                        *conf.server_name,
+                                                                        server_state.state_num,
+                                                                        server_state.property);
             session_copy->receive();
             session_copy->as_account_server().ping_request_timer.set();    
           } else {
@@ -50,24 +53,24 @@ void ares::character::account_server::timer::reconnect::on_timer() {
 }
 
 void ares::character::account_server::timer::send_aids::on_timer() {
-  std::lock_guard<std::mutex> lock(session_->server_.mutex());
-  SPDLOG_TRACE(log(), "sending {} online aids", session_->server_.clients().size());
-  session_->emplace_and_send<packet::ATHENA_HA_ONLINE_AIDS>(session_->server_.clients().size());
+  std::lock_guard<std::mutex> lock(session_->server_state_.server.mutex());
+  SPDLOG_TRACE(log(), "sending {} online aids", session_->server_state_.server.clients().size());
+  session_->emplace_and_send<packet::ATHENA_HA_ONLINE_AIDS>(session_->server_state_.server.clients().size());
   SPDLOG_TRACE(log(), "online aids header sent" );
-  for (const auto& p : session_->server_.clients()) {
+  for (const auto& p : session_->server_state_.server.clients()) {
     session_->copy_and_send(&p.first, sizeof(p.first));
   }
   session_->as_account_server().send_aids_timer.set();  
 }
 
 void ares::character::account_server::timer::send_user_count::on_timer() {
-  std::lock_guard<std::mutex> lock(session_->server_.mutex());
-  session_->emplace_and_send<packet::ATHENA_HA_USER_COUNT>(session_->server_.clients().size());
+  std::lock_guard<std::mutex> lock(session_->server_state_.server.mutex());
+  session_->emplace_and_send<packet::ATHENA_HA_USER_COUNT>(session_->server_state_.server.clients().size());
   session_->as_account_server().send_user_count_timer.set();  
 }
 
 void ares::character::account_server::timer::ping_request::on_timer() {
-  auto& server = session_->server_;
+  auto& server = session_->server_state_.server;
   std::lock_guard<std::mutex> lock(server.mutex());
   if (server.account_server() &&
       (server.account_server() == session_) &&
@@ -86,7 +89,7 @@ void ares::character::account_server::timer::ping_request::on_timer() {
 }
 
 void ares::character::account_server::timer::ping_timeout::on_timer() {
-  auto& server = session_->server_;
+  auto& server = session_->server_state_.server;
   std::lock_guard<std::mutex> lock(server.mutex());
   if (server.account_server() &&
       (server.account_server() == session_) &&

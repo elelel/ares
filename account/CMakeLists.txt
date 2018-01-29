@@ -21,10 +21,10 @@ set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
   ${SRC}/main.cpp
+  ${SRC}/state.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
   ${SRC}/session.cpp
-  ${SRC}/session_timers.cpp
   ${SRC}/recv_handler.cpp
   ${SRC}/send_handler.cpp
   ${SRC}/mono/state.cpp

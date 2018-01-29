@@ -2,10 +2,10 @@
 
 #include <ares/network>
 
-#include "../predeclare.hpp"
-
 namespace ares {
   namespace zone {
+    struct session;
+    
     namespace character_server {
       namespace timer {
 #define ARES_TIMER(NAME)                                                \

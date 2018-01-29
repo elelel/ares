@@ -3,25 +3,26 @@
 #include <array>
 #include <chrono>
 #include <memory>
-
-#include <spdlog/spdlog.h>
+#include <variant>
 
 #include <ares/network>
 #include <ares/packets>
 
-#include "predeclare.hpp"
-
 #include "recv_handler.hpp"
 #include "send_handler.hpp"
 
-#include "state.hpp"
+#include "mono/state.hpp"
+#include "client/state.hpp"
+#include "char_server/state.hpp"
 
 namespace ares {
   namespace account {
+    struct state;
 
     /*! Session descriptor for account server sessions */
     struct session : ares::network::session<session>, std::enable_shared_from_this<session> {
-
+      using state_variant = std::variant<mono::state, client::state, char_server::state>;
+      
       struct inactivity_timer_handler : ares::network::handler::asio::base<inactivity_timer_handler, session> {
         using ares::network::handler::asio::base<inactivity_timer_handler, session>::base;
         void operator()(const boost::system::error_code& ec);
@@ -39,7 +40,7 @@ namespace ares {
         \param server reference to account server
         \param socket pointer to TCP socket
       */
-      session(server& server, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+      session(account::state& server_state, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
       /*! Removes this session from server */
       void remove_from_server();
@@ -67,31 +68,31 @@ namespace ares {
       void reset_inactivity_timer();
 
       /*! Returns reference to the state variant corresponding to this session */
-      state_variant_type& state_variant();
-
-      /*! Returns true if this is a character server session */ 
-      bool is_char_server() const;
-      /*! Returns reference to state variant interpreted as a character server state */
-      char_server::state& as_char_server();
-
-      /*! Returns true if this is a game client session */
-      bool is_client() const;
-      /*! Returns reference to state variant interpreted as a game client state */
-      client::state& as_client();
+      state_variant& variant();
 
       /*! Returns true if this is a monostate (not initialized as a char server or game client yet) */
       bool is_mono() const;
       /*! Returns reference to state variant interpreted as a monostate */
       mono::state& as_mono();
+      /*! Returns true if this is a character server session */ 
+      bool is_char_server() const;
+      /*! Returns reference to state variant interpreted as a character server state */
+      char_server::state& as_char_server();
+      /*! Returns true if this is a game client session */
+      bool is_client() const;
+      /*! Returns reference to state variant interpreted as a game client state */
+      client::state& as_client();
 
       /*! Creates and returns a receive handler */
       recv_handler make_recv_handler();
       /*! Creates and returns a send handler */
       send_handler make_send_handler();
+      
     private:
-      server& server_;
-      state_variant_type state_;
-
+      state_variant session_state_;
+    public:
+      account::state& server_state_;
+    private:
       /*! This session's inactivity threshold time in seconds */
       std::chrono::seconds inactivity_timeout_{120};
     };

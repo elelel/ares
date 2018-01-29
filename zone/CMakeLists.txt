@@ -20,9 +20,8 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/client/CZ_REQUEST_MOVE.cpp
-
   ${SRC}/main.cpp
+  ${SRC}/state.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
   ${SRC}/session.cpp
@@ -37,6 +36,7 @@ set(SOURCES
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
   ${SRC}/client/state.cpp
+  ${SRC}/client/CZ_REQUEST_MOVE.cpp
   )
 
 if (NOT TARGET common) 

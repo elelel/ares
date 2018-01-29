@@ -1,14 +1,13 @@
-#include "packet_handlers.hpp"
-
 #include <ares/common>
 
 #include "state.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 
 void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operator()() {
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR begin");
   auto& c = session_.as_client();
-  auto slots = server_.db().account_slots_for_aid(c.aid);
+  auto& db = server_state_.db;
+  auto slots = db.account_slots_for_aid(c.aid);
   if (slots) {
     // TODO: Check if new char creation is allowed in server configuration
     if (p_->CharNum() < slots->creatable_slots) {
@@ -25,19 +24,19 @@ void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operat
           starting_map_x = 48;
           starting_map_y = 297;
         }
-        auto cid = server_.db().make_char(c.aid,
-                                          p_->name(),
-                                          p_->CharNum(),
-                                          p_->head_palette(),
-                                          p_->head(),
-                                          job,
-                                          p_->sex(),
-                                          starting_zeny,
-                                          starting_map,
-                                          starting_map_x,
-                                          starting_map_y);
+        auto cid = db.make_char(c.aid,
+                                p_->name(),
+                                p_->CharNum(),
+                                p_->head_palette(),
+                                p_->head(),
+                                job,
+                                p_->sex(),
+                                starting_zeny,
+                                starting_map,
+                                starting_map_x,
+                                starting_map_y);
         if (cid) {
-          auto ci = server_.db().character_info(*cid);
+          auto ci = db.character_info(*cid);
           if (ci) {
             c.cid = *cid;
             
@@ -50,7 +49,7 @@ void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operat
               auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*i.delete_date - std::chrono::system_clock::now());
               delete_timeout = diff.count();
               if (delete_timeout < 0) {
-                server_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", c.cid, c.aid, (delete_timeout / 1000) * -1);
+                server_state_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", c.cid, c.aid, (delete_timeout / 1000) * -1);
               }
             }
 

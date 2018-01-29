@@ -1,14 +1,13 @@
-#include "packet_handlers.hpp"
-
 #include "state.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 
 void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACCOUNT_DATA_RESULT>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_ACCOUNT_DATA_RESULT: begin");
+  auto& server = server_state_.server;
   session_ptr s;
   {
-    std::lock_guard<std::mutex> lock(server_.mutex());
-    s = server_.client_by_aid(p_->aid());
+    std::lock_guard<std::mutex> lock(server.mutex());
+    s = server.client_by_aid(p_->aid());
   }
   if (s != nullptr) {
     auto& c = s->as_client();
@@ -18,20 +17,21 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
     c.pin = p_->pin();
     // TODO: birthdate conversion
 
-    auto ad = server_.db().account_slots_for_aid(p_->aid());
+    auto ad = server_state_.db.account_slots_for_aid(p_->aid());
     if (!ad) {
+      auto& conf = server_state_.conf;
       // Does not exist or other error, try to create default account data i
-      server_.db().account_create(p_->aid(),
-                                  server_.conf().normal_slots,
-                                  server_.conf().premium_slots,
-                                  server_.conf().billing_slots,
-                                  server_.conf().playable_slots,
-                                  server_.conf().creatable_slots,
-                                  server_.conf().bank_vault,
-                                  server_.conf().max_storage);
+      server_state_.db.account_create(p_->aid(),
+                                 conf.normal_slots,
+                                  conf.premium_slots,
+                                  conf.billing_slots,
+                                  conf.playable_slots,
+                                  conf.creatable_slots,
+                                  conf.bank_vault,
+                                  conf.max_storage);
 
       // Read account data again
-      ad = server_.db().account_slots_for_aid(p_->aid());
+      ad = server_state_.db.account_slots_for_aid(p_->aid());
     }
     if (ad) {
       c.creatable_slots = ad->creatable_slots;
@@ -47,10 +47,10 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
 
       SPDLOG_TRACE(log(), "sending HC_ACCEPT_ENTER done");
       // Send existing characters information
-      c.char_select_character_info = server_.db().character_info_for_aid(p_->aid(), ad->normal_slots +
-                                                                         ad->premium_slots +
-                                                                         ad->billing_slots
-                                                                         );
+      c.char_select_character_info = server_state_.db.character_info_for_aid(p_->aid(), ad->normal_slots +
+                                                                             ad->premium_slots +
+                                                                             ad->billing_slots
+                                                                             );
       const uint32_t nchars = 50;
       const uint32_t npages = (nchars / 3) + ((nchars % 3) != 0 ? 1 : 0);
       
@@ -59,7 +59,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
       s->emplace_and_send<packet::HC_BLOCK_CHARACTER>();
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing s session", p_->aid());
-      std::lock_guard<std::mutex> lock(server_.mutex());
+      std::lock_guard<std::mutex> lock(server.mutex());
       s->remove_from_server();
     }
   } else {

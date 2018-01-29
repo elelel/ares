@@ -21,7 +21,7 @@ namespace ares {
         std::string password;
       };
       using account_server_config = std::optional<account_server_config_record>;
-
+      std::optional<size_t> network_threads{std::optional<uint32_t>(2)}; // TODO: read from config
       std::optional<postgres_config> postgres;
       endpoints_config listen_ipv4;
       std::optional<uint32_t> client_version;
@@ -31,7 +31,7 @@ namespace ares {
       std::optional<std::string> priv_msg_server_name;
 
       // Server level character parameters used in char creation
-      // TODO: Check which slots limits are not needed
+      // TODO: Check which slots limits are not needed, convert to optional
       uint8_t normal_slots;
       uint8_t premium_slots;
       uint8_t billing_slots;

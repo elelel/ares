@@ -20,13 +20,11 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/client/CH_SELECT_CHAR.cpp
-  
   ${SRC}/main.cpp
+  ${SRC}/state.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
   ${SRC}/session.cpp
-  ${SRC}/session_timers.cpp
   ${SRC}/recv_handler.cpp
   ${SRC}/send_handler.cpp
   ${SRC}/account_server/state.cpp
@@ -39,6 +37,7 @@ set(SOURCES
   ${SRC}/client/PING.cpp
   ${SRC}/client/CH_MAKE_CHAR.cpp
   ${SRC}/client/CH_CHAR_PAGE_REQ.cpp
+  ${SRC}/client/CH_SELECT_CHAR.cpp
   ${SRC}/account_server/ATHENA_AH_KICK_AID.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CH_ENTER.cpp

@@ -34,7 +34,7 @@ if (WIN32)
   endif()
   set(ARES_COMPILE_DEFINITIONS "${ARES_COMPILE_DEFINITIONS}; NOMINMAX")  
 else()
-  set(ARES_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wextra -Werror -Wunused")
+  set(ARES_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wextra -Werror -Wunused -Wno-unused-private-field")
 endif()
 
 set(ARES_INCLUDE_DIRECTORIES ${ARES_INCLUDE_DIRECTORIES} ${ARES_POSTGRES_INCLUDE_DIRS})

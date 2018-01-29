@@ -15,6 +15,7 @@ namespace ares {
       };
       using char_server_config = std::vector<char_server_config_record>;
 
+      std::optional<size_t> network_threads{std::optional<size_t>(2)};
       std::optional<postgres_config> postgres;
       endpoints_config listen_ipv4;
       std::optional<uint32_t> client_version;

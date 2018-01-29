@@ -5,18 +5,14 @@
 
 #include <ares/network>
 
-#include "predeclare.hpp"
-
 #include "session.hpp"
-#include "database/database.hpp"
 
 namespace ares {
   namespace account {
+    struct state;
+    
     struct server : ares::network::server<server> {
-      server(std::shared_ptr<spdlog::logger> log,
-             std::shared_ptr<boost::asio::io_service> io_service,
-             const config& conf,
-             const size_t num_threads);
+      server(state& state_);
       
       /*! Starts the account server */
       void start();
@@ -44,17 +40,11 @@ namespace ares {
        \param s character server session */
       void unlink_aid_from_char_server(const uint32_t aid, session_ptr s);
 
-      /*! Returns reference to account server config */
-      const config& conf() const;
-      /*! Returns reference to account server database object */
-      database& db();
-      
       /*! Returns connected character server sessions */ 
       const std::set<session_ptr>& char_servers() const;
 
     private:
-      const config& config_;
-      database db_;
+      state& state_;
 
       std::set<session_ptr> mono_;
       std::set<session_ptr> char_servers_;

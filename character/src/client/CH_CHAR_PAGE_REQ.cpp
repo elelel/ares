@@ -1,9 +1,7 @@
-#include "packet_handlers.hpp"
-
 #include <ares/common>
 
 #include "state.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 
 void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::operator()() {
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ begin");
@@ -26,11 +24,11 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
         auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*i.delete_date - std::chrono::system_clock::now());
         delete_timeout = diff.count();
         if (delete_timeout < 0) {
-          server_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", i.cid, c.aid, (delete_timeout / 1000) * -1);
+          server_state_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", i.cid, c.aid, (delete_timeout / 1000) * -1);
         }
       }
 
-      SPDLOG_TRACE(log(), "Sending character {} in response to char page req", i.cid);
+      SPDLOG_TRACE(server_state_.log(), "Sending character {} in response to char page req", i.cid);
 
       session_.emplace_and_send<packet::CHARACTER_INFO>(i.cid,
                                                         s.base_exp,

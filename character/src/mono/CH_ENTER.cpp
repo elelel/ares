@@ -1,9 +1,7 @@
-#include "packet_handlers.hpp"
-
 #include <ares/common>
 
 #include "state.hpp"
-#include "../server.hpp"
+#include "../state.hpp"
 #include "../client/state.hpp"
 
 void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::operator()() {
@@ -16,9 +14,9 @@ void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::operator()()
   session_ptr client;
   {
     SPDLOG_TRACE(log(), "CH_ENTER acquiring server lock");
-    std::lock_guard<std::mutex> lock(server_.mutex());
+    std::lock_guard<std::mutex> lock(server_state_.server.mutex());
     SPDLOG_TRACE(log(), "CH_ENTER acquiring server lock acquired");
-    client = server_.client_by_aid(p_->AID());
+    client = server_state_.server.client_by_aid(p_->AID());
   }
   if (client &&
       (p_->AuthCode() == client->as_client().auth_code1) &&
@@ -27,22 +25,23 @@ void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::operator()()
   } else {
     from_account_server();
   }
-  SPDLOG_TRACE(log(), "CH_ENTER: end");
+  SPDLOG_TRACE(server_state_.log(), "CH_ENTER: end");
 }
 
 void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::from_zone_server(session_ptr) {
-  SPDLOG_TRACE(log(), "CH_ENTER - transforming from existing session {:#x}", (uintptr_t)existing_session.get());
+  //  SPDLOG_TRACE(server_state_.log(), "CH_ENTER - transforming from existing session {:#x}", (uintptr_t)existing_session.get());
   // TODO:
 }
 
 void ares::character::mono::packet_handler<ares::packet::CH_ENTER>::from_account_server() {
-  SPDLOG_TRACE(log(), "Sending ATHENA_HA_AID_AUTH_REQ");
+  SPDLOG_TRACE(server_state_.log(), "Sending ATHENA_HA_AID_AUTH_REQ");
+  auto& server = server_state_.server;
   auto request_id = random_int32::get();
   {
-    std::lock_guard<std::mutex> lock(server_.mutex());
-    server_.add_auth_aid_request(request_id, session_.shared_from_this());
+    std::lock_guard<std::mutex> lock(server.mutex());
+    server.add_auth_aid_request(request_id, session_.shared_from_this());
   }
-  server_.account_server()->emplace_and_send<packet::ATHENA_HA_AID_AUTH_REQ>(p_->AID(),
+  server.account_server()->emplace_and_send<packet::ATHENA_HA_AID_AUTH_REQ>(p_->AID(),
                                                                              p_->AuthCode(),
                                                                              (int32_t)p_->userLevel(),
                                                                              p_->Sex(),

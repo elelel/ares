@@ -1,16 +1,15 @@
 #include "session.hpp"
 
-#include "server.hpp"
-
 #include <utility>
 
+#include "state.hpp"
 #include "mono/state.hpp"
 
-ares::account::session::session(server& serv,
+ares::account::session::session(account::state& server_state,
                                 std::shared_ptr<boost::asio::ip::tcp::socket> socket) :
-  ares::network::session<session>(serv.io_service(), serv.log(), socket),
-  server_(serv),
-  state_(std::in_place_type<mono::state>, log_, serv, *this) {
+  ares::network::session<session>(server_state.io_service(), server_state.log(), socket),
+  session_state_(std::in_place_type<mono::state>, server_state, *this),
+  server_state_(server_state) {
 }
 
 void ares::account::session::defuse_asio() {
@@ -23,7 +22,7 @@ void ares::account::session::defuse_asio() {
 
 void ares::account::session::remove_from_server() {
   defuse_asio();
-  server_.remove(shared_from_this());
+  server_state_.server.remove(shared_from_this());
 }
 
 void ares::account::session::on_disconnect() {
@@ -34,7 +33,8 @@ void ares::account::session::on_disconnect() {
     // TODO: Set inactivity timer to self-destruct after some period?
     return;
   } else {
-    server_.remove(shared_from_this());
+    defuse_asio();
+    server_state_.server.remove(shared_from_this());
   }
 }
 
@@ -63,32 +63,32 @@ void ares::account::session::on_operation_aborted() {
   SPDLOG_TRACE(log_, "account::session:on_operation_aborted");
 }
 
-auto ares::account::session::state_variant() -> state_variant_type& {
-  return state_;
+auto ares::account::session::variant() -> state_variant& {
+  return session_state_;
 }
 
 bool ares::account::session::is_client() const {
-  return std::holds_alternative<client::state>(state_);
+  return std::holds_alternative<client::state>(session_state_);
 }
 
 auto ares::account::session::as_client() -> client::state& {
-  return std::get<client::state>(state_);
+  return std::get<client::state>(session_state_);
 }
 
 bool ares::account::session::is_char_server() const {
-  return std::holds_alternative<char_server::state>(state_);
+  return std::holds_alternative<char_server::state>(session_state_);
 }
 
 auto ares::account::session::as_char_server() -> char_server::state& {
-  return std::get<char_server::state>(state_);
+  return std::get<char_server::state>(session_state_);
 }
 
 bool ares::account::session::is_mono() const {
-  return std::holds_alternative<mono::state>(state_);
+  return std::holds_alternative<mono::state>(session_state_);
 }
 
 auto ares::account::session::as_mono() -> mono::state& {
-  return std::get<mono::state>(state_);
+  return std::get<mono::state>(session_state_);
 }
 
 auto ares::account::session::make_send_handler() -> send_handler {
@@ -99,3 +99,18 @@ auto ares::account::session::make_recv_handler() -> recv_handler {
   return recv_handler(shared_from_this());
 }
 
+void ares::account::session::reset_inactivity_timer() {
+  inactivity_timer_.cancel();
+  inactivity_timer_.expires_from_now(inactivity_timeout_);
+  auto handler = inactivity_timer_handler(shared_from_this());
+  inactivity_timer_.async_wait(handler);
+}
+
+void ares::account::session::on_inactivity_timer() {
+  SPDLOG_TRACE(log_, "account::session::on_inactivity_timer");
+  remove_from_server();
+}
+
+void ares::account::session::inactivity_timer_handler::operator()(const boost::system::error_code& ec) {
+  if (ec.value() == 0) session_->on_inactivity_timer();
+}

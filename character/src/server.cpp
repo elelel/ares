@@ -2,26 +2,26 @@
 
 #include "state.hpp"
 
-ares::character::server::server(std::shared_ptr<spdlog::logger> log,
-                              std::shared_ptr<boost::asio::io_service> io_service,
-                              const config& conf,
-                              const size_t num_threads) :
-  ares::network::server<server>(log, io_service, num_threads),
-  config_(conf),
-  db_(log, *conf.postgres) {
+ares::character::server::server(character::state& server_state) :
+  ares::network::server<server>(server_state.log(), server_state.io_service(), *server_state.conf.network_threads),
+  state_(server_state) {
 }
 
 void ares::character::server::start() {
-  if (config_.listen_ipv4.size() > 0) {
-    for (const auto& listen : config_.listen_ipv4) {
+  if (state_.conf.listen_ipv4.size() > 0) {
+    for (const auto& listen : state_.conf.listen_ipv4) {
       log_->info("starting listener at {}:{}",
                  listen.address().to_v4().to_string(),
                  listen.port());
       ares::network::server<server>::start(listen);
     }
-    account_server_ = std::make_shared<session>(*this, nullptr);
-    account_server_->state_variant().emplace<account_server::state>(log_, *this, *account_server_);
-    account_server_->as_account_server().reconnect_timer.fire();
+    if (state_.log() != nullptr) {
+      account_server_ = std::make_shared<session>(state_, std::shared_ptr<boost::asio::ip::tcp::socket>{});
+      account_server_->variant().emplace<account_server::state>(state_, *account_server_);
+      account_server_->as_account_server().reconnect_timer.fire();
+    } else {
+      throw std::runtime_error("server::start() failure - state_.log() is nullptr");
+    }
   } else {
     log_->error("Can't start: listen ipv4 configuration is empty");
   }
@@ -29,7 +29,7 @@ void ares::character::server::start() {
 
 void ares::character::server::create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "character::server::create_session");
-  auto s = std::make_shared<session>(*this, socket);
+  auto s = std::make_shared<session>(state_, socket);
   add(s);
   s->reset_inactivity_timer();
   s->receive();
@@ -61,7 +61,7 @@ void ares::character::server::add(session_ptr s) {
     server& serv;
     session_ptr s;
   };
-  std::visit(visitor(*this, s), s->state_variant());
+  std::visit(visitor(*this, s), s->variant());
 }
 
 void ares::character::server::remove(session_ptr s) {
@@ -107,15 +107,7 @@ void ares::character::server::remove(session_ptr s) {
     session_ptr s;
   };
   
-  std::visit(visitor(*this, s), s->state_variant());
-}
-
-auto ares::character::server::conf() const -> const config& {
-  return config_;
-}
-
-auto ares::character::server::db() -> database& {
-  return db_;
+  std::visit(visitor(*this, s), s->variant());
 }
 
 auto ares::character::server::zone_servers() const -> const std::set<session_ptr>& {

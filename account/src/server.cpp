@@ -2,18 +2,16 @@
 
 #include "state.hpp"
 
-ares::account::server::server(std::shared_ptr<spdlog::logger> log,
-                              std::shared_ptr<boost::asio::io_service> io_service,
-                              const config& conf,
-                              const size_t num_threads) :
-  ares::network::server<server>(log, io_service, num_threads),
-  config_(conf),
-  db_(log, *conf.postgres) {
+ares::account::server::server(account::state& server_state) :
+  ares::network::server<server>(server_state.log(),
+                                server_state.io_service(),
+                                *server_state.conf.network_threads),
+  state_(server_state) {
 }
 
 void ares::account::server::start() {
-  if (config_.listen_ipv4.size() > 0) {
-    for (const auto& listen : config_.listen_ipv4) {
+  if (state_.conf.listen_ipv4.size() > 0) {
+    for (const auto& listen : state_.conf.listen_ipv4) {
       ares::network::server<server>::start(listen);
     }
   } else {
@@ -23,7 +21,7 @@ void ares::account::server::start() {
 
 void ares::account::server::create_session(std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "account::server::create_session");
-  auto s = std::make_shared<session>(*this, socket);
+  auto s = std::make_shared<session>(state_, socket);
   s->reset_inactivity_timer();
   mono_.insert(s);
   s->receive();
@@ -51,7 +49,7 @@ void ares::account::server::add(session_ptr s) {
     server& serv;
     session_ptr s;
   };
-  std::visit(visitor(*this, s), s->state_variant());
+  std::visit(visitor(*this, s), s->variant());
 }
 
 void ares::account::server::remove(session_ptr s) {
@@ -83,15 +81,7 @@ void ares::account::server::remove(session_ptr s) {
     server& serv;
     session_ptr s;
   };
-  std::visit(visitor(*this, s), s->state_variant());
-}
-
-auto ares::account::server::conf() const -> const config& {
-  return config_;
-}
-
-auto ares::account::server::db() -> database& {
-  return db_;
+  std::visit(visitor(*this, s), s->variant());
 }
 
 auto ares::account::server::char_servers() const -> const std::set<session_ptr>& {

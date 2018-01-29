@@ -2,10 +2,10 @@
 
 #include <ares/network>
 
-#include "../predeclare.hpp"
-
 namespace ares {
   namespace character {
+    struct session;
+    
     namespace account_server {
       namespace timer {
 #define ARES_TIMER(NAME)                                                \
@@ -18,7 +18,6 @@ namespace ares {
           static const char* name() { return ""#NAME""; };              \
           void on_timer();                                              \
         };                                                              \
-      
 
         ARES_TIMER(reconnect);
         ARES_TIMER(send_aids);

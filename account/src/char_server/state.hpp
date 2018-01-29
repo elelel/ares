@@ -1,17 +1,23 @@
 #pragma once
 
-#include <spdlog/spdlog.h>
-
 #include <ares/network>
+#include <ares/packets>
 
-#include "../predeclare.hpp"
+#include "../macros.h"
 
 namespace ares {
   namespace account {
+    struct state;
+    struct session;
+
+    namespace mono {
+      struct state;
+    }
+    
     namespace char_server {
       /*! State for sessions that are character servers */
       struct state {
-        state(std::shared_ptr<spdlog::logger> log, server& serv, session& sess);
+        state(account::state& server_state, session& sess);
         /*! Constructor to create character server state from monostate
           \param mono_state monostate to create character server state from */
         state(const mono::state& mono_state);
@@ -42,10 +48,19 @@ namespace ares {
         uint32_t user_count{0};
 
       private:
-        std::shared_ptr<spdlog::logger> log_;
-        server& server_;
+        account::state& server_state_;
         session& session_;
       };
+      
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_PING_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_ONLINE_AIDS);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_USER_COUNT);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_AID_AUTH_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_ACCOUNT_DATA_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_SET_AID_ONLINE);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_SET_AID_OFFLINE);
     }
   }
 }

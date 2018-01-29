@@ -12,21 +12,21 @@ size_t ares::account::recv_handler::dispatch(const uint16_t PacketType) {
       s(s), PacketType(PacketType) {};
 
     size_t operator()(const mono::state&) {
-      return std::get<mono::state>(s.state_).dispatch(PacketType);
+      return s.as_mono().dispatch(PacketType);
     }
 
     size_t operator()(const char_server::state&) {
-      return std::get<char_server::state>(s.state_).dispatch(PacketType);
+      return s.as_char_server().dispatch(PacketType);
     }
 
     size_t operator()(const client::state&) {
-      return std::get<client::state>(s.state_).dispatch(PacketType);
+      return s.as_client().dispatch(PacketType);
     }
   private:
     session& s;
     uint16_t PacketType;
   };
-  return std::visit(visitor(*session_, PacketType), session_->state_);
+  return std::visit(visitor(*session_, PacketType), session_->session_state_);
 }
 
 void ares::account::recv_handler::terminate_session() {

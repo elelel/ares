@@ -4,9 +4,9 @@ namespace ares {
   namespace network {
     namespace handler {
       namespace packet {
-        template <typename Handler, typename Packet, typename Server, typename Session, typename State>
+        template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
         struct base {
-          base(Server& server, Session& session, State& state);
+          base(ServerState& server, Session& session, SessionState& session_state);
           ~base();
 
           void pop_packet();
@@ -14,9 +14,9 @@ namespace ares {
           size_t handle();
 
         protected:
-          Server& server_;
+          ServerState& server_state_;
           Session& session_;
-          State& state_;
+          SessionState& session_state_;
           Packet* p_;
           bool need_pop_;
           
