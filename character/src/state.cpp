@@ -6,6 +6,7 @@ ares::character::state::state() :
   conf(log_, io_service_, std::optional<std::string>()),
   db(log_, *conf.postgres),
   server(*this) {
+  log_->set_level(spdlog::level::trace);
 }
 
 std::shared_ptr<asio::io_service> ares::character::state::io_service() const {

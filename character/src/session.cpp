@@ -13,6 +13,7 @@ ares::character::session::session(character::state& server_state,
 }
 
 void ares::character::session::defuse_asio() {
+  SPDLOG_TRACE(log_, "character::session::defuse_asio");
   close_socket();
   inactivity_timer_.cancel();
   if (is_mono()) return as_mono().defuse_asio();
@@ -22,11 +23,13 @@ void ares::character::session::defuse_asio() {
 }
 
 void ares::character::session::remove_from_server() {
+  SPDLOG_TRACE(log_, "character::session::remove_from_server");
   defuse_asio();
   server_state_.server.remove(shared_from_this());
 }
 
 void ares::character::session::on_disconnect() {
+  SPDLOG_TRACE(log_, "character::session::on_disconnect");
   remove_from_server();
 }
 
@@ -37,22 +40,22 @@ void ares::character::session::before_close() {
 }
 
 void ares::character::session::on_connection_reset() {
-  SPDLOG_TRACE(log_, "character::session:on_connection_reset");
+  SPDLOG_TRACE(log_, "character::session::on_connection_reset");
   on_disconnect();
 }
 
 void ares::character::session::on_eof() {
-  SPDLOG_TRACE(log_, "character::session:on_eof");
+  SPDLOG_TRACE(log_, "character::session::on_eof");
   on_disconnect();
 }
 
 void ares::character::session::on_socket_error() {
-  SPDLOG_TRACE(log_, "character::session:on_socket_error");
+  SPDLOG_TRACE(log_, "character::session::on_socket_error");
   remove_from_server();
 }
 
 void ares::character::session::on_operation_aborted() {
-  SPDLOG_TRACE(log_, "character::session:on_operation_aborted");
+  SPDLOG_TRACE(log_, "character::session::on_operation_aborted");
 }
 
 
@@ -85,7 +88,7 @@ auto ares::character::session::as_zone_server() -> zone_server::state& {
 }
 
 bool ares::character::session::is_account_server() const {
-  return std::holds_alternative<zone_server::state>(session_state_);
+  return std::holds_alternative<account_server::state>(session_state_);
 }
 
 auto ares::character::session::as_account_server() -> account_server::state& {
