@@ -7,6 +7,8 @@ ares::zone::config::config(std::shared_ptr<spdlog::logger> log,
   postgres = load_with_catch_as<postgres_config>("database", json_);
   listen_ipv4 = load_with_catch_as<endpoints_config>("listen_ipv4", json_);
   load_character_server();
+  load_network_threads();
+  load_maps();
   validate();
 }
 
@@ -25,7 +27,6 @@ void ares::zone::config::validate() {
     throw std::runtime_error(msg);
   }
 }
-
 
 void ares::zone::config::load_character_server() {
   auto load_character_server = [this] () {
@@ -57,4 +58,30 @@ void ares::zone::config::load_character_server() {
     }
   };
   with_catch("character_server", load_character_server);
+}
+
+void ares::zone::config::load_network_threads() {
+  auto load_network_threads = [this] () {
+    auto j_network_threads = json_.find("network_threads");
+    if ((j_network_threads != json_.end() && (j_network_threads->is_number()))) {
+      network_threads.emplace(*j_network_threads);
+    }
+  };
+  with_catch("network_threads", load_network_threads);
+}
+
+void ares::zone::config::load_maps() {
+  auto load_maps = [this] () {
+    auto j_maps = json_.find("maps");
+    if ((j_maps != json_.end()) && (j_maps->is_array())) {
+      for (const auto& m : *j_maps) {
+        if (m.is_string()) {
+          maps.insert(std::string{m});
+        } else {
+          log_->warn("Element of maps array is not a string");
+        }
+      }
+    }
+  };
+  with_catch("maps", load_maps);
 }

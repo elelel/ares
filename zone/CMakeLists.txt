@@ -29,6 +29,7 @@ set(SOURCES
   ${SRC}/recv_handler.cpp
   ${SRC}/send_handler.cpp
   ${SRC}/database/database.cpp
+  ${SRC}/database/map_index.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/character_server/state.cpp
   ${SRC}/character_server/timers.cpp

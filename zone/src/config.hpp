@@ -2,6 +2,8 @@
 
 #include <ares/config>
 
+#include <unordered_set>
+
 namespace ares {
   namespace zone {
     struct config : ares::config {
@@ -16,14 +18,17 @@ namespace ares {
       };
       using character_server_config = std::optional<character_server_config_record>;
 
-      std::optional<size_t> network_threads{std::optional<size_t>(2)};  // TODO: Read number of network threads from config
+      std::optional<size_t> network_threads{std::optional<size_t>(2)};
       std::optional<postgres_config> postgres;
       endpoints_config listen_ipv4;
       character_server_config character_server;
+      std::unordered_set<std::string> maps;
       
     private:
       void validate();
       void load_character_server();
+      void load_network_threads();
+      void load_maps();
     };
     
   }
