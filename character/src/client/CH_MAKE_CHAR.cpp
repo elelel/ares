@@ -16,7 +16,7 @@ void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operat
       if ((job == JOB::NOVICE) || (job == JOB::SUMMONER)) {
         // TODO: Starting zeny, locations from server config
         const uint32_t starting_zeny = 1000;
-        std::string starting_map{"prontera"};
+        std::string starting_map{"prt_fild00"};
         uint16_t starting_map_x{150};
         uint16_t starting_map_y{150};
         if (job == JOB::SUMMONER) {

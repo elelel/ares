@@ -54,7 +54,8 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_ACC
       const uint32_t nchars = 50;
       const uint32_t npages = (nchars / 3) + ((nchars % 3) != 0 ? 1 : 0);
       
-      SPDLOG_TRACE(log(), "Have {} characters, Sending pages num: npages = {}, nslots = {}", c.char_select_character_info.size(), npages, c.creatable_slots);
+      SPDLOG_TRACE(log(), "Loaded {} characters for aid {}, Sending pages num: npages = {}, nslots = {}",
+                   c.char_select_character_info.size(), p_->aid(), npages, c.creatable_slots);
       s->emplace_and_send<packet::HC_CHAR_PAGES_NUM>(npages, c.creatable_slots);
       s->emplace_and_send<packet::HC_BLOCK_CHARACTER>();
     } else {

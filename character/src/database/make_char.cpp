@@ -57,7 +57,7 @@ namespace ares {
             trans.prepared("make_char_create_appearance")
               (cid)(head_)(head_palette_).exec();
 
-            trans.prepared("make_char_create_location")
+            trans.prepared("make_char_create_location_by_map_name")
               (cid)(map_)(map_x_)(map_y_).exec();
 
             // TODO: Add items (weapon/armour)

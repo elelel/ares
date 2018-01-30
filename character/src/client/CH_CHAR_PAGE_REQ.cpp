@@ -6,15 +6,15 @@
 void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::operator()() {
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ begin");
   auto& c = session_.as_client();
-  auto& unsent_chars = c.char_select_character_info;
-  SPDLOG_TRACE(log(), "Got char page req, unsent chars {}", unsent_chars.size());
+  auto& chars = c.char_select_character_info;
+  SPDLOG_TRACE(log(), "Got char page req, unsent chars {}", chars.size());
 
-  if (unsent_chars.size() > 0) {
+  if (chars.size() > 0) {
     size_t num_to_send = 3;
-    if (unsent_chars.size() < 3) num_to_send = unsent_chars.size();
+    if (chars.size() < 3) num_to_send = chars.size();
     session_.emplace_and_send<packet::HC_CHAR_PAGES>(num_to_send);
     for (size_t k = 0; k < num_to_send; ++k) {
-      const auto& ci = unsent_chars[unsent_chars.size() - 1];
+      const auto& ci = chars[chars.size() - 1];
       long delete_timeout{0};
       auto& i = ci.info;
       auto& s = ci.stats;
@@ -28,7 +28,7 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
         }
       }
 
-      SPDLOG_TRACE(server_state_.log(), "Sending character {} in response to char page req", i.cid);
+      SPDLOG_TRACE(log(), "Sending character {} in response to char page req", i.cid);
 
       session_.emplace_and_send<packet::CHARACTER_INFO>(i.cid,
                                                         s.base_exp,
@@ -74,18 +74,19 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
                                                         (i.rename > 0) && (i.slot < c.playable_slots) ? 1 : 0,
                                                         i.sex
                                                         );
-      
-      unsent_chars.pop_back();
+      chars.pop_back();
     }
-    if (unsent_chars.size() % 3 == 0) {
+    if ((num_to_send == 3) && (chars.size() == 0)) {
+      server_state_.log()->info("Sending page terminator 1");
       // Send page terminator if we filled the whole page
       session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
     }
-    if (unsent_chars.size() == 0) {
+    if (chars.size() == 0) {
       c.char_select_all_sent = true;
     }
   } else {
     if (!c.char_select_all_sent) {
+      server_state_.log()->info("Sending page terminator 2");
       // Send page terminator if there were no chars at all
       session_.emplace_and_send<packet::HC_CHAR_PAGES>(0);
       c.char_select_all_sent = true;

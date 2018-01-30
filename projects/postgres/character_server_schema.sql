@@ -26,6 +26,8 @@ CREATE TABLE characters (
   delete_date timestamp,
   rename smallint NOT NULL
 );
+DROP INDEX IF EXISTS characters_aid_slot_idx;
+CREATE UNIQUE INDEX characters_aid_slot_idx ON characters (aid, slot);
 
 DROP TABLE IF EXISTS char_appearance;
 CREATE TABLE char_appearance (
@@ -74,7 +76,7 @@ CREATE TABLE char_stats (
 DROP TABLE IF EXISTS char_location;
 CREATE TABLE char_location (
   cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
-  map_name varchar NOT NULL,
+  map_id int REFERENCES map_index(id),
   map_x smallint NOT NULL,
   map_y smallint NOT NULL
 );

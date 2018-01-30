@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_set>
+
 #include <rxcpp/rx.hpp>
 
 #include "config.hpp"
@@ -31,7 +33,7 @@ namespace ares {
       /*! Stream of PC move commands from client */
       rxcpp::rxsub::subject<event::pc_move_command> pc_move_commands;
 
-      std::vector<std::string> map_names;
+      std::unordered_set<std::string> map_names;
     };
   }
 }

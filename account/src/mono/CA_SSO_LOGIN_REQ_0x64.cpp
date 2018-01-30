@@ -87,6 +87,7 @@ void ares::account::mono::packet_handler<ares::packet::CA_SSO_LOGIN_REQ_0x64>::a
         for (const auto& c : serv.char_servers()) {
           c->emplace_and_send<packet::ATHENA_AH_KICK_AID>(user_data->aid);
         }
+        found->remove_from_server();
         notify_ban(8); // 08 = Server still recognizes your last login
       }
     } else {
