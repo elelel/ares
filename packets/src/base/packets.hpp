@@ -37,6 +37,7 @@ namespace ares {
     #include "CH/CH_MAKE_CHAR_0x67.hpp"
     #include "CH/CH_MAKE_CHAR.hpp"
     #include "HC/HC_ACCEPT_MAKECHAR.hpp"
+    #include "HC/HC_NOTIFY_ZONESVR.hpp"
 
     // Zone <-> Client
     #include "CZ/CZ_REQUEST_MOVE.hpp"

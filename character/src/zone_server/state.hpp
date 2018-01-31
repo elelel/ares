@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <unordered_set>
 
 #include <ares/network>
 #include <ares/packets>
@@ -29,8 +30,9 @@ namespace ares {
         // Data
         std::string login;
         std::list<std::string> maps_to_send;
+        std::unordered_set<std::string> map_names;
         
-        uint32_t ip;
+        asio::ip::address_v4 ip_v4;
         uint16_t port;
 
         std::map<uint32_t, uint32_t> online_aid_to_cid;

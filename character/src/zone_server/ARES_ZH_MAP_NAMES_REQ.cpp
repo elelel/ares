@@ -18,6 +18,7 @@ void ares::character::zone_server::packet_handler<ares::packet::ARES_ZH_MAP_NAME
       size_t sz{0};
       auto it = maps_to_send.begin();
       for (; (sz < batch_sz) && (it != maps_to_send.end()); ++it) {
+        session_.as_zone_server().map_names.insert(*it);
         session_.copy_and_send(it->c_str(), it->size() + 1);
         sz += it->size() + 1;
       }

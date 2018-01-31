@@ -27,8 +27,8 @@ void ares::character::mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>::o
         auto& server = session_.server_state_.server;
         auto& conf = session_.server_state_.conf;
         auto& zone = session_.as_zone_server();
-        zone.ip = p_->ip();
-        zone.port = p_->port();
+        zone.ip_v4 = asio::ip::address_v4(ntohl(p_->ip()));
+        zone.port = ntohs(p_->port());
         SPDLOG_TRACE(log(), "Initializing maps to send to {} items", found->maps.size());
         std::copy(found->maps.begin(), found->maps.end(), std::back_inserter(zone.maps_to_send));
         server.add(session_.shared_from_this());
