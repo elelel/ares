@@ -39,6 +39,21 @@ void ares::character::config::validate() {
     need_comma = true;
   }
 
+  std::unordered_set<std::string> seen;
+  for (const auto& zs : zone_servers) {
+    if (zs.maps.size() == 0) {
+      if (need_comma) msg += ", ";
+      msg += "zone server '" + zs.login +"' has no maps";
+    }
+    for (const auto& m : zs.maps) {
+      if (seen.find(m) != seen.end()) {
+        if (need_comma) msg += ", ";
+        msg += "duplicate map " + m;
+      }
+      seen.insert(m);
+    }
+  }
+  
   // TODO: Check that numbers in slots parameters make sense
 
   if (msg.size() > 0) {
@@ -59,13 +74,23 @@ void ares::character::config::load_zone_servers() {
           r.login = j_zone_server.at("login");
         else {
           ok = false;
-          log_->error("Char server config record doesn't contain 'login' field");
+          log_->error("Zone server config record doesn't contain 'login' field");
         }
         if (j_zone_server.find("password") != j_zone_server.end())
           r.password = j_zone_server.at("password");
         else {
           ok = false;
-          log_->error("Char server config record doesn't contain 'password' field");
+          log_->error("Zone server config record doesn't contain 'password' field");
+        }
+        auto j_maps = j_zone_server.find("maps");
+        if (j_maps != j_zone_server.end()) {
+          for (const auto& j_map : *j_maps) {
+            if (j_map.is_string()) r.maps.insert(std::string{j_map}); else {
+              log_->error("Map name in zone server config is not a string");
+            }
+          }
+        } else {
+          log_->error("Zone server config record doesn't contain 'maps' field");
         }
         if (ok) zone_servers.push_back(r);
       }
@@ -215,6 +240,4 @@ void ares::character::config::load_max_storage() {
   };
   with_catch("max_storage", load_max_storage);
 }
-
-
 

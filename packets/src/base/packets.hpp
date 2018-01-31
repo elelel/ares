@@ -68,6 +68,10 @@ namespace ares {
     #include "ATHENA/ATHENA_ZH_USER_COUNT.hpp"    
     #include "ATHENA/ATHENA_ZH_GAME_RATES.hpp"    
     #include "ATHENA/ATHENA_ZH_MAP_NAMES.hpp"
+    #include "ARES/ARES_ZH_MAP_NAMES_REQ.hpp"
+    #include "ARES/ARES_HZ_MAP_NAMES.hpp"
+
+
   };
 }
 #pragma pack(pop)

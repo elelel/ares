@@ -98,6 +98,8 @@ INSERT INTO "char_location" ("cid", "map_id", "map_x", "map_y")
 SELECT $1, id, $3, $4 FROM "map_index" WHERE "name" = $2
 )");
     
+    pqxx_conn_->prepare("whole_map_index", R"(SELECT id, external_id, name FROM map_index )");
+    
     SPDLOG_TRACE(log, "ares::character::database::database done preparing statements");
   }
 }

@@ -65,5 +65,9 @@ namespace ares {
     static const uint16_t ATHENA_ZH_ONLINE_USERS = 0x2aff;
     static const uint16_t ATHENA_ZH_USER_COUNT = 0x2afe;
     static const uint16_t ATHENA_ZH_GAME_RATES = 0x2b16;
+
+    // Ares
+    static const uint16_t ARES_ZH_MAP_NAMES_REQ = 0x4001;
+    static const uint16_t ARES_HZ_MAP_NAMES = 0x4002;
   };
 }

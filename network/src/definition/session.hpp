@@ -173,3 +173,13 @@ template <typename Session>
 inline std::atomic<bool>& ares::network::session<Session>::sending() {
   return sending_;
 }
+
+template <typename Session>
+inline size_t ares::network::session<Session>::recv_unfragmented_free_size() const {
+  return recv_buf_.unfragmented_free_size();
+}
+
+template <typename Session>
+inline size_t ares::network::session<Session>::send_unfragmented_free_size() const {
+  return send_buf_.unfragmented_free_size();
+}

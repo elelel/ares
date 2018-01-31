@@ -45,11 +45,11 @@ void ares::character::zone_server::state::on_operation_aborted() {
 size_t ares::character::zone_server::state::dispatch(const uint16_t PacketType) {
   SPDLOG_TRACE(server_state_.log(), "zone_server::state::dispatch() switching on PacketType = {0:#x}", PacketType);
   switch (PacketType) {
-    ARES_PACKET_CASE(ATHENA_ZH_MAP_NAMES);
     ARES_PACKET_CASE(ATHENA_ZH_ONLINE_USERS);
     ARES_PACKET_CASE(ATHENA_ZH_USER_COUNT);
     ARES_PACKET_CASE(ATHENA_ZH_GAME_RATES);
     ARES_PACKET_CASE(ATHENA_ZH_PING_REQ);
+    ARES_PACKET_CASE(ARES_ZH_MAP_NAMES_REQ);
   }
   server_state_.log()->error("Unexpected PacketType {0:#x} for zone_server::state session", PacketType);
   throw ares::network::terminate_session();

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_set>
+
 #include <ares/config>
 
 namespace ares {
@@ -12,6 +14,7 @@ namespace ares {
       struct zone_server_config_record {
         std::string login;
         std::string password;
+        std::unordered_set<std::string> maps;
       };
       using zone_server_config = std::vector<zone_server_config_record>;
 

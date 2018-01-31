@@ -8,6 +8,12 @@ namespace ares {
   namespace character {
     namespace db {
       namespace record {
+        struct map_index {
+          uint32_t id;
+          uint32_t external_id;
+          std::string name;
+        };
+
         /*! Account slots info in character server's database
          */
         struct account_slots {

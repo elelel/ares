@@ -91,6 +91,9 @@ namespace ares {
       /*! Set connected state flag to true
        */
       void set_connected();
+
+      size_t recv_unfragmented_free_size() const;
+      size_t send_unfragmented_free_size() const;
     protected:
       std::shared_ptr<asio::io_service> io_service_;
       std::shared_ptr<spdlog::logger> log_;

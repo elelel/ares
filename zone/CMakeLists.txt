@@ -36,6 +36,7 @@ set(SOURCES
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
+  ${SRC}/character_server/ARES_HZ_MAP_NAMES.cpp
   ${SRC}/client/state.cpp
   ${SRC}/client/CZ_REQUEST_MOVE.cpp
   )

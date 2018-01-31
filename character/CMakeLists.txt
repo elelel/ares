@@ -43,11 +43,11 @@ set(SOURCES
   ${SRC}/mono/CH_ENTER.cpp
   ${SRC}/mono/ATHENA_ZH_LOGIN_REQ.cpp
   ${SRC}/zone_server/state.cpp
-  ${SRC}/zone_server/ATHENA_ZH_MAP_NAMES.cpp
   ${SRC}/zone_server/ATHENA_ZH_ONLINE_USERS.cpp
   ${SRC}/zone_server/ATHENA_ZH_USER_COUNT.cpp
   ${SRC}/zone_server/ATHENA_ZH_GAME_RATES.cpp
   ${SRC}/zone_server/ATHENA_ZH_PING_REQ.cpp
+  ${SRC}/zone_server/ARES_ZH_MAP_NAMES_REQ.cpp
   ${SRC}/database/database.cpp
   ${SRC}/database/account_create.cpp
   ${SRC}/database/account_storage.cpp
@@ -55,6 +55,7 @@ set(SOURCES
   ${SRC}/database/num_chars_for_aid.cpp
   ${SRC}/database/character_info.cpp
   ${SRC}/database/make_char.cpp
+  ${SRC}/database/map_index.cpp
   )
 
 if (NOT TARGET common) 

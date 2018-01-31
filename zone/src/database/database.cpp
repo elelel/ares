@@ -5,7 +5,7 @@ ares::zone::database::database(std::shared_ptr<spdlog::logger> log, const config
   SPDLOG_TRACE(log, "ares::zone::database::database");
 
   if (pqxx_conn_) {
-    pqxx_conn_->prepare("whole_map_index", R"(SELECT name, id FROM map_index )");
+    pqxx_conn_->prepare("whole_map_index", R"(SELECT id, external_id, name FROM map_index )");
   }
 }
 

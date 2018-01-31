@@ -55,6 +55,7 @@ namespace ares {
                                         const uint16_t map_x,
                                         const uint16_t map_y);
 
+      std::vector<db::record::map_index> whole_map_index();
     };      
   }
 }
