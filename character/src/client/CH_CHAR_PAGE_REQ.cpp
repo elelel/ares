@@ -67,7 +67,7 @@ void ares::character::client::packet_handler<ares::packet::CH_CHAR_PAGE_REQ>::op
                                                         s.Luk,
                                                         i.slot,
                                                         i.rename,
-                                                        l.map_name,
+                                                        l.map_name + ".gat",
                                                         delete_timeout,
                                                         a.robe,
                                                         (i.slot < c.playable_slots) ? 1 : 0,
