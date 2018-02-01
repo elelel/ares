@@ -67,6 +67,9 @@ namespace ares {
       recv_handler make_recv_handler();
       send_handler make_send_handler();
 
+      /*! Standard packet obfuscation keys */
+      uint32_t crypt_key[3]{0};
+
     private:
       state_variant session_state_;
     public:

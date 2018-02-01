@@ -31,12 +31,14 @@ namespace ares {
         // Data
         /*! Account ID */
         uint32_t aid{0};
+        /*! Character ID */
+        uint32_t cid{0};
         /*! Athena auth code 1 */
         int32_t auth_code1{0};
         /*! Athena auth code 2 (original userLevel) */
         int32_t auth_code2{0};
-        /*! Character ID */
-        uint32_t gid{0};
+
+        
       private:
         zone::state& server_state_;
         session& session_;
