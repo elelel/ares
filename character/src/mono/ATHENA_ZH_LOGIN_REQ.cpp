@@ -2,7 +2,7 @@
 #include "../state.hpp"
 #include "../zone_server/state.hpp"
 
-void ares::character::mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>::operator()() {
+void ares::character::mono::packet_handler<ares::packet<ares::packets::ATHENA_ZH_LOGIN_REQ>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_ZH_LOGIN_REQ: begin");
   // TODO: Check if char server isn't closed
   auto& server = server_state_.server;
@@ -33,22 +33,22 @@ void ares::character::mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>::o
         std::copy(found->maps.begin(), found->maps.end(), std::back_inserter(zone.maps_to_send));
         server.add(session_.shared_from_this());
         log()->info("Zone server accepted");
-        session_.emplace_and_send<packet::ATHENA_HZ_LOGIN_RESULT>(0);
-        session_.emplace_and_send<packet::ATHENA_HZ_PRIVATE_MSG_NAME>(*conf.priv_msg_server_name);
+        session_.emplace_and_send<packet<packets::ATHENA_HZ_LOGIN_RESULT>>(0);
+        session_.emplace_and_send<packet<packets::ATHENA_HZ_PRIVATE_MSG_NAME>>(*conf.priv_msg_server_name);
 
       } else {
         log()->error("Connection refused for zone server, connection already exists for login {}", p_->login());
-        session_.emplace_and_send<packet::ATHENA_HZ_LOGIN_RESULT>(3);
+        session_.emplace_and_send<packet<packets::ATHENA_HZ_LOGIN_RESULT>>(3);
         throw ares::network::terminate_session();
       }
     } else {
       log()->error("Connection refused for zone server, wrong password for login {}", p_->login());
-      session_.emplace_and_send<packet::ATHENA_HZ_LOGIN_RESULT>(3);
+      session_.emplace_and_send<packet<packets::ATHENA_HZ_LOGIN_RESULT>>(3);
       throw ares::network::terminate_session();
     }
   } else {
     log()->error("Connection refused for zone server, wrong login {}", p_->login());
-    session_.emplace_and_send<packet::ATHENA_HZ_LOGIN_RESULT>(3);
+    session_.emplace_and_send<packet<packets::ATHENA_HZ_LOGIN_RESULT>>(3);
     throw ares::network::terminate_session();
   }
 

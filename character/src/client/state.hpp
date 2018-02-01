@@ -53,13 +53,13 @@ namespace ares {
         session& session_;
       };
       
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(character);
 
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(PING);
-      ARES_SIMPLE_PACKET_HANDLER(CH_MAKE_CHAR);
-      ARES_SIMPLE_PACKET_HANDLER(CH_SELECT_CHAR);
-      ARES_SIMPLE_PACKET_HANDLER(CH_CHAR_PAGE_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(character, PING);
+      ARES_SIMPLE_PACKET_HANDLER(character, CH_MAKE_CHAR::no_stats);
+      ARES_SIMPLE_PACKET_HANDLER(character, CH_SELECT_CHAR);
+      ARES_SIMPLE_PACKET_HANDLER(character, CH_CHAR_PAGE_REQ);
       
       // Packet handlers that store state/structured
         

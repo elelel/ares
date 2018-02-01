@@ -4,10 +4,10 @@ project(account LANGUAGES C CXX)
 
 get_filename_component(ARES_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PATH)
 
-if (NOT ARES_PACKET_VER)
-  message(FATAL_ERROR "ARES_PACKET_VER is not defined. Set it with -DARES_PACKET_VER=your_version command line argument to CMake")
+if (NOT ARES_PACKET_SET)
+  message(FATAL_ERROR "ARES_PACKET_SET is not defined. Set it with -DARES_PACKET_SET=your_version command line argument to CMake")
 else()
-  message("Compiling for packet version ${ARES_PACKET_VER}")
+  message("Compiling for packet version ${ARES_PACKET_SET}")
 endif()
 
 include(${ARES_DIR}/projects/CMake/shared.cmake)
@@ -29,8 +29,8 @@ set(SOURCES
   ${SRC}/send_handler.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CA_EXE_HASHCHECK.cpp
-  ${SRC}/mono/CA_SSO_LOGIN_REQ_0x64.cpp
-  ${SRC}/mono/CA_SSO_LOGIN_REQ.cpp
+  ${SRC}/mono/CA_SSO_LOGIN_REQ_login_password.cpp
+  ${SRC}/mono/CA_SSO_LOGIN_REQ_auth_token.cpp
   ${SRC}/mono/ATHENA_HA_LOGIN_REQ.cpp
   ${SRC}/mono/ATHENA_HA_PING_REQ.cpp
   ${SRC}/client/state.cpp

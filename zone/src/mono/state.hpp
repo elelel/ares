@@ -3,8 +3,6 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../macros.h"
-
 namespace ares {
   namespace zone {
     struct state;
@@ -39,7 +37,7 @@ namespace ares {
         session& session_;
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(zone);
       
     }
   }

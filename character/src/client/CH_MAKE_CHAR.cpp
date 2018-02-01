@@ -3,7 +3,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operator()() {
+void ares::character::client::packet_handler<ares::packet<ares::packets::CH_MAKE_CHAR::no_stats>>::operator()() {
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR begin");
   auto& c = session_.as_client();
   auto& db = server_state_.db;
@@ -53,51 +53,51 @@ void ares::character::client::packet_handler<ares::packet::CH_MAKE_CHAR>::operat
               }
             }
 
-            session_.emplace_and_send<packet::HC_ACCEPT_MAKECHAR>();
-            session_.emplace_and_send<packet::CHARACTER_INFO>(c.cid,
-                                                              s.base_exp,
-                                                              s.zeny,
-                                                              s.job_exp,
-                                                              s.job_level,
-                                                              s.body_state,  // Unused?
-                                                              s.health_state, // Unused?
-                                                              s.effect_state,
-                                                              s.virtue,
-                                                              s.honor,
-                                                              s.job_point,
-                                                              s.hp,
-                                                              s.max_hp,
-                                                              s.sp,
-                                                              s.max_sp,
-                                                              150, // TODO: Walk speed
-                                                              i.job,
-                                                              a.head,
-                                                              a.body,
-                                                              a.weapon,
-                                                              s.base_level,
-                                                              s.skill_point,
-                                                              a.head_bottom, // accessory
-                                                              a.shield,
-                                                              a.head_top, // accessory2 
-                                                              a.head_mid, // accessory3
-                                                              a.head_palette,
-                                                              a.body_palette,
-                                                              i.name,
-                                                              s.Str,
-                                                              s.Agi,
-                                                              s.Vit,
-                                                              s.Int,
-                                                              s.Dex,
-                                                              s.Luk,
-                                                              i.slot,
-                                                              i.rename,
-                                                              l.map_name,
-                                                              delete_timeout,
-                                                              a.robe,
-                                                              i.slot,
-                                                              i.rename,
-                                                              i.sex
-                                                              );
+            session_.emplace_and_send<packet<packets::HC_ACCEPT_MAKECHAR>>();
+            session_.emplace_and_send<packets::CHARACTER_INFO>(c.cid,
+                                                               s.base_exp,
+                                                               s.zeny,
+                                                               s.job_exp,
+                                                               s.job_level,
+                                                               s.body_state,  // Unused?
+                                                               s.health_state, // Unused?
+                                                               s.effect_state,
+                                                               s.virtue,
+                                                               s.honor,
+                                                               s.job_point,
+                                                               s.hp,
+                                                               s.max_hp,
+                                                               s.sp,
+                                                               s.max_sp,
+                                                               150, // TODO: Walk speed
+                                                               i.job,
+                                                               a.head,
+                                                               a.body,
+                                                               a.weapon,
+                                                               s.base_level,
+                                                               s.skill_point,
+                                                               a.head_bottom, // accessory
+                                                               a.shield,
+                                                               a.head_top, // accessory2 
+                                                               a.head_mid, // accessory3
+                                                               a.head_palette,
+                                                               a.body_palette,
+                                                               i.name,
+                                                               s.Str,
+                                                               s.Agi,
+                                                               s.Vit,
+                                                               s.Int,
+                                                               s.Dex,
+                                                               s.Luk,
+                                                               i.slot,
+                                                               i.rename,
+                                                               l.map_name,
+                                                               delete_timeout,
+                                                               a.robe,
+                                                               i.slot,
+                                                               i.rename,
+                                                               i.sex
+                                                               );
           } else {
             log()->error("Failed to get character info for newly created cid {} ", *cid);
             throw network::terminate_session();            

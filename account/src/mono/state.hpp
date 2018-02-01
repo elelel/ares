@@ -3,8 +3,6 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../macros.h"
-
 namespace ares {
   namespace account {
     struct state;
@@ -44,15 +42,14 @@ namespace ares {
         session& session_;
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(account);
 
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_LOGIN_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_PING_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(CA_EXE_HASHCHECK);
+      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_LOGIN_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_PING_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(account, CA_EXE_HASHCHECK);
       
       // Packet handlers that store state/structured
-      #include "CA_SSO_LOGIN_REQ_0x64.hpp"
       #include "CA_SSO_LOGIN_REQ.hpp"
       
     }

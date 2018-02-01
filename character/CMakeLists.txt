@@ -4,10 +4,10 @@ project(account LANGUAGES C CXX)
 
 get_filename_component(ARES_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PATH)
 
-if (NOT ARES_PACKET_VER)
-  message(FATAL_ERROR "ARES_PACKET_VER is not defined. Set it with -DARES_PACKET_VER=your_version command line argument to CMake")
+if (NOT ARES_PACKET_SET)
+  message(FATAL_ERROR "ARES_PACKET_SET is not defined. Set it with -DARES_PACKET_SET=your_version command line argument to CMake")
 else()
-  message("Compiling for packet version ${ARES_PACKET_VER}")
+  message("Compiling for packet version ${ARES_PACKET_SET}")
 endif()
 
 include(${ARES_DIR}/projects/CMake/shared.cmake)

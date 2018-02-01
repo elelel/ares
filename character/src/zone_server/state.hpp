@@ -6,7 +6,6 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../macros.h"
 #include "../mono/state.hpp"
 
 namespace ares {
@@ -47,14 +46,14 @@ namespace ares {
         session& session_;
 
       };
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(character);
 
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_ZH_ONLINE_USERS);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_ZH_USER_COUNT);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_ZH_GAME_RATES);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_ZH_PING_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(ARES_ZH_MAP_NAMES_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_ONLINE_USERS);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_USER_COUNT);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_GAME_RATES);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_PING_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(character, ARES_ZH_MAP_NAMES_REQ);
       
       // Packet handlers that store state/structured
     }

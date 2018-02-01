@@ -42,7 +42,7 @@ size_t ares::character::client::state::dispatch(const uint16_t PacketType) {
   SPDLOG_TRACE(server_state_.log(), "client::state::dispatch() switching on PacketType = {0:#x}", PacketType);
   switch (PacketType) {
     ARES_PACKET_CASE(PING);
-    ARES_PACKET_CASE(CH_MAKE_CHAR);
+    ARES_PACKET_CASE(CH_MAKE_CHAR::no_stats);
     ARES_PACKET_CASE(CH_SELECT_CHAR);
     ARES_PACKET_CASE(CH_CHAR_PAGE_REQ);
   }

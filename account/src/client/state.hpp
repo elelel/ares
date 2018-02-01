@@ -52,7 +52,7 @@ namespace ares {
 
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(account);
       
     }
   }

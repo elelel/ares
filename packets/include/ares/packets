@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../src/utils.hpp"
-#include "../../src/declaration.hpp"
-#include "../../src/versions.hpp"
-#include "../../src/packets.hpp"
+#include "../../src/packets/utils.hpp"
+#include "../../src/packets/packet_traits.hpp"
+#include "../../src/packets/packets.hpp"
+#include "../../src/packetsets/packetsets.hpp"
 #include "../../src/ver_selection.hpp"

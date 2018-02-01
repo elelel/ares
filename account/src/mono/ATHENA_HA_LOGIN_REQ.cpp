@@ -2,7 +2,7 @@
 #include "../state.hpp"
 #include "../session.hpp"
 
-void ares::account::mono::packet_handler<typename ares::packet::ATHENA_HA_LOGIN_REQ>::operator()() {
+void ares::account::mono::packet_handler<ares::packet<ares::packets::ATHENA_HA_LOGIN_REQ>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HA_LOGIN_REQ: begin");
   asio::ip::address_v4 ip_v4(ntohl(p_->ip()));
   uint16_t port(ntohs(p_->port()));
@@ -27,7 +27,7 @@ void ares::account::mono::packet_handler<typename ares::packet::ATHENA_HA_LOGIN_
         });
       if (existing == serv.char_servers().end()) {
         log()->info("Char server {} accepted", p_->server_name());
-        session_.emplace_and_send<packet::ATHENA_AH_LOGIN_RESULT>(0);
+        session_.emplace_and_send<packet<packets::ATHENA_AH_LOGIN_RESULT>>(0);
       
         auto c = char_server::state(session_state_);
         c.login = p_->login();
@@ -41,17 +41,17 @@ void ares::account::mono::packet_handler<typename ares::packet::ATHENA_HA_LOGIN_
       } else {
         log()->error("Connection refused for char server {}, session for login {} already exists (server name {})",
                      p_->server_name(), p_->login(), (*existing)->as_char_server().name);
-        session_.emplace_and_send<packet::ATHENA_AH_LOGIN_RESULT>(3);
+        session_.emplace_and_send<packet<packets::ATHENA_AH_LOGIN_RESULT>>(3);
         throw network::terminate_session();
       }
     } else {
       log()->error("Connection refused for char server {}, wrong password", p_->server_name());
-      session_.emplace_and_send<packet::ATHENA_AH_LOGIN_RESULT>(3);
+      session_.emplace_and_send<packet<packets::ATHENA_AH_LOGIN_RESULT>>(3);
       throw network::terminate_session();
     }
   } else {
     log()->error("Connection refused for char server {}, wrong login", p_->server_name());
-    session_.emplace_and_send<packet::ATHENA_AH_LOGIN_RESULT>(3);
+    session_.emplace_and_send<packet<packets::ATHENA_AH_LOGIN_RESULT>>(3);
     throw network::terminate_session();
   }
 

@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_AID_AUTH_RESULT>::operator()() {
+void ares::character::account_server::packet_handler<ares::packet<ares::packets::ATHENA_AH_AID_AUTH_RESULT>>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_AID_AUTH_RESULT: begin");
   auto& server = server_state_.server;
   session_ptr s;
@@ -24,7 +24,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_AID
           c.auth_code2 = p_->auth_code2();
           server.add(s);
         }
-        session_.emplace_and_send<packet::ATHENA_HA_ACCOUNT_DATA_REQ>(p_->aid());
+        session_.emplace_and_send<packet<packets::ATHENA_HA_ACCOUNT_DATA_REQ>>(p_->aid());
       } else {
         log()->error("Received authentication result from account server for aid {}, but it's session is not in mono state!", p_->aid());
         std::lock_guard<std::mutex> lock(server.mutex());
@@ -32,7 +32,7 @@ void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_AID
       }
     } else {
       log()->warn("Aid {} is not authenticated by account server, closing session!", p_->aid());
-      s->emplace_and_send<packet::AC_REFUSE_LOGIN>(8); // Rejected by server
+      s->emplace_and_send<packet<packets::AC_REFUSE_LOGIN>>(8); // Rejected by server
       std::lock_guard<std::mutex> lock(server.mutex());
       s->remove_from_server();
     }

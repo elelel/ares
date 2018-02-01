@@ -25,7 +25,7 @@ void ares::zone::character_server::timer::reconnect::on_timer() {
             state.log()->info("Starting handshake with character server");
             const auto my_ipv4 = state.conf.listen_ipv4[0].address().to_v4().to_ulong();
             const auto my_port = state.conf.listen_ipv4[0].port();
-             session_copy->emplace_and_send<packet::ATHENA_ZH_LOGIN_REQ>(state.conf.character_server->login,
+             session_copy->emplace_and_send<packet<packets::ATHENA_ZH_LOGIN_REQ>>(state.conf.character_server->login,
                                                                          state.conf.character_server->password,
                                                                          0,
                                                                          htonl(my_ipv4),
@@ -54,7 +54,7 @@ void ares::zone::character_server::timer::ping_request::on_timer() {
       (state.server.char_server() == session_) &&
       session_->connected()) {
     SPDLOG_TRACE(log(), "ping_request_handler sending ping to character server");
-    session_->emplace_and_send<packet::ATHENA_ZH_PING_REQ>();
+    session_->emplace_and_send<packet<packets::ATHENA_ZH_PING_REQ>>();
     session_->as_character_server().ping_timeout_timer.set();
   } else {
     SPDLOG_TRACE(state.log(),

@@ -2,7 +2,7 @@
 #include "../server.hpp"
 #include "../character_server/state.hpp"
 
-void ares::zone::character_server::packet_handler<ares::packet::ATHENA_HZ_PRIVATE_MSG_NAME>::operator()() {
+void ares::zone::character_server::packet_handler<ares::packet<ares::packets::ATHENA_HZ_PRIVATE_MSG_NAME>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HZ_PRIVATE_MSG_NAME: begin");
   if (strlen(p_->name()) > 0) {
     auto& cs = session_.as_character_server();

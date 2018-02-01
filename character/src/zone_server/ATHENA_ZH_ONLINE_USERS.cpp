@@ -1,9 +1,9 @@
 #include "state.hpp"
 #include "../server.hpp"
 
-void ares::character::zone_server::packet_handler<ares::packet::ATHENA_ZH_ONLINE_USERS>::operator()() {
+void ares::character::zone_server::packet_handler<ares::packet<ares::packets::ATHENA_ZH_ONLINE_USERS>>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_HA_ONLINE_USERS: begin");
-  const size_t user_count = (p_->PacketLength - sizeof(*p_)) / sizeof(ares::packet::ATHENA_ZH_ONLINE_USERS::aid_cid);
+  const size_t user_count = (p_->PacketLength - sizeof(*p_)) / sizeof(packet<packets::ATHENA_ZH_ONLINE_USERS>::aid_cid);
   SPDLOG_TRACE(log(), "Got {} users from map", user_count);
   auto& online_aid_to_cid = session_.as_zone_server().online_aid_to_cid;
   auto& online_cid_to_aid = session_.as_zone_server().online_cid_to_aid;

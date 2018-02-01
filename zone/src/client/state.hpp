@@ -5,7 +5,6 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../macros.h"
 #include "../mono/state.hpp"
 
 namespace ares {
@@ -44,10 +43,10 @@ namespace ares {
         session& session_;
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(zone);
       
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(CZ_REQUEST_MOVE);
+      ARES_SIMPLE_PACKET_HANDLER(zone, CZ_REQUEST_MOVE);
       
       // Packet handlers that store state/structured
 

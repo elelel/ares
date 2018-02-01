@@ -3,7 +3,6 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../macros.h"
 #include "timers.hpp"
 
 namespace ares {
@@ -39,13 +38,13 @@ namespace ares {
         std::string private_msg_name{"Character server"};        
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(zone);
       
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_LOGIN_RESULT);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_PRIVATE_MSG_NAME);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_PING_ACK);
-      ARES_SIMPLE_PACKET_HANDLER(ARES_HZ_MAP_NAMES);
+      ARES_SIMPLE_PACKET_HANDLER(zone, ATHENA_HZ_LOGIN_RESULT);
+      ARES_SIMPLE_PACKET_HANDLER(zone, ATHENA_HZ_PRIVATE_MSG_NAME);
+      ARES_SIMPLE_PACKET_HANDLER(zone, ATHENA_HZ_PING_ACK);
+      ARES_SIMPLE_PACKET_HANDLER(zone, ARES_HZ_MAP_NAMES);
       // Packet handlers that store state/structured
     }
   }

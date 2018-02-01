@@ -3,8 +3,6 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../macros.h"
-
 #include "timers.hpp"
 
 namespace ares {
@@ -39,14 +37,14 @@ namespace ares {
         timer::ping_timeout ping_timeout_timer;
       };
       
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(character);
 
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_LOGIN_RESULT);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_PING_ACK);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_AID_AUTH_RESULT);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_ACCOUNT_DATA_RESULT);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_AH_KICK_AID);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_AH_LOGIN_RESULT);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_AH_PING_ACK);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_AH_AID_AUTH_RESULT);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_AH_ACCOUNT_DATA_RESULT);
+      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_AH_KICK_AID);
       
       // Packet handlers that store state/structured
     }

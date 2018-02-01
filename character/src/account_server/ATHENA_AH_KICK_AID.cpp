@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::account_server::packet_handler<ares::packet::ATHENA_AH_KICK_AID>::operator()() {
+void ares::character::account_server::packet_handler<ares::packet<ares::packets::ATHENA_AH_KICK_AID>>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_KICK_AID: begin");
   auto& server = server_state_.server;
   std::lock_guard<std::mutex> lock(server.mutex());

@@ -30,9 +30,9 @@ namespace ares {
       friend struct send_handler;
 
       // Needed to allow changing of state type
-      friend struct mono::packet_handler<ares::packet::CH_ENTER>;
-      friend struct mono::packet_handler<ares::packet::ATHENA_ZH_LOGIN_REQ>;
-      friend struct account_server::packet_handler<ares::packet::ATHENA_AH_AID_AUTH_RESULT>;
+      friend struct mono::packet_handler<packet<packets::CH_ENTER>>;
+      friend struct mono::packet_handler<packet<packets::ATHENA_ZH_LOGIN_REQ>>;
+      friend struct account_server::packet_handler<packet<packets::ATHENA_AH_AID_AUTH_RESULT>>;
       
       session(character::state& server_state, std::shared_ptr<asio::ip::tcp::socket> socket);
 
