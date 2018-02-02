@@ -10,13 +10,13 @@ ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ
   network::handler::packet::base<packet_handler<packet<packets::CA_SSO_LOGIN_REQ::login_password>>,
                                  packet<packets::CA_SSO_LOGIN_REQ::login_password>, account::state, session, state>(server_state, sess, st),
   pck_username(p_->ID(), p_->ID_size()),
-  pck_password(p_->Passwd(), p_->Passwd()) {
+  pck_password(p_->Passwd(), p_->Passwd_size()) {
   SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password constructor");
   auto zero_pos = pck_username.find(char(0));
   if (zero_pos != std::string::npos) pck_username.erase(zero_pos, std::string::npos);
   zero_pos = pck_password.find(char(0));
   if (zero_pos != std::string::npos) pck_password.erase(zero_pos, std::string::npos);
-  SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password pck_username = " + pck_username);
+  SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password pck_username = " + pck_username + " pck_password " = pck_password);
 }
 
 void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::operator()() {
@@ -104,7 +104,7 @@ void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGI
   const auto& conf = server_state_.conf;
   if (conf.client_version) {
     if (conf.client_version != p_->Version()) {
-      log()->info("Login attempt failed for login {}, incorrect client version {}, expected {}", login, p_->Version(), *conf.client_version);
+      log()->info("Login attempt failed for login {}, incorrect client version {}, expected {} (login/password auth)", login, p_->Version(), *conf.client_version);
       refuse(5);
       return;
     }
@@ -112,7 +112,7 @@ void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGI
   if (server_state_.db.password_matches(login, password)) {
     accept(login);
   } else {
-    log()->info("Login attempt failed for login {}, incorrect password", login);
+    log()->info("Login attempt failed for login {}, incorrect password (login/password auth)", login);
     refuse(1); // 1 = Incorrect Password
   }
 }

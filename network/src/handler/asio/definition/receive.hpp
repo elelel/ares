@@ -22,8 +22,9 @@ inline void ares::network::handler::asio::receive<Handler, Session>::operator()(
               // Need at least 2 bytes in buffer to dispatch by packet id
               if (buf().head_size() < 2) buf().defragment();
               auto PacketType = (uint16_t*)buf().begin();
-              SPDLOG_TRACE(this->log(), "receive handler calling dispatch, buf().size() = {}, PacketType = {:#x}", buf().size(), *PacketType);
+              SPDLOG_TRACE(this->log(), "receive handler calling dispatch, buf().size() = {}, raw PacketType = {:#x}", buf().size(), *PacketType);
               need_more = static_cast<Handler&>(*this).dispatch(*PacketType);
+              if (need_more == 0) static_cast<Handler&>(*this).on_processed_packet();
             } else {
               need_more = 2 - buf().size();
             }

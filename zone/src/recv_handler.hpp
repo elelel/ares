@@ -12,6 +12,7 @@ namespace ares {
       size_t dispatch(const uint16_t PacketType);
 
       void terminate_session();
+      void on_processed_packet();
       void on_operation_aborted();
       void on_connection_reset();
       void on_eof();

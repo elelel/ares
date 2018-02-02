@@ -29,6 +29,9 @@ size_t ares::account::recv_handler::dispatch(const uint16_t PacketType) {
   return std::visit(visitor(*session_, PacketType), session_->session_state_);
 }
 
+void ares::account::recv_handler::on_processed_packet() {
+}
+
 void ares::account::recv_handler::terminate_session() {
   session_->close_socket();
   session_->remove_from_server();

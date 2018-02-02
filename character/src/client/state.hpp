@@ -44,6 +44,7 @@ namespace ares {
         /*! Character info for char select */
         std::vector<db::record::character_info> char_select_character_info;
         bool char_select_all_sent{false};
+        size_t char_page_reqs{0};
 
         /*! Character info for active session */
         std::optional<db::record::character_info> char_info;

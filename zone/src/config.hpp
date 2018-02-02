@@ -22,13 +22,13 @@ namespace ares {
       std::optional<postgres_config> postgres;
       endpoints_config listen_ipv4;
       character_server_config character_server;
-      std::unordered_set<std::string> maps;
+      std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> obfuscation_key;
       
     private:
       void validate();
       void load_character_server();
       void load_network_threads();
-      void load_maps();
+      void load_obfuscation_key();
     };
     
   }

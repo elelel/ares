@@ -26,5 +26,6 @@ namespace ares {
 
 #include "server.hpp"  // Intraserver packets
 #include "pets_5a3cb64a.hpp"   // 2017-12-27aRagexeRE.exe
+#include "pets_5a4c7c5c.hpp"   // 2018-01-03bRagexeRE.exe
 
 

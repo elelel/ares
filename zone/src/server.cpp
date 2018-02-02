@@ -25,6 +25,12 @@ void ares::zone::server::start() {
 void ares::zone::server::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "zone::server::create_session");
   auto s = std::make_shared<session>(state_, socket);
+  const auto& conf = state_.conf;
+  if (conf.obfuscation_key) {
+    const auto& k = *conf.obfuscation_key;
+    s->obf_crypt_key.emplace(std::get<0>(k) * std::get<1>(k) + std::get<2>(k));
+    SPDLOG_TRACE(log_, "Set new session obf_crypt_key to {:x}", *s->obf_crypt_key);
+  }
   s->reset_inactivity_timer();
   mono_.insert(s);
   s->receive();
