@@ -3,7 +3,7 @@ struct type<PacketSet, CZ_REQUEST_MOVE> {
   using packet_name = CZ_REQUEST_MOVE;
   
   inline void emplace(const uint16_t to_x, const uint16_t to_y) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     dest_[0] = to_x >> 2;
     dest_[1] = (to_x << 6) | ((to_y >> 4) & 0x3f);
     dest_[2] = to_y << 4;

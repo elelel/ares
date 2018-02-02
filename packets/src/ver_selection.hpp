@@ -6,6 +6,4 @@
 
 namespace ares {
   using packet_set = packet_sets::ARES_PACKET_SET;
-  template <typename Name>
-  using packet = packets::type<packet_set, Name>;
 }

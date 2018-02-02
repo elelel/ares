@@ -14,7 +14,7 @@ struct type<PacketSet, ATHENA_HA_LOGIN_REQ> {
                const uint16_t state,
                const uint16_t property,
                const uint16_t dummy2) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     dummy1_ = dummy1;
     ip_ = ip;
     port_ = port;

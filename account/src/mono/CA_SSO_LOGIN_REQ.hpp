@@ -1,9 +1,10 @@
 // For inclusion from packet_handlers.hpp only
 
 template <>
-struct packet_handler<packet<packets::CA_SSO_LOGIN_REQ::login_password>>
-  : network::handler::packet::base<packet_handler<packet<packets::CA_SSO_LOGIN_REQ::login_password>>,
-                                   packet<packets::CA_SSO_LOGIN_REQ::login_password>,
+struct packet_handler<packet_set, packet::CA_SSO_LOGIN_REQ::login_password>
+  : network::handler::packet::base<packet_handler<packet_set, packet::CA_SSO_LOGIN_REQ::login_password>,
+                                   packet_set,
+                                   packet::CA_SSO_LOGIN_REQ::login_password,
                                    account::state, session, state> {
   
   packet_handler(account::state&, session&, state&);
@@ -22,9 +23,10 @@ private:
 };
 
 template <>
-struct packet_handler<packet<packets::CA_SSO_LOGIN_REQ::token_auth>>
-  : network::handler::packet::base<packet_handler<packet<packets::CA_SSO_LOGIN_REQ::token_auth>>,
-                                   packet<packets::CA_SSO_LOGIN_REQ::token_auth>,
+struct packet_handler<packet_set, packet::CA_SSO_LOGIN_REQ::token_auth>
+  : network::handler::packet::base<packet_handler<packet_set, packet::CA_SSO_LOGIN_REQ::token_auth>,
+                                   packet_set,
+                                   packet::CA_SSO_LOGIN_REQ::token_auth,
                                    account::state, session, state> {
   
   packet_handler(account::state&, session&, state&);

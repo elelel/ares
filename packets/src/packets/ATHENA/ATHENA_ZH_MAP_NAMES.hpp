@@ -3,7 +3,7 @@ struct type<PacketSet, ATHENA_ZH_MAP_NAMES> {
   using packet_name = ATHENA_ZH_MAP_NAMES;
   
   void emplace(const size_t num_maps) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this) + num_maps * sizeof(uint32_t);
   }
 

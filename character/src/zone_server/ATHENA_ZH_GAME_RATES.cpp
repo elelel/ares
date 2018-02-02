@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::zone_server::packet_handler<ares::packet<ares::packets::ATHENA_ZH_GAME_RATES>>::operator()() {
+void ares::character::zone_server::packet_handler<ares::packet_set, ares::packet::ATHENA_ZH_GAME_RATES>::operator()() {
   SPDLOG_TRACE(server_state_.log(), "ATHENA_HA_GAME_RATES: begin");
   auto& s = session_.as_zone_server();
   s.base_rate = p_->base_rate();

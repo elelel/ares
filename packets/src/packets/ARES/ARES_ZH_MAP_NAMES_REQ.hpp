@@ -3,7 +3,7 @@ struct type<PacketSet, ARES_ZH_MAP_NAMES_REQ> {
   using packet_name = ARES_ZH_MAP_NAMES_REQ;
   
   inline void emplace(const size_t buf_sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     buf_sz_ = buf_sz;
   }
 

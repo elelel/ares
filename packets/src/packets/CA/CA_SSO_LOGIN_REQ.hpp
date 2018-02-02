@@ -8,7 +8,7 @@ struct type<PacketSet, CA_SSO_LOGIN_REQ::login_password> {
                const char* Passwd,
                const size_t Passwd_sz,
                const uint8_t clienttype) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     Version_ = Version;
     clienttype_ = clienttype;
     copy_buf_with_zero_pad(ID_, sizeof(ID_), ID, ID_sz);
@@ -86,7 +86,7 @@ struct type<PacketSet, CA_SSO_LOGIN_REQ::token_auth> {
                const char* IP,
                const size_t IP_sz,
                const size_t token_sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this) + token_sz;
     Version_ = Version;
     clienttype_ = clienttype;

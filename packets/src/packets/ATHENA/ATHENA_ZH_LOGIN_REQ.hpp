@@ -9,7 +9,7 @@ struct type<PacketSet, ATHENA_ZH_LOGIN_REQ> {
                const uint32_t dummy,
                const uint32_t ip,
                const uint16_t port) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     dummy_ = dummy;
     ip_ = ip;
     port_ = port;

@@ -3,7 +3,7 @@ struct type<PacketSet, ATHENA_AH_KICK_AID> {
   using packet_name = ATHENA_AH_KICK_AID;
   
   inline void emplace(const uint32_t aid) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     aid_ = aid;
   }
   

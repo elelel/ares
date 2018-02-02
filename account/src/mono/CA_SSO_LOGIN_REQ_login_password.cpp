@@ -6,9 +6,11 @@
 
 #include "../char_server/state.hpp"
 
-ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::packet_handler(account::state& server_state, session& sess, state& st) :
-  network::handler::packet::base<packet_handler<packet<packets::CA_SSO_LOGIN_REQ::login_password>>,
-                                 packet<packets::CA_SSO_LOGIN_REQ::login_password>, account::state, session, state>(server_state, sess, st),
+ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::packet_handler(account::state& server_state, session& sess, state& st) :
+  network::handler::packet::base<packet_handler<packet_set, packet::CA_SSO_LOGIN_REQ::login_password>,
+                                 packet_set,
+                                 packet::CA_SSO_LOGIN_REQ::login_password,
+                                 account::state, session, state>(server_state, sess, st),
   pck_username(p_->ID(), p_->ID_size()),
   pck_password(p_->Passwd(), p_->Passwd_size()) {
   SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password constructor");
@@ -19,24 +21,24 @@ ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ
   SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password pck_username = " + pck_username + " pck_password " = pck_password);
 }
 
-void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::operator()() {
+void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet CA_SSO_LOGIN_REQ::login_password: begin");
   // Here will be switching for other login systems
   handle_default();
   SPDLOG_TRACE(log(), "handle_packet CA_SSO_LOGIN_REQ::login_password: end");
 }
 
-void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::refuse(const uint8_t error_code) {
-  session_.emplace_and_send<packet<packets::AC_REFUSE_LOGIN>>(error_code);
+void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::refuse(const uint8_t error_code) {
+  session_.emplace_and_send<packet_type<packet::AC_REFUSE_LOGIN>>(error_code);
   throw ares::network::terminate_session();
 }
 
-void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::notify_ban(const uint8_t error_code) {
-  session_.emplace_and_send<packet<packets::SC_NOTIFY_BAN>>(error_code); 
+void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::notify_ban(const uint8_t error_code) {
+  session_.emplace_and_send<packet_type<packet::SC_NOTIFY_BAN>>(error_code); 
   throw ares::network::terminate_session();
 }
 
-void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::accept(const std::string& login) {
+void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::accept(const std::string& login) {
   auto user_data = server_state_.db.user_data_for_login(login);
   if (user_data) {
     auto& serv = server_state_.server;
@@ -63,7 +65,7 @@ void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGI
         client.auth_code2 = auth_code2;
         serv.add(session_.shared_from_this());
         
-        session_.emplace_and_send<packet<packets::AC_ACCEPT_LOGIN>>(auth_code1,
+        session_.emplace_and_send<packet_type<packet::AC_ACCEPT_LOGIN>>(auth_code1,
                                                                     user_data->aid,
                                                                     auth_code2,
                                                                     0,
@@ -74,18 +76,18 @@ void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGI
         for (const auto& c : serv.char_servers()) {
           if (c) {
             const auto& data = c->as_char_server();
-            session_.emplace_and_send<packet<packets::AC_ACCEPT_LOGIN>::SERVER_ADDR>(htonl(data.ip_v4.to_ulong()),
-                                                                                     data.port,
-                                                                                     data.name.c_str(),
-                                                                                     data.user_count,
-                                                                                     data.state_num,
-                                                                                     data.property);
+            session_.emplace_and_send<packet_type<packet::AC_ACCEPT_LOGIN>::SERVER_ADDR>(htonl(data.ip_v4.to_ulong()),
+                                                                                         data.port,
+                                                                                         data.name.c_str(),
+                                                                                         data.user_count,
+                                                                                         data.state_num,
+                                                                                         data.property);
           }
         }
       } else {
         log()->info("AID {} session already exists, refusing new connection and kicking existing", user_data->aid);
         for (const auto& c : serv.char_servers()) {
-          c->emplace_and_send<packet<packets::ATHENA_AH_KICK_AID>>(user_data->aid);
+          c->emplace_and_send<packet_type<packet::ATHENA_AH_KICK_AID>>(user_data->aid);
         }
         found->remove_from_server();
         notify_ban(8); // 08 = Server still recognizes your last login
@@ -100,7 +102,7 @@ void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGI
   }
 }
 
-void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::check(const std::string& login, const std::string& password) {
+void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::check(const std::string& login, const std::string& password) {
   const auto& conf = server_state_.conf;
   if (conf.client_version) {
     if (conf.client_version != p_->Version()) {
@@ -117,6 +119,6 @@ void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGI
   }
 }
   
-void ares::account::mono::packet_handler<ares::packet<ares::packets::CA_SSO_LOGIN_REQ::login_password>>::handle_default() {
+void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::handle_default() {
   check(pck_username, pck_password);
 }

@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::account_server::packet_handler<ares::packet<ares::packets::ATHENA_AH_ACCOUNT_DATA_RESULT>>::operator()() {
+void ares::character::account_server::packet_handler<ares::packet_set, ares::packet::ATHENA_AH_ACCOUNT_DATA_RESULT>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_ACCOUNT_DATA_RESULT: begin");
   auto& server = server_state_.server;
   session_ptr s;
@@ -22,13 +22,13 @@ void ares::character::account_server::packet_handler<ares::packet<ares::packets:
       auto& conf = server_state_.conf;
       // Does not exist or other error, try to create default account data i
       server_state_.db.account_create(p_->aid(),
-                                 conf.normal_slots,
-                                  conf.premium_slots,
-                                  conf.billing_slots,
-                                  conf.playable_slots,
-                                  conf.creatable_slots,
-                                  conf.bank_vault,
-                                  conf.max_storage);
+                                      conf.normal_slots,
+                                      conf.premium_slots,
+                                      conf.billing_slots,
+                                      conf.playable_slots,
+                                      conf.creatable_slots,
+                                      conf.bank_vault,
+                                      conf.max_storage);
 
       // Read account data again
       ad = server_state_.db.account_slots_for_aid(p_->aid());
@@ -38,12 +38,12 @@ void ares::character::account_server::packet_handler<ares::packet<ares::packets:
       c.playable_slots = ad->playable_slots;
       // Confirm account acceptance and send slots info
       SPDLOG_TRACE(log(), "sending HC_ACCEPT_ENTER");
-      s->emplace_and_send<packet<packets::HC_ACCEPT_ENTER>>(ad->normal_slots,
-                                                   ad->premium_slots,
-                                                   ad->billing_slots,
-                                                   ad->creatable_slots,
-                                                   ad->playable_slots,
-                                                   0);
+      s->emplace_and_send<packet_type<packet::HC_ACCEPT_ENTER>>(ad->normal_slots,
+                                                                ad->premium_slots,
+                                                                ad->billing_slots,
+                                                                ad->creatable_slots,
+                                                                ad->playable_slots,
+                                                                0);
 
       SPDLOG_TRACE(log(), "sending HC_ACCEPT_ENTER done");
       // Send existing characters information
@@ -56,8 +56,8 @@ void ares::character::account_server::packet_handler<ares::packet<ares::packets:
       
       SPDLOG_TRACE(log(), "Loaded {} characters for aid {}, Sending pages num: npages = {}, nslots = {}",
                    c.char_select_character_info.size(), p_->aid(), npages, c.creatable_slots);
-      s->emplace_and_send<packet<packets::HC_CHAR_PAGES_NUM>>(npages, c.creatable_slots);
-      s->emplace_and_send<packet<packets::HC_BLOCK_CHARACTER>>();
+      s->emplace_and_send<packet_type<packet::HC_CHAR_PAGES_NUM>>(npages, c.creatable_slots);
+      s->emplace_and_send<packet_type<packet::HC_BLOCK_CHARACTER>>();
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing s session", p_->aid());
       std::lock_guard<std::mutex> lock(server.mutex());

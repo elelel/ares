@@ -3,7 +3,7 @@ struct type<PacketSet, ATHENA_HA_ONLINE_AIDS> {
   using packet_name = ATHENA_HA_ONLINE_AIDS;
   
   void emplace(const size_t users_sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this) + users_sz * sizeof(uint32_t);
     users_sz_ = users_sz;
   }

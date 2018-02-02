@@ -8,7 +8,7 @@ struct type<PacketSet, HC_ACCEPT_ENTER> {
                const uint8_t creatable_slots,
                const uint8_t valid_slots,
                const size_t characters_count) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this) + characters_count * sizeof(CHARACTER_INFO);
     normal_slots_ = normal_slots;
     premium_slots_ = premium_slots;

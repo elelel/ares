@@ -13,7 +13,7 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
                       const size_t lastLoginTime_sz,
                       const uint8_t Sex,
                       const size_t servers_count) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this) + servers_count * sizeof(SERVER_ADDR);
     AuthCode_ = AuthCode;
     AID_ = AID;

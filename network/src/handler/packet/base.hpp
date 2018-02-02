@@ -1,11 +1,22 @@
 #pragma once
 
+#include <ares/packets>
+
 namespace ares {
   namespace network {
     namespace handler {
       namespace packet {
-        template <typename Handler, typename Packet, typename ServerState, typename Session, typename SessionState>
+        template <typename Handler,
+                  typename PacketSet,
+                  typename PacketName,
+                  typename ServerState,
+                  typename Session,
+                  typename SessionState>
         struct base {
+          template <typename PacketName_ = PacketName>
+          using packet_type = ares::packet::type<PacketSet, PacketName_>;
+          using handled_packet_type = ares::packet::type<PacketSet, PacketName>;
+          
           base(ServerState& server, Session& session, SessionState& session_state);
           ~base();
 
@@ -17,7 +28,7 @@ namespace ares {
           ServerState& server_state_;
           Session& session_;
           SessionState& session_state_;
-          Packet* p_;
+          packet_type<>* p_;
           bool need_pop_;
           
           std::shared_ptr<spdlog::logger>& log();

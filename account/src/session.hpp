@@ -32,9 +32,9 @@ namespace ares {
       friend struct send_handler;
       
       // Needed to allow changing of state type
-      friend struct mono::packet_handler<packet<packets::CA_SSO_LOGIN_REQ::login_password>>;
-      friend struct mono::packet_handler<packet<packets::CA_SSO_LOGIN_REQ::token_auth>>;
-      friend struct mono::packet_handler<packet<packets::ATHENA_HA_LOGIN_REQ>>;
+      friend struct mono::packet_handler<packet_set, packet::CA_SSO_LOGIN_REQ::login_password>;
+      friend struct mono::packet_handler<packet_set, packet::CA_SSO_LOGIN_REQ::token_auth>;
+      friend struct mono::packet_handler<packet_set, packet::ATHENA_HA_LOGIN_REQ>;
 
       /*! Constructs a new session 
         \param server reference to account server

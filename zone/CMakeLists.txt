@@ -20,6 +20,8 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/character_server/state.cpp
+
   ${SRC}/main.cpp
   ${SRC}/state.cpp
   ${SRC}/server.cpp
@@ -31,7 +33,7 @@ set(SOURCES
   ${SRC}/database/database.cpp
   ${SRC}/database/map_index.cpp
   ${SRC}/mono/state.cpp
-  ${SRC}/character_server/state.cpp
+
   ${SRC}/character_server/timers.cpp
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp

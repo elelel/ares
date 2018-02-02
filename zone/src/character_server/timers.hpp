@@ -15,6 +15,8 @@ namespace ares {
           using ares::network::timer<NAME,                              \
                                      std::chrono::seconds,              \
                                      session>::timer;                   \
+          template <typename PacketName>                                \
+          using packet_type = packet::type<packet_set, PacketName>;     \
           static const char* name() { return ""#NAME""; };              \
           void on_timer();                                              \
         };                                                              \

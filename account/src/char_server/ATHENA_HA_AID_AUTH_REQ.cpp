@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::account::char_server::packet_handler<ares::packet<ares::packets::ATHENA_HA_AID_AUTH_REQ>>::operator()() {
+void ares::account::char_server::packet_handler<ares::packet_set, ares::packet::ATHENA_HA_AID_AUTH_REQ>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HA_AID_AUTH_REQ: begin");
 
   SPDLOG_TRACE(log(), "ATHENA_HA_AID_AUTH_REQ acquiring server lock");
@@ -13,7 +13,7 @@ void ares::account::char_server::packet_handler<ares::packet<ares::packets::ATHE
     const auto& data = found->as_client();
     if ((data.auth_code1 == p_->auth_code1()) &&
         (data.auth_code2 == p_->auth_code2())) {
-      session_.emplace_and_send<packet<packets::ATHENA_AH_AID_AUTH_RESULT>>(p_->aid(),
+      session_.emplace_and_send<packet_type<packet::ATHENA_AH_AID_AUTH_RESULT>>(p_->aid(),
                                                                    p_->auth_code1(),
                                                                    p_->auth_code2(),
                                                                    p_->sex(),
@@ -28,7 +28,7 @@ void ares::account::char_server::packet_handler<ares::packet<ares::packets::ATHE
                    p_->auth_code1(),
                    data.auth_code2,
                    p_->auth_code2());
-      session_.emplace_and_send<packet<packets::ATHENA_AH_AID_AUTH_RESULT>>(p_->aid(),
+      session_.emplace_and_send<packet_type<packet::ATHENA_AH_AID_AUTH_RESULT>>(p_->aid(),
                                                                    p_->auth_code1(),
                                                                    p_->auth_code2(),
                                                                    p_->sex(),
@@ -39,7 +39,7 @@ void ares::account::char_server::packet_handler<ares::packet<ares::packets::ATHE
     }
   } else {
     log()->warn("Char server requested AID authentication for non-authenticated AID {}", p_->aid());
-    session_.emplace_and_send<packet<packets::ATHENA_AH_AID_AUTH_RESULT>>(p_->aid(),
+    session_.emplace_and_send<packet_type<packet::ATHENA_AH_AID_AUTH_RESULT>>(p_->aid(),
                                                                  p_->auth_code1(),
                                                                  p_->auth_code2(),
                                                                  p_->sex(),

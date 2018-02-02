@@ -3,7 +3,7 @@ struct type<PacketSet, PING> {
   using packet_name = PING;
   
   inline void emplace(const uint32_t aid) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     aid_ = aid;
   }
 

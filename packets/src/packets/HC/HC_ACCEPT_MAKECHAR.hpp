@@ -3,7 +3,7 @@ struct type<PacketSet, HC_ACCEPT_MAKECHAR> {
   using packet_name = HC_ACCEPT_MAKECHAR;
   
   inline void emplace() {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
   }
 
   explicit type() {

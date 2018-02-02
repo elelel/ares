@@ -3,11 +3,11 @@
 */
 
 namespace ares {
-  namespace packets {
+  namespace packet {
     template <typename PacketSet, typename PacketName>
     struct type {
     };
-    
+
     // Server <-> Client
     struct SC_NOTIFY_BAN {};
     struct PING {};

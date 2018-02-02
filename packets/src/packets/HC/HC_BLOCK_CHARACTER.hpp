@@ -3,12 +3,12 @@ struct type<PacketSet, HC_BLOCK_CHARACTER> {
   using packet_name = HC_BLOCK_CHARACTER;
   
   inline void emplace() {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this);
   }
 
   inline void emplace(const size_t expire_time_sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this) + expire_time_sz;
   }
 

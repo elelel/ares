@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::zone_server::packet_handler<ares::packet<ares::packets::ARES_ZH_MAP_NAMES_REQ>>::operator()() {
+void ares::character::zone_server::packet_handler<ares::packet_set, ares::packet::ARES_ZH_MAP_NAMES_REQ>::operator()() {
   SPDLOG_TRACE(server_state_.log(), "ARES_ZH_MAP_NAMES_REQ: begin");
   auto& maps_to_send = session_.as_zone_server().maps_to_send;
   if (maps_to_send.size() > 0) {
@@ -14,7 +14,7 @@ void ares::character::zone_server::packet_handler<ares::packet<ares::packets::AR
         batch_sz += it->size() + 1;
       }
       SPDLOG_TRACE(log(), "Creating map names batch of {} bytes", batch_sz);
-      session_.emplace_and_send<packet<packets::ARES_HZ_MAP_NAMES>>(batch_sz);
+      session_.emplace_and_send<packet_type<packet::ARES_HZ_MAP_NAMES>>(batch_sz);
       size_t sz{0};
       auto it = maps_to_send.begin();
       for (; (sz < batch_sz) && (it != maps_to_send.end()); ++it) {
@@ -30,7 +30,7 @@ void ares::character::zone_server::packet_handler<ares::packet<ares::packets::AR
     }
   } else {
     SPDLOG_TRACE(log(), "No more maps to send to zone server");
-    session_.emplace_and_send<packet<packets::ARES_HZ_MAP_NAMES>>(0);
+    session_.emplace_and_send<packet_type<packet::ARES_HZ_MAP_NAMES>>(0);
   }
   SPDLOG_TRACE(server_state_.log(), "ARES_ZH_MAP_NAMES_REQ: end");
 }

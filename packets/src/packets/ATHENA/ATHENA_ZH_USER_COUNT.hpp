@@ -3,7 +3,7 @@ struct type<PacketSet, ATHENA_ZH_USER_COUNT> {
   using packet_name = ATHENA_ZH_USER_COUNT;
   
   void emplace(const uint16_t num_users) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     num_users_ = num_users;
   }
 

@@ -4,7 +4,7 @@ struct type<PacketSet, CA_EXE_HASHCHECK> {
   
   void emplace(const uint8_t* HashValue,
                const size_t HashValue_sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     copy_buf_with_zero_pad(HashValue_, sizeof(HashValue_), HashValue, HashValue_sz);
   }
 

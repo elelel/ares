@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::account_server::packet_handler<ares::packet<ares::packets::ATHENA_AH_LOGIN_RESULT>>::operator()() {
+void ares::character::account_server::packet_handler<ares::packet_set, ares::packet::ATHENA_AH_LOGIN_RESULT>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_LOGIN_RESULT: begin");
   if (p_->ErrorCode() == 0) {
     log()->info("Connected to login server");

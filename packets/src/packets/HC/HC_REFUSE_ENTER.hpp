@@ -3,7 +3,7 @@ struct type<PacketSet, HC_REFUSE_ENTER> {
   using packet_name = HC_REFUSE_ENTER;
   
   void emplace(const uint8_t ErrorCode) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     ErrorCode_ = ErrorCode;
   }
 

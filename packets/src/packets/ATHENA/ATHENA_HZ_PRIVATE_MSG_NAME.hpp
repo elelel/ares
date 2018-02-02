@@ -3,7 +3,7 @@ struct type<PacketSet, ATHENA_HZ_PRIVATE_MSG_NAME> {
   using packet_name = ATHENA_HZ_PRIVATE_MSG_NAME;
   
   void emplace(const char* name, const size_t name_sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     dummy_ = 0;
     copy_buf_with_zero_pad(name_, sizeof(name_), name, name_sz);
   }

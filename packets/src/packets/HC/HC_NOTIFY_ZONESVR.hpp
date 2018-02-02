@@ -7,7 +7,7 @@ struct type<PacketSet, HC_NOTIFY_ZONESVR> {
                       size_t mapName_sz,
                       uint32_t ip,
                       uint16_t port) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     GID_ = GID;
     ip_ = ip;
     port_ = port;

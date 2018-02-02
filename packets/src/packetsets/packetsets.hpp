@@ -2,30 +2,45 @@
 \brief Packetsets description (packet database)
 
 This file is the top file to add packetset names and to include the packetsets hierarchy.
-Naming convention is pets_xxxxxx where xxxxxx is portable executable's timestamp as
-hex uint32 of ragexe this packetset is derived from
+Naming convention is pets_xxxxxxxx where xxxxxxxx is portable executable's timestamp as
+hex uint32 of ragexe 
 */
 
 #pragma once
 
-#define ARES_PACKETSET_ID_TYPE(PACKETSET, ID, TYPE)    \
-  template <> struct PACKETSET::name_of<ID> { using type = packets::type<PACKETSET, packets::TYPE>; }; \
-  template <> struct PACKETSET::id_of<packets::type<PACKETSET, packets::TYPE>> { constexpr static const uint16_t value = ID; }; \
+#define ARES_PACKETSET_DECLARE(PACKETSET, BASE)                         \
+  struct PACKETSET : BASE {};                                           \
+                                                                        \
+  template <uint16_t PacketId>                                          \
+  struct name_of<PACKETSET, PacketId> : name_of<BASE, PacketId> {       \
+    using type = typename name_of<BASE, PacketId>::type;                \
+  };                                                                    \
+                                                                        \
+  template <typename T>                                                 \
+  struct id_of<PACKETSET, T> : id_of<BASE, T> {                         \
+  };                                                                    \
+
+
+#define ARES_PACKETSET_ID_NAME(PACKETSET, ID, TYPE)                     \
+  template <> struct name_of<PACKETSET, ID> { using type = packet::TYPE; }; \
+  template <> struct id_of<PACKETSET, packet::TYPE> { constexpr static const uint16_t value = ID; }; \
+
 
 namespace ares {
   namespace packet_sets {
-    struct base {
-      template <uint16_t PacketId> struct name_of {
-      };
+    struct base {};
+    
+    template <typename PacketSet, uint16_t PacketId>
+    struct name_of {};
       
-      template <typename T> struct id_of {
-      };
-    };
+    template <typename PacketSet, typename T>
+    struct id_of {};
   }
 }
 
 #include "server.hpp"  // Intraserver packets
-#include "pets_5a3cb64a.hpp"   // 2017-12-27aRagexeRE.exe
-#include "pets_5a4c7c5c.hpp"   // 2018-01-03bRagexeRE.exe
+#include "client_stable.hpp"  // Client packets that never changed
+#include "pets_5a3cb64a.hpp"  // 2017-12-27aRagexeRE.exe
+#include "pets_5a4c7c5c.hpp"  // 2018-01-03bRagexeRE.exe
 
 

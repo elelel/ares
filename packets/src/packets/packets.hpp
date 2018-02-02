@@ -1,5 +1,5 @@
 namespace ares {
-  namespace packets {
+  namespace packet {
 #pragma pack(push, 1)
 
 #include "CHARACTER_INFO.hpp"

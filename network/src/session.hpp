@@ -11,6 +11,7 @@
 #include <asio/steady_timer.hpp>
 #include <spdlog/spdlog.h>
 #include <elelel/network_buffer>
+#include <ares/packets>
 
 #include "handler/packet/base.hpp"
 #include "handler/asio/send.hpp"
@@ -23,7 +24,7 @@ namespace ares {
     */
     template <typename Session>
     struct session {
-      template <typename Handler, typename Packet, typename Server, typename Session_, typename State>
+      template <typename Handler, typename PacketSet, typename Packet, typename Server, typename Session_, typename State>
       friend struct handler::packet::base;
       template <typename Handler, typename Session_>
       friend struct handler::asio::base;
@@ -60,7 +61,7 @@ namespace ares {
       */
       void copy_and_send(const void* data, const size_t send_sz);
       
-      /*! Constructs Packet in-place in free space of send buffer and requests sending if needed
+      /*! Constructs packet in-place in free space of send buffer and requests sending if needed
         \tparam Packet packet type
         \tparam Args types of arguments used for packet in-place construction
 

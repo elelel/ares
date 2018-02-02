@@ -3,7 +3,7 @@
 #include "state.hpp"
 #include "../state.hpp"
 
-void ares::character::client::packet_handler<ares::packet<ares::packets::CH_SELECT_CHAR>>::operator()() {
+void ares::character::client::packet_handler<ares::packet_set, ares::packet::CH_SELECT_CHAR>::operator()() {
   SPDLOG_TRACE(log(), "CH_SELECT_CHAR begin");
   auto& c = session_.as_client();
   if (p_->CharNum() < c.playable_slots) {
@@ -21,7 +21,7 @@ void ares::character::client::packet_handler<ares::packet<ares::packets::CH_SELE
                                    });
       if (found_zs != server.zone_servers().end()) {
         SPDLOG_TRACE(log(), "map server found, sendint NOTIFY_ZONESVR to client");
-        session_.emplace_and_send<packet<packets::HC_NOTIFY_ZONESVR>>(ci->info.cid,
+        session_.emplace_and_send<packet_type<packet::HC_NOTIFY_ZONESVR>>(ci->info.cid,
                                                              ci->location.map_name + ".gat",
                                                              htonl((*found_zs)->as_zone_server().ip_v4.to_ulong()),
                                                              (*found_zs)->as_zone_server().port);

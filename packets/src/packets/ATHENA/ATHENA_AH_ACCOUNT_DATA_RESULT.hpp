@@ -7,7 +7,7 @@ struct type<PacketSet, ATHENA_AH_ACCOUNT_DATA_RESULT> {
                const size_t email_sz,
                const uint32_t expiration_time,
                const uint8_t gmlevel) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     aid_ = aid;
     expiration_time_ = expiration_time;
     gmlevel_ = gmlevel;

@@ -8,7 +8,7 @@ struct type<PacketSet, ATHENA_HA_AID_AUTH_REQ> {
                       const uint8_t sex,
                       const uint32_t ip,
                       const int32_t request_id) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     aid_ = aid;
     auth_code1_ = auth_code1;
     auth_code2_ = auth_code2;

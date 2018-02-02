@@ -3,7 +3,7 @@ struct type<PacketSet, ATHENA_HZ_LOGIN_RESULT> {
   using packet_name = ATHENA_HZ_LOGIN_RESULT;
   
   void emplace(const uint8_t ErrorCode) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     ErrorCode_ = ErrorCode;
   }
   

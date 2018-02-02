@@ -5,7 +5,7 @@ struct type<PacketSet, ATHENA_ZH_GAME_RATES> {
   void emplace(const uint32_t base_rate,
                const uint32_t job_rate,
                const uint32_t drop_rate) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     base_rate_ = base_rate;
     job_rate_ = job_rate;
     drop_rate_ = drop_rate;

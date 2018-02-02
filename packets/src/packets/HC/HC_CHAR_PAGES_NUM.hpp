@@ -4,7 +4,7 @@ struct type<PacketSet, HC_CHAR_PAGES_NUM> {
   
   inline void emplace(const uint32_t npages,
                       const uint32_t nchars) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     npages_ = npages;
     nchars_ = nchars;
   }

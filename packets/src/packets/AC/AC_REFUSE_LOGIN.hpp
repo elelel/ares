@@ -3,7 +3,7 @@ struct type<PacketSet, AC_REFUSE_LOGIN> {
   using packet_name = AC_REFUSE_LOGIN;
   
   void emplace(const uint8_t ErrorCode, const char* blockDate, const size_t blockDate_sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     ErrorCode_ = ErrorCode;
     copy_buf_with_zero_pad(blockDate_, sizeof(blockDate_), blockDate, blockDate_sz);
   }

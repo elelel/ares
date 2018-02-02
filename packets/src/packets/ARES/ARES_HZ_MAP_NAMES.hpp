@@ -3,7 +3,7 @@ struct type<PacketSet, ARES_HZ_MAP_NAMES> {
   using packet_name = ARES_HZ_MAP_NAMES;
   
   inline void emplace(const std::set<std::string>& maps) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this);
     for (const auto& map : maps) {
       PacketLength += map.size() + 1;
@@ -11,7 +11,7 @@ struct type<PacketSet, ARES_HZ_MAP_NAMES> {
   }
 
   inline void emplace(const size_t sz) {
-    PacketType = PacketSet::template id_of<type<PacketSet, packet_name>>::value;
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     PacketLength = sizeof(*this) + sz;
   }
 
