@@ -1,6 +1,20 @@
 #include "state.hpp"
 #include "../state.hpp"
 
+namespace ares {
+  struct char_pages_num {
+    template <typename PacketVersion, typename std::enable_if<std::is_same<PacketVersion, packet::HC_CHAR_PAGES_NUM::with_nchars>::value, int>::type = 0>
+    static void send(character::session& s, const uint32_t npages, const uint32_t nchars) {
+      s.emplace_and_send<packet::type<packet_set, packet::HC_CHAR_PAGES_NUM::with_nchars>>(npages, nchars);
+    }
+
+    template <typename PacketVersion, typename std::enable_if<std::is_same<PacketVersion, packet::HC_CHAR_PAGES_NUM::no_nchars>::value, int>::type = 0>
+    static void send(character::session& s, const uint32_t npages, const uint32_t) {
+      s.emplace_and_send<packet::type<packet_set, packet::HC_CHAR_PAGES_NUM::no_nchars>>(npages);
+    }
+  };
+}
+
 void ares::character::account_server::packet_handler<ares::packet_set, ares::packet::ATHENA_AH_ACCOUNT_DATA_RESULT>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_ACCOUNT_DATA_RESULT: begin");
   auto& server = server_state_.server;
@@ -56,7 +70,7 @@ void ares::character::account_server::packet_handler<ares::packet_set, ares::pac
       
       SPDLOG_TRACE(log(), "Loaded {} characters for aid {}, Sending pages num: npages = {}, nslots = {}",
                    c.char_select_character_info.size(), p_->aid(), npages, c.creatable_slots);
-      s->emplace_and_send<packet_type<packet::HC_CHAR_PAGES_NUM>>(npages, c.creatable_slots);
+      char_pages_num::send<packet_sets::choose_version<packet_set, packet::HC_CHAR_PAGES_NUM>::name>(*s, npages, c.creatable_slots);
       s->emplace_and_send<packet_type<packet::HC_BLOCK_CHARACTER>>();
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing s session", p_->aid());
@@ -68,3 +82,4 @@ void ares::character::account_server::packet_handler<ares::packet_set, ares::pac
   }
   SPDLOG_TRACE(log(), "ATHENA_AH_ACCOUNT_DATA_RESULT: end");
 }
+

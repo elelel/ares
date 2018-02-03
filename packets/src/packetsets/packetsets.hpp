@@ -21,10 +21,16 @@ hex uint32 of ragexe
   };                                                                    \
 
 
-#define ARES_PACKETSET_ID_NAME(PACKETSET, ID, TYPE)                     \
-  template <> struct name_of<PACKETSET, ID> { using type = packet::TYPE; }; \
-  template <> struct id_of<PACKETSET, packet::TYPE> { constexpr static const uint16_t value = ID; }; \
+#define ARES_PACKETSET_ID_NAME(PACKETSET, ID, NAME)                     \
+  template <> struct name_of<PACKETSET, ID> { using type = packet::NAME; }; \
+  template <> struct id_of<PACKETSET, packet::NAME> { constexpr static const uint16_t value = ID; }; \
 
+
+#define ARES_PACKETSET_CHOOSE_VERSION(PACKETSET, NAME, VERSION_NAME)    \
+  template <>                                                           \
+  struct choose_version<PACKETSET, packet::NAME> {                      \
+    using name = packet::VERSION_NAME;                                  \
+  };                                                                    \
 
 namespace ares {
   namespace packet_sets {
@@ -35,6 +41,9 @@ namespace ares {
       
     template <typename PacketSet, typename T>
     struct id_of {};
+
+    template <typename PacketSet, typename T>
+    struct choose_version {};
   }
 }
 

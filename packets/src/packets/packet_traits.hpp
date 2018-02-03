@@ -36,7 +36,10 @@ namespace ares {
     struct HC_NOTIFY_ZONESVR {};
     struct HC_BLOCK_CHARACTER {};
     struct HC_ACCEPT_ENTER {};
-    struct HC_CHAR_PAGES_NUM {};
+    struct HC_CHAR_PAGES_NUM {
+      struct with_nchars {};
+      struct no_nchars{};
+    };
     struct CH_CHAR_PAGE_REQ {};
     struct HC_CHAR_PAGES {};
     struct HC_REFUSE_ENTER {};
