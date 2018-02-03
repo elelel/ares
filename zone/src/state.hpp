@@ -8,6 +8,7 @@
 #include "database/database.hpp"
 #include "server.hpp"
 
+#include "event/cz_enter.hpp"
 #include "event/pc_move.hpp"
 
 namespace ares {
@@ -17,6 +18,9 @@ namespace ares {
 
       std::shared_ptr<asio::io_service> io_service() const;
       std::shared_ptr<spdlog::logger> log() const;
+
+      template <typename Event>
+      void post_event(const Event& e);
         
     private:
       std::shared_ptr<asio::io_service> io_service_;
@@ -32,6 +36,7 @@ namespace ares {
 
       /*! Stream of PC move commands from client */
       rxcpp::rxsub::subject<event::pc_move_command> pc_move_commands;
+      rxcpp::rxsub::subject<event::cz_enter> cz_enter_stream;
 
       std::unordered_set<std::string> map_names;
     };

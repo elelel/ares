@@ -19,6 +19,11 @@ std::shared_ptr<spdlog::logger> ares::zone::state::log() const {
   return log_;
 }
 
+template <>
+void ares::zone::state::post_event(const event::cz_enter& e) {
+  rxcpp::rxs::just(e).subscribe(cz_enter_stream.get_subscriber());
+}
+
 /* TODO: event loop
 std::vector<rxo::observable<ares::zone::world::reducer>> ares::zone::world::reducers{}
 
