@@ -40,7 +40,7 @@ void ares::zone::mono::state::on_operation_aborted() {
 size_t ares::zone::mono::state::dispatch(const uint16_t PacketType) {
   SPDLOG_TRACE(server_state_.log(), "mono::state::dispatch() switching on PacketType = {0:#x}", PacketType);
   switch (PacketType) {
-
+    ARES_PACKET_CASE(CZ_ENTER);
   }
   server_state_.log()->error("Unexpected PacketType {0:#x} for mono::state session", PacketType);
   throw ares::network::terminate_session();

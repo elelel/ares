@@ -47,6 +47,7 @@ namespace ares {
     struct HC_REFUSE_MAKECHAR {};
 
     // Zone <-> Client
+    struct CZ_ENTER {};
     struct CZ_REQUEST_MOVE {};
 
     // Athena packets

@@ -8,6 +8,7 @@ namespace ares {
 
 #define ARES_PCK_ID_NAME(ID, NAME) ARES_PACKETSET_ID_NAME(pets_5a4c7c5c, ID, NAME)
 
+    ARES_PCK_ID_NAME(0x811, CZ_ENTER);
     ARES_PCK_ID_NAME(0x9a0, HC_CHAR_PAGES_NUM::no_nchars);
     
 #undef ARES_PCK_ID_NAME

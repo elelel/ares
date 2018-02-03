@@ -28,6 +28,7 @@ namespace ares {
 #include "HC/HC_NOTIFY_ZONESVR.hpp"
 
     // Zone <-> Client
+#include "CZ/CZ_ENTER.hpp"
 #include "CZ/CZ_REQUEST_MOVE.hpp"
 
     // Athena packets

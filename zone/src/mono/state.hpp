@@ -39,6 +39,11 @@ namespace ares {
 
       ARES_DECLARE_PACKET_HANDLER_TEMPLATE(zone);
       
+      // Simple packet handlers that do not define their own class structure
+      ARES_SIMPLE_PACKET_HANDLER(zone, CZ_ENTER);
+      
+      // Packet handlers that store state/structured
+
     }
   }
 }
