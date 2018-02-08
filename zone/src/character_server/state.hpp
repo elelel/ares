@@ -3,50 +3,46 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "timers.hpp"
+#include "../config.hpp"
 
 namespace ares {
   namespace zone {
-    struct state;
+    struct server;
     struct session;
     
     namespace character_server {
       struct state {
-        state(zone::state& server_state, session& sess);
-        
-        // Interface with zone::session
-        void on_open();
-        void before_close();
+        state(zone::server& serv, session& sess);
+
+        void on_connect();
         void on_connection_reset();
+        void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_operation_aborted();
-        size_t dispatch(const uint16_t PacketType);
+        void on_packet_processed();
+        
+        size_t dispatch_packet(const uint16_t packet_id);
 
-        void defuse_asio();
-
+        std::shared_ptr<spdlog::logger> log() const;
+        const config& conf() const;
+        
       private:
-        zone::state& server_state_;
+        server& server_;
         session& session_;
 
-      public:
-        timer::reconnect reconnect_timer;
-        timer::ping_request ping_request_timer;
-        timer::ping_timeout ping_timeout_timer;
-
-        // Data
-        std::string private_msg_name{"Character server"};        
+        std::atomic<bool> awaiting_ping_ack_{false};
+        rxcpp::rxsub::subject<bool> ping_stream;
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(zone);
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
       
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(zone, ATHENA_HZ_LOGIN_RESULT);
-      ARES_SIMPLE_PACKET_HANDLER(zone, ATHENA_HZ_PRIVATE_MSG_NAME);
-      ARES_SIMPLE_PACKET_HANDLER(zone, ATHENA_HZ_PING_ACK);
-      ARES_SIMPLE_PACKET_HANDLER(zone, ARES_HZ_MAP_NAMES);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_LOGIN_RESULT);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_PRIVATE_MSG_NAME);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HZ_PING_ACK);
+      ARES_SIMPLE_PACKET_HANDLER(ARES_HZ_MAP_NAMES);
       // Packet handlers that store state/structured
+
     }
   }
 }
-

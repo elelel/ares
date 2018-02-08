@@ -2,8 +2,22 @@
   \brief Packet names (as type traits)
 */
 
+#include "size.hpp"
+
 namespace ares {
   namespace packet {
+    template <typename Packet>
+    inline static Packet* copy_construct(const Packet& other) {
+      const size_t sz = size::get<Packet>(&other, sizeof(Packet));
+      Packet* p = (Packet*)malloc(sz);
+      if (p != nullptr) {
+        memcpy(p, &other, sz);
+        return p;
+      } else {
+        throw std::bad_alloc();
+      }
+    }
+    
     template <typename PacketSet, typename PacketName>
     struct type {
     };

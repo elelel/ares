@@ -57,8 +57,8 @@ void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_
         const auto auth_code2 = ares::random_int32::get();
 
         SPDLOG_TRACE(log(), "Creating client::state");
-        auto new_state = client::state(session_state_);
-        session_.session_state_.emplace<client::state>(std::move(new_state));
+        auto new_state = client::state(state_);
+        session_.state_.emplace<client::state>(std::move(new_state));
         auto& client = session_.as_client();
         client.aid = user_data->aid;
         client.account_level = user_data->level;

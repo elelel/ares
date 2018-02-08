@@ -1,17 +1,18 @@
 #include <iostream>
 
-#include <spdlog/spdlog.h>
-
-#include "state.hpp"
+#include "server.hpp"
 
 int main() {
   // TODO: command line options: log destination, log level, config filename, foreground/background
   try {
-    ares::zone::state s;
-    s.server.start();
-    while (true) {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    auto log = spdlog::stdout_color_mt("zone");
+    auto io_context = std::make_shared<asio::io_context>();
+
+    ares::zone::config conf(log, io_context, std::optional<std::string>{});
+    ares::zone::server s(log, io_context, conf);
+    s.start();
+    s.run();
+    
   } catch (const std::runtime_error e) {
     std::cerr << "main: terminated with runtime error {} " << e.what() << std::endl;
   } catch (...) {

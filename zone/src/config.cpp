@@ -4,9 +4,9 @@
 #include <sstream>
 
 ares::zone::config::config(std::shared_ptr<spdlog::logger> log,
-                              std::shared_ptr<asio::io_service> io_service,
+                              std::shared_ptr<asio::io_context> io_context,
                               std::optional<std::string> first_config_file) :
-  ares::config(log, io_service, "zone_server", first_config_file) {
+  ares::config(log, io_context, "zone_server", first_config_file) {
   postgres = load_with_catch_as<postgres_config>("database", json_);
   listen_ipv4 = load_with_catch_as<endpoints_config>("listen_ipv4", json_);
   load_character_server();

@@ -3,32 +3,35 @@
 #include <ares/network>
 #include <ares/packets>
 
+#include "../config.hpp"
+
 namespace ares {
   namespace account {
-    struct state;
+    struct server;
     struct session;
 
     namespace mono {
       struct state;
     }
     
-    namespace char_server {
-      /*! State for sessions that are character servers */
+    namespace character_server {
       struct state {
-        state(account::state& server_state, session& sess);
+        state(account::server& serv, session& sess);
         /*! Constructor to create character server state from monostate
           \param mono_state monostate to create character server state from */
         state(const mono::state& mono_state);
         
-        // Interface with account::session
-        void defuse_asio();
-        void on_open();
-        void before_close();
+        void on_connect();
         void on_connection_reset();
+        void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_operation_aborted();
-        size_t dispatch(const uint16_t PacketType);
+        void on_packet_processed();
+
+        size_t dispatch_packet(const uint16_t packet_id);
+        
+        std::shared_ptr<spdlog::logger> log() const;
+        const config& conf() const;
 
         // Data
         /*! Characer server's login */
@@ -46,19 +49,22 @@ namespace ares {
         uint32_t user_count{0};
 
       private:
-        account::state& server_state_;
+        server& server_;
         session& session_;
-      };
-      
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(account);
 
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_PING_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_ONLINE_AIDS);
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_USER_COUNT);
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_AID_AUTH_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_ACCOUNT_DATA_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_SET_AID_ONLINE);
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_SET_AID_OFFLINE);
+
+      };
+
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+      // Simple packet handlers that do not define their own class structure
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_PING_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_ONLINE_AIDS);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_USER_COUNT);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_AID_AUTH_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_ACCOUNT_DATA_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_SET_AID_ONLINE);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_SET_AID_OFFLINE);
+
     }
   }
 }

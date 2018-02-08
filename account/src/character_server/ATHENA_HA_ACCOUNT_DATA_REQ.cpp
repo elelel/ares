@@ -1,11 +1,11 @@
 #include "state.hpp"
-#include "../state.hpp"
+#include "../server.hpp"
 
-void ares::account::char_server::packet_handler<ares::packet_set, ares::packet::ATHENA_HA_ACCOUNT_DATA_REQ>::operator()() {
+void ares::account::character_server::packet_handler<ares::packet_set, ares::packet::ATHENA_HA_ACCOUNT_DATA_REQ>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HA_ACCOUNT_DATA_REQ: begin");
-  auto ud = server_state_.db.user_data_for_aid(p_->aid());
+  auto ud = server_.db.user_data_for_aid(p_->aid());
   if (ud) {
-    session_.emplace_and_send<packet_type<packet::ATHENA_AH_ACCOUNT_DATA_RESULT>>(ud->aid,
+    session_.emplace_and_send<packet::type<packet_set, packet::ATHENA_AH_ACCOUNT_DATA_RESULT>>(ud->aid,
                                                                      ud->email,
                                                                      ud->expiration_time,
                                                                      ud->level,

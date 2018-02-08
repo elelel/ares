@@ -8,7 +8,7 @@ namespace ares {
   namespace zone {
     struct config : ares::config {
       config(std::shared_ptr<spdlog::logger> log,
-             std::shared_ptr<asio::io_service> io_sevice,
+             std::shared_ptr<asio::io_context> io_context,
              const std::optional<std::string> first_config_file);
 
       struct character_server_config_record {

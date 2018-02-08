@@ -1,47 +1,48 @@
 #include "state.hpp"
 
-#include <ares/network>
+#include "../server.hpp"
+#include "../session.hpp"
 
-#include "../state.hpp"
-
-ares::zone::client::state::state(zone::state& server_state, session& sess) :
-  server_state_(server_state),
+ares::zone::client::state::state(ares::zone::server& serv,
+                                           ares::zone::session& sess) :
+  server_(serv),
   session_(sess) {
   }
 
-void ares::zone::client::state::defuse_asio() {
-}
-
-void ares::zone::client::state::on_open() {
-  SPDLOG_TRACE(server_state_.log(), "client::state on_open");
-}
-
-void ares::zone::client::state::before_close() {
-  SPDLOG_TRACE(server_state_.log(), "client::state before_close");
+void ares::zone::client::state::on_connect() {
 }
 
 void ares::zone::client::state::on_connection_reset() {
-  SPDLOG_TRACE(server_state_.log(), "client::state on_connection_reset");
-}
-
-void ares::zone::client::state::on_eof() {
-  SPDLOG_TRACE(server_state_.log(), "client::state on_eof");
-}
-
-void ares::zone::client::state::on_socket_error() {
-  SPDLOG_TRACE(server_state_.log(), "client::state on_socket_error");
 }
 
 void ares::zone::client::state::on_operation_aborted() {
-  SPDLOG_TRACE(server_state_.log(), "client::state on_operation_aborted");
 }
 
-size_t ares::zone::client::state::dispatch(const uint16_t PacketType) {
-  SPDLOG_TRACE(server_state_.log(), "client::state::dispatch() switching on PacketType = {0:#x}", PacketType);
-  switch (PacketType) {
-    ARES_PACKET_CASE(CZ_REQUEST_MOVE);
+void ares::zone::client::state::on_eof() {
+}
+
+void ares::zone::client::state::on_socket_error() {
+}
+
+void ares::zone::client::state::on_packet_processed() {
+}
+
+size_t ares::zone::client::state::dispatch_packet(const uint16_t packet_id) {
+  switch (packet_id) {
+  default:
+    {
+      log()->error("Unexpected packet_id {:#x} for client::state session, disconnecting", packet_id);
+      server_.close_gracefuly(session_.shared_from_this());
+      session_.connected_ = false;
+      return 0;
+    }
   }
-  SPDLOG_TRACE(server_state_.log(), "client::state::dispatch() done");
-  server_state_.log()->error("Unexpected PacketType {0:#x} for client::state session", PacketType);
-  throw ares::network::terminate_session();
+}
+
+auto ares::zone::client::state::log() const -> std::shared_ptr<spdlog::logger> {
+  return server_.log();
+}
+
+auto ares::zone::client::state::conf() const -> const config& {
+  return server_.conf();
 }

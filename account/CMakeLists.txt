@@ -20,33 +20,42 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/main.cpp
-  ${SRC}/state.cpp
+  ${SRC}/mono/CA_SSO_LOGIN_REQ.cpp
+  ${SRC}/mono/ATHENA_HA_LOGIN_REQ.cpp
+  
   ${SRC}/server.cpp
+  ${SRC}/character_server/ATHENA_HA_ONLINE_AIDS.cpp
+
+  ${SRC}/character_server/ATHENA_HA_ACCOUNT_DATA_REQ.cpp
+  ${SRC}/character_server/ATHENA_HA_SET_AID_ONLINE.cpp
+  ${SRC}/character_server/ATHENA_HA_SET_AID_OFFLINE.cpp
+  ${SRC}/character_server/ATHENA_HA_USER_COUNT.cpp
+
+  ${SRC}/character_server/ATHENA_HA_PING_REQ.cpp
+
+  ${SRC}/character_server/ATHENA_HA_AID_AUTH_REQ.cpp
+
+  ${SRC}/main.cpp
+
   ${SRC}/config.cpp
   ${SRC}/session.cpp
-  ${SRC}/recv_handler.cpp
-  ${SRC}/send_handler.cpp
+
+  ${SRC}/character_server/state.cpp
+
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CA_EXE_HASHCHECK.cpp
-  ${SRC}/mono/CA_SSO_LOGIN_REQ_login_password.cpp
-  ${SRC}/mono/CA_SSO_LOGIN_REQ_auth_token.cpp
-  ${SRC}/mono/ATHENA_HA_LOGIN_REQ.cpp
+
+
+
   ${SRC}/mono/ATHENA_HA_PING_REQ.cpp
+  
   ${SRC}/client/state.cpp
-  ${SRC}/char_server/state.cpp
-  ${SRC}/char_server/ATHENA_HA_PING_REQ.cpp
-  ${SRC}/char_server/ATHENA_HA_ONLINE_AIDS.cpp
-  ${SRC}/char_server/ATHENA_HA_USER_COUNT.cpp
-  ${SRC}/char_server/ATHENA_HA_AID_AUTH_REQ.cpp
-  ${SRC}/char_server/ATHENA_HA_ACCOUNT_DATA_REQ.cpp
-  ${SRC}/char_server/ATHENA_HA_SET_AID_ONLINE.cpp
-  ${SRC}/char_server/ATHENA_HA_SET_AID_OFFLINE.cpp
   ${SRC}/database/database.cpp
   ${SRC}/database/user_exists.cpp
   ${SRC}/database/create_user.cpp
   ${SRC}/database/password_matches.cpp
   ${SRC}/database/user_data.cpp
+
   )
 
 if (NOT TARGET common) 
@@ -65,6 +74,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/json
   ${CONTRIB}/readerwriterqueue
   ${CONTRIB}/network_buffer/include
+  ${CONTRIB}/RxCpp/Rx/v2/src
   ${ARES_DIR})
 
 message("Account server compile definitions: ${ARES_COMPILE_DEFINITIONS}")

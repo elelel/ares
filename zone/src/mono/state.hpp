@@ -3,46 +3,37 @@
 #include <ares/network>
 #include <ares/packets>
 
+#include "../config.hpp"
+
 namespace ares {
   namespace zone {
-    struct state;
+    struct server;
     struct session;
-    
-    namespace client {
-      struct state;
-    }
-
-    namespace character_server {
-      struct state;
-    }
     
     namespace mono {
       struct state {
-        friend struct client::state;
-        friend struct character_server::state;
+        state(zone::server& serv, session& sess);
         
-        state(zone::state& zone_state, session& sess);        
-        // Interface with zone::session
-        void defuse_asio();
-        void on_open();
-        void before_close();
+        void on_connect();
         void on_connection_reset();
+        void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_operation_aborted();
-        size_t dispatch(const uint16_t PacketType);
+        void on_packet_processed();
 
+        size_t dispatch_packet(const uint16_t packet_id);
+        
+        std::shared_ptr<spdlog::logger> log() const;
+        const config& conf() const;
+        
       private:
-        zone::state& server_state_;
+        server& server_;
         session& session_;
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(zone);
-      
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(zone, CZ_ENTER);
-      
-      // Packet handlers that store state/structured
+      ARES_SIMPLE_PACKET_HANDLER(CZ_ENTER);
 
     }
   }

@@ -1,33 +1,30 @@
 #pragma once
 
-#include <map>
-#include <set>
-
 #include <ares/network>
 
+#include "config.hpp"
 #include "session.hpp"
+#include "database/database.hpp"
 
 namespace ares {
   namespace account {
-    struct state;
-    
-    struct server : ares::network::server<server> {
-      server(state& state_);
-      
+    struct server : ares::network::server<server, session> {
+      server(std::shared_ptr<spdlog::logger> log,
+             std::shared_ptr<asio::io_context> io_context,
+             const config& conf);
+
       /*! Starts the account server */
       void start();
 
-      /*! Creates a new session (interface for acceptor)
-       \param socket session's TCP socket */
-      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
+      const config& conf() const;
 
-      /*! Adds a session to current sessions list 
+      /*! Returns connected character server sessions */ 
+      const std::set<session_ptr>& char_servers() const;
+
+      /*! Adds a session to current sessions list
        \param s session to add */
       void add(session_ptr s);
-      /*! Removes a session from current sessions list
-       \param s session to remove */
-      void remove(session_ptr s);
-
+      
       /*! Returns client session by account id 
        \param aid account id */
       session_ptr client_by_aid(const uint32_t aid);
@@ -40,16 +37,29 @@ namespace ares {
        \param s character server session */
       void unlink_aid_from_char_server(const uint32_t aid, session_ptr s);
 
-      /*! Returns connected character server sessions */ 
-      const std::set<session_ptr>& char_servers() const;
+    protected:
+      friend ares::network::server<server, session>;
+      
+      /*! Creates a network session within the server, called from acceptor
+        \param socket TCP socket of the new network session
+      */
+      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
+
+      /*! Removes a session from current sessions list. Should be called only from RX interface
+       \param s session to remove */
+      void remove(session_ptr s);
 
     private:
-      state& state_;
-
-      std::set<session_ptr> mono_;
-      std::set<session_ptr> char_servers_;
-      std::map<uint32_t, session_ptr> clients_;
       std::map<uint32_t, session_ptr> aid_to_char_server_;
+      std::map<uint32_t, session_ptr> clients_;
+      std::set<session_ptr> char_servers_;
+      std::set<session_ptr> mono_;
+
+      const config& conf_;
+      
+    public:
+      database db;
+
     };
   }
 }

@@ -1,70 +1,25 @@
 #include "session.hpp"
 
-#include <utility>
+#include "server.hpp"
 
-#include "state.hpp"
-#include "mono/state.hpp"
-
-ares::account::session::session(account::state& server_state,
-                                std::shared_ptr<asio::ip::tcp::socket> socket) :
-  ares::network::session<session>(server_state.io_service(), server_state.log(), socket),
-  session_state_(std::in_place_type<mono::state>, server_state, *this),
-  server_state_(server_state) {
-}
-
-void ares::account::session::defuse_asio() {
-  close_socket();
-  inactivity_timer_.cancel(); 
-  if (is_client()) return as_client().defuse_asio();
-  if (is_char_server()) return as_char_server().defuse_asio();
-  if (is_mono()) return as_mono().defuse_asio();
-}
-
-void ares::account::session::remove_from_server() {
-  defuse_asio();
-  server_state_.server.remove(shared_from_this());
-}
-
-void ares::account::session::on_disconnect() {
-  if (is_client()) {
-    // Do not destroy client session if it has disconnected
-    // The session data persist with authentication info
-    inactivity_timer_.cancel();
-    // TODO: Set inactivity timer to self-destruct after some period?
-    return;
-  } else {
-    defuse_asio();
-    server_state_.server.remove(shared_from_this());
-  }
-}
-
-void ares::account::session::on_open() {
-}
-
-void ares::account::session::before_close() {
-}
-
-void ares::account::session::on_connection_reset() {
-  SPDLOG_TRACE(log_, "account::session:on_connection_reset");
-  on_disconnect();
-}
-
-void ares::account::session::on_eof() {
-  SPDLOG_TRACE(log_, "account::session:on_eof");
-  on_disconnect();
-}
-
-void ares::account::session::on_socket_error() {
-  SPDLOG_TRACE(log_, "account::session:on_socket_error");
-  remove_from_server();
-}
-
-void ares::account::session::on_operation_aborted() {
-  SPDLOG_TRACE(log_, "account::session:on_operation_aborted");
+ares::account::session::session(ares::account::server& serv,
+                                const std::optional<asio::ip::tcp::endpoint> connect_ep,
+                                std::shared_ptr<asio::ip::tcp::socket> socket,
+                                const std::chrono::seconds idle_timer_timeout) :
+  ares::network::session<session, ares::account::server>(serv, connect_ep, socket, idle_timer_timeout),
+  session_state_(std::in_place_type<mono::state>, serv, *this) {
 }
 
 auto ares::account::session::variant() -> state_variant& {
   return session_state_;
+}
+
+bool ares::account::session::is_mono() const {
+  return std::holds_alternative<mono::state>(session_state_);
+}
+
+auto ares::account::session::as_mono() -> mono::state& {
+  return std::get<mono::state>(session_state_);
 }
 
 bool ares::account::session::is_client() const {
@@ -76,41 +31,67 @@ auto ares::account::session::as_client() -> client::state& {
 }
 
 bool ares::account::session::is_char_server() const {
-  return std::holds_alternative<char_server::state>(session_state_);
+  return std::holds_alternative<character_server::state>(session_state_);
 }
 
-auto ares::account::session::as_char_server() -> char_server::state& {
-  return std::get<char_server::state>(session_state_);
+auto ares::account::session::as_char_server() -> character_server::state& {
+  return std::get<character_server::state>(session_state_);
 }
 
-bool ares::account::session::is_mono() const {
-  return std::holds_alternative<mono::state>(session_state_);
-}
+#define ARES_VARIANT_EVENT_DISPATCHER(NAME)             \
+  void ares::account::session::NAME() {                 \
+    struct visitor {                                    \
+      visitor(session& s) :                             \
+        s(s) {};                                        \
+                                                        \
+      void operator()(const mono::state&) {             \
+        s.as_mono().NAME();                             \
+      }                                                 \
+                                                        \
+      void operator()(const client::state&) {           \
+        s.as_client().NAME();                           \
+      }                                                 \
+                                                        \
+      void operator()(const character_server::state&) { \
+        s.as_char_server().NAME();                      \
+      }                                                 \
+                                                        \
+    private:                                            \
+    session& s;                                         \
+    };                                                  \
+    std::visit(visitor(*this), variant());              \
+  }                                                     \
+  
 
-auto ares::account::session::as_mono() -> mono::state& {
-  return std::get<mono::state>(session_state_);
-}
+ARES_VARIANT_EVENT_DISPATCHER(on_connect);
+ARES_VARIANT_EVENT_DISPATCHER(on_connection_reset);
+ARES_VARIANT_EVENT_DISPATCHER(on_operation_aborted);
+ARES_VARIANT_EVENT_DISPATCHER(on_eof);
+ARES_VARIANT_EVENT_DISPATCHER(on_socket_error);
+ARES_VARIANT_EVENT_DISPATCHER(on_packet_processed);
 
-auto ares::account::session::make_send_handler() -> send_handler {
-  return send_handler(shared_from_this());
-}
+#undef ARES_VARIANT_EVENT_DISPATCHER
 
-auto ares::account::session::make_recv_handler() -> recv_handler {
-  return recv_handler(shared_from_this());
-}
+size_t ares::account::session::dispatch_packet(const uint16_t packet_id) {
+  struct visitor {
+    visitor(session& s, const uint16_t packet_id) : s(s), packet_id(packet_id) {};
 
-void ares::account::session::reset_inactivity_timer() {
-  inactivity_timer_.cancel();
-  inactivity_timer_.expires_from_now(inactivity_timeout_);
-  auto handler = inactivity_timer_handler(shared_from_this());
-  inactivity_timer_.async_wait(handler);
-}
+    size_t operator()(const mono::state&) {
+      return s.as_mono().dispatch_packet(packet_id);
+    }
 
-void ares::account::session::on_inactivity_timer() {
-  SPDLOG_TRACE(log_, "account::session::on_inactivity_timer");
-  remove_from_server();
-}
+    size_t operator()(const character_server::state&) {
+      return s.as_char_server().dispatch_packet(packet_id);
+    }
+    
+    size_t operator()(const client::state&) {
+      return s.as_client().dispatch_packet(packet_id);
+    }
 
-void ares::account::session::inactivity_timer_handler::operator()(const std::error_code& ec) {
-  if (ec.value() == 0) session_->on_inactivity_timer();
+  private:
+    session& s;
+    const uint16_t packet_id;
+  };
+
+  return std::visit(visitor(*this, packet_id), variant());
 }

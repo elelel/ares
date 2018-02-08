@@ -3,55 +3,60 @@
 #include <ares/network>
 #include <ares/packets>
 
+#include "../config.hpp"
+
 namespace ares {
   namespace account {
-    struct state;
+    struct server;
     struct session;
     
     namespace client {
       struct state;
     }
 
-    namespace char_server {
+    namespace character_server {
       struct state;
     }
-
+    
     namespace mono {
-      /*! State for sessions that are monostate (not initialized yet) */
       struct state {
-        friend struct client::state;
-        friend struct char_server::state;
+        state(account::server& serv, session& sess);
+
+        friend struct ::ares::account::client::state;
+        friend struct ::ares::account::character_server::state;
+
+        /*friend struct ares::account::mono::packe_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>;
+          friend struct ares::account::mono::packe_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::token_auth>;*/
         
-        state(account::state& server_state, session& sess);
-        // Interface with account::session
-        void defuse_asio();
-        void on_open();
-        void before_close();
+        void on_connect();
         void on_connection_reset();
+        void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_operation_aborted();
-        size_t dispatch(const uint16_t PacketType);
+        void on_packet_processed();
+
+        size_t dispatch_packet(const uint16_t packet_id);
+        
+        std::shared_ptr<spdlog::logger> log() const;
+        const config& conf() const;
 
         // Data
         /*! Game client EXE hash (sent before session is handshaken as game client) */
         std::optional<std::array<uint8_t, 16>> client_exe_hash;
-
+        
       private:
-        account::state& server_state_;
+        server& server_;
         session& session_;
       };
 
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(account);
-
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
       // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_LOGIN_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(account, ATHENA_HA_PING_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(account, CA_EXE_HASHCHECK);
-      
-      // Packet handlers that store state/structured
-      #include "CA_SSO_LOGIN_REQ.hpp"
-      
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_LOGIN_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_PING_REQ);
+      ARES_SIMPLE_PACKET_HANDLER(CA_EXE_HASHCHECK);
+      ARES_SIMPLE_PACKET_HANDLER(CA_SSO_LOGIN_REQ::login_password);
+      ARES_SIMPLE_PACKET_HANDLER(CA_SSO_LOGIN_REQ::token_auth);
+
     }
   }
 }

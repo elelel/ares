@@ -1,6 +1,6 @@
 #pragma once
 
-/*! \file packet_size.hpp
+/*! \file size.hpp
 
     \brief Static packet size calculation structures.
     
@@ -11,8 +11,8 @@
  */
 
 namespace ares {
-  namespace network {
-    struct packet_size_helper {
+  namespace packet {
+    struct size {
       /*! Calculate how many bytes are still to be received, judging by header/length
         \tparam Packet packet struct type
         \param buf pointer to buffer with packet's contents
@@ -31,8 +31,8 @@ namespace ares {
       */
       template <typename Packet,
                 typename Buffer>
-      static size_t size(Buffer&& buf) {
-        return size_<>((Packet*)buf.start_ptr(), buf.size(), dynamic_size());
+      static size_t get(Buffer&& buf) {
+        return get_<>((Packet*)buf.start_ptr(), buf.get(), dynamic_size());
       }
 
       /*! Get the packet size in flat memory buffer
@@ -41,8 +41,8 @@ namespace ares {
          \param sz number of meaningful bytes in the buffer
       */
       template <typename Packet>
-      static size_t size(const Packet* buf, const size_t sz) {
-        return size_(buf, sz, dynamic_size());
+      static size_t get(const Packet* buf, const size_t sz) {
+        return get_(buf, sz, dynamic_size());
       }
     
       /*! Check if size declaration for a packet is correct
@@ -54,6 +54,17 @@ namespace ares {
         return validate_(p, dynamic_size());
       }
 
+      template <typename Packet, typename int_<decltype(Packet::PacketLength)>::type = 0>
+      constexpr static bool is_dynamic() {
+        return true;
+      }
+
+      template <typename Packet>
+      constexpr static bool is_dynamic() {
+        return false;
+      }
+
+      
     private:
       template <typename> struct int_ { typedef int type; };
 
@@ -80,7 +91,7 @@ namespace ares {
 
       template <typename Packet,
                 typename int_<decltype(Packet::PacketLength)>::type = 0>
-      static size_t size_(Packet* p, const size_t sz, dynamic_size) {
+      static size_t get_(Packet* p, const size_t sz, dynamic_size) {
         const size_t min_for_PacketLength = (uintptr_t)&(p->PacketLength) - (uintptr_t)p + sizeof(decltype(p->PacketLength));
         if (sz < min_for_PacketLength) {
           // PacketLength member has to be reachable, if it's not, return the packet length we have
@@ -90,7 +101,7 @@ namespace ares {
       }
 
       template <typename Packet>
-      static size_t size_(Packet*, const size_t sz, fixed_size) {
+      static size_t get_(Packet*, const size_t sz, fixed_size) {
         if (sz >= sizeof(Packet)) {
           return sizeof(Packet);
         }

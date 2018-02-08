@@ -1,57 +1,13 @@
 #include "session.hpp"
 
-#include <utility>
+#include "server.hpp"
 
-#include "state.hpp"
-#include "mono/state.hpp"
-
-ares::zone::session::session(zone::state& zone_state,
-                             std::shared_ptr<asio::ip::tcp::socket> socket) :
-  ares::network::session<session>(zone_state.io_service(), zone_state.log(), socket),
-  session_state_(std::in_place_type<mono::state>, zone_state, *this),
-  server_state_(zone_state) {
-}
-
-void ares::zone::session::defuse_asio() {
-  close_socket();
-  inactivity_timer_.cancel(); 
-  if (is_client()) return as_client().defuse_asio();
-  if (is_character_server()) return as_character_server().defuse_asio();
-  if (is_mono()) return as_mono().defuse_asio();
-}
-
-void ares::zone::session::remove_from_server() {
-  defuse_asio();
-  server_state_.server.remove(shared_from_this());
-}
-
-void ares::zone::session::on_disconnect() {
-  remove_from_server();
-}
-
-void ares::zone::session::on_open() {
-}
-
-void ares::zone::session::before_close() {
-}
-
-void ares::zone::session::on_connection_reset() {
-  SPDLOG_TRACE(log_, "zone::session:on_connection_reset");
-  on_disconnect();
-}
-
-void ares::zone::session::on_eof() {
-  SPDLOG_TRACE(log_, "zone::session:on_eof");
-  on_disconnect();
-}
-
-void ares::zone::session::on_socket_error() {
-  SPDLOG_TRACE(log_, "zone::session:on_socket_error");
-  remove_from_server();
-}
-
-void ares::zone::session::on_operation_aborted() {
-  SPDLOG_TRACE(log_, "zone::session:on_operation_aborted");
+ares::zone::session::session(ares::zone::server& serv,
+                             const std::optional<asio::ip::tcp::endpoint> connect_ep,
+                             std::shared_ptr<asio::ip::tcp::socket> socket,
+                             const std::chrono::seconds idle_timer_timeout) :
+  ares::network::session<session, ares::zone::server>(serv, connect_ep, socket, idle_timer_timeout),
+  session_state_(std::in_place_type<mono::state>, serv, *this) {
 }
 
 auto ares::zone::session::variant() -> state_variant& {
@@ -74,35 +30,68 @@ auto ares::zone::session::as_client() -> client::state& {
   return std::get<client::state>(session_state_);
 }
 
-bool ares::zone::session::is_character_server() const {
+bool ares::zone::session::is_char_server() const {
   return std::holds_alternative<character_server::state>(session_state_);
 }
 
-auto ares::zone::session::as_character_server() -> character_server::state& {
+auto ares::zone::session::as_char_server() -> character_server::state& {
   return std::get<character_server::state>(session_state_);
 }
 
-auto ares::zone::session::make_send_handler() -> send_handler {
-  return send_handler(shared_from_this());
-}
+#define ARES_VARIANT_EVENT_DISPATCHER(NAME)             \
+  void ares::zone::session::NAME() {                    \
+    struct visitor {                                    \
+      visitor(session& s) :                             \
+        s(s) {};                                        \
+                                                        \
+      void operator()(const mono::state&) {             \
+        s.as_mono().NAME();                             \
+      }                                                 \
+                                                        \
+      void operator()(const client::state&) {           \
+        s.as_client().NAME();                           \
+      }                                                 \
+                                                        \
+      void operator()(const character_server::state&) { \
+        s.as_char_server().NAME();                      \
+      }                                                 \
+                                                        \
+    private:                                            \
+    session& s;                                         \
+    };                                                  \
+    std::visit(visitor(*this), variant());              \
+  }                                                     \
+  
 
-auto ares::zone::session::make_recv_handler() -> recv_handler {
-  return recv_handler(shared_from_this());
+ARES_VARIANT_EVENT_DISPATCHER(on_connect);
+ARES_VARIANT_EVENT_DISPATCHER(on_connection_reset);
+ARES_VARIANT_EVENT_DISPATCHER(on_operation_aborted);
+ARES_VARIANT_EVENT_DISPATCHER(on_eof);
+ARES_VARIANT_EVENT_DISPATCHER(on_socket_error);
+ARES_VARIANT_EVENT_DISPATCHER(on_packet_processed);
 
-}
+#undef ARES_VARIANT_EVENT_DISPATCHER
 
-void ares::zone::session::reset_inactivity_timer() {
-  inactivity_timer_.cancel();
-  inactivity_timer_.expires_from_now(inactivity_timeout_);
-  auto handler = inactivity_timer_handler(shared_from_this());
-  inactivity_timer_.async_wait(handler);
-}
+size_t ares::zone::session::dispatch_packet(const uint16_t packet_id) {
+  struct visitor {
+    visitor(session& s, const uint16_t packet_id) : s(s), packet_id(packet_id) {};
 
-void ares::zone::session::on_inactivity_timer() {
-  SPDLOG_TRACE(server_state_.log(), "zone::session::on_inactivity_timer");
-  remove_from_server();
-}
+    size_t operator()(const mono::state&) {
+      return s.as_mono().dispatch_packet(packet_id);
+    }
 
-void ares::zone::session::inactivity_timer_handler::operator()(const std::error_code& ec) {
-  if (ec.value() == 0) session_->on_inactivity_timer();
+    size_t operator()(const character_server::state&) {
+      return s.as_char_server().dispatch_packet(packet_id);
+    }
+    
+    size_t operator()(const client::state&) {
+      return s.as_client().dispatch_packet(packet_id);
+    }
+
+  private:
+    session& s;
+    const uint16_t packet_id;
+  };
+
+  return std::visit(visitor(*this, packet_id), variant());
 }

@@ -1,32 +1,37 @@
 #pragma once
 
-#include <ares/network>
-#include <ares/packets>
-
-#include "../mono/state.hpp"
+#include "../config.hpp"
 
 namespace ares {
   namespace account {
+    struct server;
+    struct session;
+
+    namespace mono {
+      struct state;
+    }
+    
     namespace client {
-      /*! State for sessions that are game clients */
       struct state {
-        state(account::state& server_state, session& sess);
+        state(account::server& serv, session& sess);
         /*! Constructor to create the client state from monostate
           \param mono_state monostate to convert to client state  */
         state(const mono::state& mono_state);
         
-        // Interface with account::session
-        void defuse_asio();
-        void on_open();
-        void before_close();
+        void on_connect();
         void on_connection_reset();
+        void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_operation_aborted();
-        size_t dispatch(const uint16_t PacketType);
-
+        void on_packet_processed();
+        
+        size_t dispatch_packet(const uint16_t packet_id);
+        
+        std::shared_ptr<spdlog::logger> log() const;
+        const config& conf() const;
+        
       private:
-        account::state& server_state_;
+        server& server_;
         session& session_;
 
       public:
@@ -49,11 +54,8 @@ namespace ares {
         uint8_t sex{0};
         /*! Is account online */
         bool online{false};
-
+        
       };
-
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(account);
-      
     }
   }
 }

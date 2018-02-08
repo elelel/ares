@@ -1,39 +1,55 @@
 #include "server.hpp"
 
-#include "state.hpp"
+#include "session.hpp"
 
-ares::zone::server::server(state& zone_state) :
-  ares::network::server<server>(zone_state.log(),
-                                zone_state.io_service(),
-                                *zone_state.conf.network_threads),
-  state_(zone_state) {
+ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
+                           std::shared_ptr<asio::io_context> io_context,
+                           const ares::zone::config& conf) :
+  ares::network::server<server, session>(log, io_context, *conf.network_threads),
+  conf_(conf),
+  db(log, *conf.postgres) {
+  log_->set_level(spdlog::level::trace);
 }
 
 void ares::zone::server::start() {
-  if (state_.conf.listen_ipv4.size() > 0) {
-    for (const auto& listen : state_.conf.listen_ipv4) {
-      ares::network::server<server>::start(listen);
+  if (conf_.listen_ipv4.size() > 0) {
+    for (const auto& listen : conf_.listen_ipv4) {
+      ares::network::server<server, session>::start(listen);
     }
-    char_server_ = std::make_shared<session>(state_, nullptr);
-    char_server_->variant().emplace<character_server::state>(state_, *char_server_);
-    char_server_->as_character_server().reconnect_timer.fire();
+    log()->info("Establishing connection to character server");
+    auto& ep = conf_.character_server->connect;
+    char_server_ = std::make_shared<session>(*this,
+                                             ep,
+                                             nullptr,
+                                             std::chrono::seconds{10});
+    char_server_->variant().emplace<character_server::state>(*this, *char_server_);
+    char_server_->set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
   } else {
-    log_->error("Can't start: listen ipv4 configuration is empty");
+    log()->error("Can't start: listen ipv4 configuration is empty");
   }
 }
 
 void ares::zone::server::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "zone::server::create_session");
-  auto s = std::make_shared<session>(state_, socket);
-  const auto& conf = state_.conf;
-  if (conf.obfuscation_key) {
-    const auto& k = *conf.obfuscation_key;
+  auto s = std::make_shared<session>(*this, std::optional<asio::ip::tcp::endpoint>{}, socket, std::chrono::seconds{120});
+  if (conf_.obfuscation_key) {
+    const auto& k = *conf_.obfuscation_key;
     s->obf_crypt_key.emplace(std::get<0>(k) * std::get<1>(k) + std::get<2>(k));
     SPDLOG_TRACE(log_, "Set new session obf_crypt_key to {:x}", *s->obf_crypt_key);
   }
-  s->reset_inactivity_timer();
-  mono_.insert(s);
-  s->receive();
+  on_rxthreads([this, s] () {
+      mono_.insert(s);
+      s->receive();
+      s->reset_idle_timer();      
+    });
+}
+
+auto ares::zone::server::conf() const -> const config& {
+  return conf_;
+}
+
+auto ares::zone::server::char_server() const -> const session_ptr& {
+  return char_server_;
 }
 
 void ares::zone::server::add(session_ptr s) {
@@ -84,7 +100,8 @@ void ares::zone::server::remove(session_ptr s) {
   std::visit(visitor(*this, s), s->variant());
 }
 
-auto ares::zone::server::client_by_aid(const uint32_t aid) -> session_ptr {
+
+auto ares::zone::server::client_by_aid_(const uint32_t aid) -> session_ptr {
   auto found = clients_.find(aid);
   if (found != clients_.end()) {
     return found->second;
@@ -92,8 +109,3 @@ auto ares::zone::server::client_by_aid(const uint32_t aid) -> session_ptr {
     return nullptr;
   }
 }
-
-auto ares::zone::server::char_server() const -> const session_ptr& {
-  return char_server_;
-}
-

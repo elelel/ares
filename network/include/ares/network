@@ -1,24 +1,13 @@
-#pragma once
-
 #include "../../src/macros.h"
 
-#include "../../src/exceptions.hpp"
 #include "../../src/server.hpp"
 #include "../../src/acceptor.hpp"
 #include "../../src/session.hpp"
-#include "../../src/timer.hpp"
-#include "../../src/packet_size.hpp"
-#include "../../src/handler/asio/base.hpp"
-#include "../../src/handler/asio/receive.hpp"
-#include "../../src/handler/asio/send.hpp"
-#include "../../src/handler/packet/base.hpp"
+#include "../../src/handlers.hpp"
+#include "../../src/packet_handler.hpp"
 
 #include "../../src/definition/server.hpp"
 #include "../../src/definition/acceptor.hpp"
 #include "../../src/definition/session.hpp"
-#include "../../src/definition/timer.hpp"
-#include "../../src/handler/asio/definition/base.hpp"
-#include "../../src/handler/asio/definition/receive.hpp"
-#include "../../src/handler/asio/definition/send.hpp"
-#include "../../src/handler/packet/definition/base.hpp"
-
+#include "../../src/definition/handlers.hpp"
+#include "../../src/definition/packet_handler.hpp"

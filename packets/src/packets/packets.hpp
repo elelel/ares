@@ -1,3 +1,6 @@
+#include <string>
+#include <set>
+
 namespace ares {
   namespace packet {
 #pragma pack(push, 1)

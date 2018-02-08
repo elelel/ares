@@ -1,52 +1,35 @@
 #pragma once
 
-/*! \file session.hpp
-\brief Generic Ares server session
-
-*/
-
 #include <atomic>
 
-#include <asio.hpp>
-#include <asio/steady_timer.hpp>
-#include <spdlog/spdlog.h>
 #include <elelel/network_buffer>
-#include <ares/packets>
 
-#include "handler/packet/base.hpp"
-#include "handler/asio/send.hpp"
-#include "handler/asio/receive.hpp"
+#include <asio/ts/io_context.hpp>
+#include <asio/ts/executor.hpp>
+#include <asio/ts/socket.hpp>
+#include <asio/ts/net.hpp>
+
+#include "handlers.hpp"
 
 namespace ares {
   namespace network {
     /*! Generic session for Ares servers
-      \tparam Session concrete session type
+      \tparam Derived concrete session type
+      \tparam Server server's server type
     */
-    template <typename Session>
+    template <typename Derived, typename Server>
     struct session {
-      template <typename Handler, typename PacketSet, typename Packet, typename Server, typename Session_, typename State>
-      friend struct handler::packet::base;
-      template <typename Handler, typename Session_>
-      friend struct handler::asio::base;
-      template <typename Handler, typename Session_>
-      friend struct handler::asio::send;
-      template <typename Handler, typename Session_>
-      friend struct handler::asio::receive;
-
-      /*! Constructs an Ares session
-        \param io_service pointer to ASIO io_service
-        \param log pointer to a logger
-        \param socket pointer to session's network socket 
-      */
-      session(std::shared_ptr<asio::io_service> io_service,
-              std::shared_ptr<spdlog::logger> log,
-              std::shared_ptr<asio::ip::tcp::socket> socket);
-      ~session();
+      session(Server& server,
+              const std::optional<asio::ip::tcp::endpoint>& connect_ep,
+              std::shared_ptr<asio::ip::tcp::socket> socket,
+              const std::chrono::seconds idle_timer_timeout);
 
       /*! Receives bytes from socket into receive buffer
         \param receive_sz number of bytes to request. If 0, requests maximum unfragmented buffer size
       */
       void receive(const size_t receive_sz = 0);
+
+
       
       /*! Takes a packet, checks the size and tries to send it as raw data
         \tparam Packet packet type
@@ -70,48 +53,76 @@ namespace ares {
       template <typename Packet, typename... Args>
       void emplace_and_send(Args&&... args);
 
-      /*! Closes the socket gracefully
+      /*! Contstant reference to receive buffer
        */
-      void close_socket();
-
-      /*! Returns reference to the shared pointer for the socket
+      const elelel::network_buffer& recv_buf() const;
+      /*! Constant reference to send buffer
+       */
+      const elelel::network_buffer& send_buf() const;
+      /*! Reference to the shared pointer for the socket
        */
       std::shared_ptr<asio::ip::tcp::socket>& socket();
-      /*! Returns a copy of shared pointer for ASIO io_service
+      /*! A copy of shared pointer for ASIO io_context
        */
-      std::shared_ptr<asio::io_service> io_service() const;
+      std::shared_ptr<asio::io_context> io_context() const;
 
-      /*! Check if the session is connected
+      /*! Reference to server 
        */
-      bool connected() const;
-
-      /*! Check if the session is in process of sending
+      Server& server();
+        
+      /*! Returns shared pointer to log service
        */
-      std::atomic<bool>& sending();
+      std::shared_ptr<spdlog::logger> log() const;
 
-      /*! Set connected state flag to true
+      /*! Terminates pending Asio operations that might hold reference to this session
        */
-      void set_connected();
+      void defuse();
 
-      size_t recv_unfragmented_free_size() const;
-      size_t send_unfragmented_free_size() const;
+      /*! Starts a timer that periodically checks if the session is connected. If not, intiates connection
+       */
+      void set_reconnect_timer(const std::chrono::seconds first_timeout,
+                               const std::chrono::seconds timeout);
+
+      void reset_idle_timer();
+      
+    private:
+      friend struct reconnect_timer_handler<Derived>;
+      friend struct send_handler<Derived>;
+      friend struct receive_handler<Derived>;
+      template <typename Derived_, typename PacketSet, typename PacketName, typename Server_, typename Session, typename SessionState>
+      friend struct packet_handler;
+      template <typename Derived_, typename Session_>
+      friend struct server;
+      
+
+      void send_wake_up(const void* data_start);
+      
     protected:
-      std::shared_ptr<asio::io_service> io_service_;
-      std::shared_ptr<spdlog::logger> log_;
-      std::shared_ptr<asio::ip::tcp::socket> socket_;
-      std::atomic<bool> connected_;
-
-      asio::steady_timer inactivity_timer_;
-      std::mutex recv_mutex_;
       elelel::network_buffer recv_buf_;
-      std::mutex send_mutex_;
       elelel::network_buffer send_buf_;
+      std::mutex send_mutex_;
+      std::mutex recv_mutex_;
+      std::atomic<bool> recv_buf_busy_;
+      std::atomic<bool> send_buf_busy_;
+    public:
+      std::atomic<bool> connected_;
+    protected:
 
+      std::shared_ptr<asio::ip::tcp::socket> socket_;
+      Server& server_;
+
+      std::atomic<bool> connecting_;
       std::atomic<bool> receiving_;
       std::atomic<bool> sending_;
 
     private:
-      void send_wake_up(const void* data_start);
+      const std::optional<asio::ip::tcp::endpoint> connect_ep_;
+      std::shared_ptr<asio::steady_timer> idle_timer_;
+      std::chrono::seconds idle_timer_timeout_;
+      std::shared_ptr<asio::steady_timer> reconnect_timer_;
+      std::chrono::seconds reconnect_timer_timeout_;
+
     };
   }
 }
+
