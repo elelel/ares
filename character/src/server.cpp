@@ -1,27 +1,52 @@
 #include "server.hpp"
 
-#include "state.hpp"
+ares::character::server::server(std::shared_ptr<spdlog::logger> log,
+                                std::shared_ptr<asio::io_context> io_context,
+                                const config& conf) :
+  ares::network::server<server, session>(log, io_context, *conf.network_threads),
+  conf_(conf),
+  db(log, *conf.postgres) {
+  log_->set_level(spdlog::level::trace);
 
-ares::character::server::server(character::state& server_state) :
-  ares::network::server<server>(server_state.log(), server_state.io_service(), *server_state.conf.network_threads),
-  state_(server_state) {
+  std::vector<db::record::map_index> known_maps = db.whole_map_index();
+  std::vector<std::string> unknown_maps;
+  for (const auto& zs : conf.zone_servers) {
+    for (const auto& lhs : zs.maps) {
+      if (std::find_if(known_maps.begin(), known_maps.end(), [&lhs] (const db::record::map_index& rhs) {
+            return lhs == rhs.name;
+          }) == known_maps.end()) {
+        unknown_maps.push_back(lhs);
+      }
+    }
+  }
+  if (unknown_maps.size() > 0) {
+    bool need_comma = false;
+    std::string msg;
+    for (const auto& m : unknown_maps) {
+      if (need_comma) msg += ", ";
+      msg += m;
+    }
+    log_->error("Configured map names that are not in SQL database and therefore will be ignored: {}", msg);
+  }
 }
 
 void ares::character::server::start() {
-  if (state_.conf.listen_ipv4.size() > 0) {
-    for (const auto& listen : state_.conf.listen_ipv4) {
+  if (conf_.listen_ipv4.size() > 0) {
+    for (const auto& listen : conf_.listen_ipv4) {
       log_->info("starting listener at {}:{}",
                  listen.address().to_v4().to_string(),
                  listen.port());
-      ares::network::server<server>::start(listen);
+      ares::network::server<server, session>::start(listen);
     }
-    if (state_.log() != nullptr) {
-      account_server_ = std::make_shared<session>(state_, std::shared_ptr<asio::ip::tcp::socket>{});
-      account_server_->variant().emplace<account_server::state>(state_, *account_server_);
-      account_server_->as_account_server().reconnect_timer.fire();
-    } else {
-      throw std::runtime_error("server::start() failure - state_.log() is nullptr");
-    }
+
+    auto& ep = conf_.account_server->connect;
+    account_server_ = std::make_shared<session>(*this,
+                                                ep,
+                                                nullptr,
+                                                std::chrono::seconds{30});
+    account_server_->variant().emplace<account_server::state>(*this, *account_server_);
+    account_server_->set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
+
   } else {
     log_->error("Can't start: listen ipv4 configuration is empty");
   }
@@ -29,10 +54,15 @@ void ares::character::server::start() {
 
 void ares::character::server::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "character::server::create_session");
-  auto s = std::make_shared<session>(state_, socket);
+  auto s = std::make_shared<session>(*this, std::optional<asio::ip::tcp::endpoint>{}, socket, std::chrono::seconds{120});
   add(s);
-  s->reset_inactivity_timer();
   s->receive();
+  s->reset_idle_timer();
+}
+
+
+auto ares::character::server::conf() const -> const config& {
+  return conf_;
 }
 
 void ares::character::server::add(session_ptr s) {

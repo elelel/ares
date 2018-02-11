@@ -17,7 +17,7 @@ namespace ares {
 
       using state_variant = std::variant<mono::state, client::state, character_server::state>;
       
-      session(ares::account::server& n,
+      session(ares::account::server& serv,
               const std::optional<asio::ip::tcp::endpoint> connect_ep,
               std::shared_ptr<asio::ip::tcp::socket> socket,
               const std::chrono::seconds idle_timer_timeout);
@@ -38,11 +38,15 @@ namespace ares {
       void on_eof();
       void on_socket_error();
       void on_packet_processed();
-
-      size_t dispatch_packet(const uint16_t packet_id);
+      void defuse_asio();
+      
+      packet::alloc_info allocate(const uint16_t packet_id);
+      void dispatch_packet(const uint16_t packet_id,
+                           void* buf,
+                           std::function<void(void*)> deallocator);
 
     private:
-      friend struct mono::packet_handler<ares::packet_set, ares::packet::ATHENA_HA_LOGIN_REQ>;
+      friend struct mono::packet_handler<packet::current<packet::ATHENA_HA_LOGIN_REQ>>;
       
       state_variant session_state_;
     };

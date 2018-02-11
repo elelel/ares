@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, HC_NOTIFY_ZONESVR> {
+  using packet_set = PacketSet;
   using packet_name = HC_NOTIFY_ZONESVR;
   
   inline void emplace(uint32_t GID,

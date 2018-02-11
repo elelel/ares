@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, HC_REFUSE_ENTER> {
+  using packet_set = PacketSet;
   using packet_name = HC_REFUSE_ENTER;
   
   void emplace(const uint8_t ErrorCode) {

@@ -1,24 +1,35 @@
 #pragma once
 
+#include <ares/packets>
+
 #include "../config.hpp"
 
 namespace ares {
   namespace zone {
     struct server;
     struct session;
+
+    namespace mono {
+      struct state;
+    }
     
     namespace client {
       struct state {
         state(zone::server& serv, session& sess);
-        
+        /*! Constructor to create the client state from monostate
+          \param mono_state monostate to convert to client state  */
+        state(const mono::state& mono_state);
+
         void on_connect();
         void on_connection_reset();
         void on_operation_aborted();
         void on_eof();
         void on_socket_error();
         void on_packet_processed();
-        
-        size_t dispatch_packet(const uint16_t packet_id);
+        void defuse_asio();
+
+        packet::alloc_info allocate(const uint16_t packet_id);
+        void dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator);
         
         std::shared_ptr<spdlog::logger> log() const;
         const config& conf() const;

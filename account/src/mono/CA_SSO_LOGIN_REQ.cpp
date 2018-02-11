@@ -33,82 +33,74 @@ namespace ares {
           std::shared_ptr<spdlog::logger> log() const {
             return server_.log();
           }
-
-          void refuse(const uint8_t error_code) {
-            session_->emplace_and_send<packet::type<packet_set, packet::AC_REFUSE_LOGIN>>(error_code);
-            server_.close_gracefuly(session_->shared_from_this());
-          }
-          
-          void notify_ban(const uint8_t error_code) {
-            session_->emplace_and_send<packet::type<packet_set, packet::SC_NOTIFY_BAN>>(error_code); 
-            server_.close_gracefuly(session_->shared_from_this());
-          }
           
           void accept(const std::string& login) {
             auto user_data = server_.db.user_data_for_login(login);
             if (user_data) {
-              server_.
-                on_rxthreads
-                ([this, user_data = std::move(user_data)] () {
-                  SPDLOG_TRACE(log(), "login responder running accept procedure");
-                  if (server_.char_servers().size() > 0) {
-                    auto found = server_.client_by_aid(user_data->aid);
-                    if (!found) {
-                      log()->info("Accepting login for AID = {}", user_data->aid);
-                      const auto auth_code1 = ares::random_int32::get();
-                      const auto auth_code2 = ares::random_int32::get();
+              SPDLOG_TRACE(log(), "login responder running accept procedure");
+              std::lock_guard<std::mutex> lock(server_.mutex());
 
-                      SPDLOG_TRACE(log(), "Creating client::state");
-                      auto new_state = client::state(session_->as_mono());
-                      session_->variant().emplace<client::state>(std::move(new_state));
-                      auto& client = session_->as_client();
-                      client.aid = user_data->aid;
-                      client.account_level = user_data->level;
-                      client.clienttype = clienttype;
-                      client.version = version;
-                      client.sex = user_data->sex;
-                      client.auth_code1 = auth_code1;
-                      client.auth_code2 = auth_code2;
-                      server_.add(session_);
-        
-                      session_->emplace_and_send<packet::type<packet_set, packet::AC_ACCEPT_LOGIN>>
-                        (auth_code1,
-                         user_data->aid,
-                         auth_code2,
-                         0,
-                         "",
-                         user_data->sex,
-                         server_.char_servers().size());
+              if (server_.char_servers().size() > 0) {
+                auto found = server_.client_by_aid(user_data->aid);
+                if (!found) {
+                  log()->info("Accepting login for AID = {}", user_data->aid);
+                  const auto auth_code1 = ares::random_int32::get();
+                  const auto auth_code2 = ares::random_int32::get();
 
-                      for (const auto& c : server_.char_servers()) {
-                        if (c) {
-                          const auto& data = c->as_char_server();
-                          session_->emplace_and_send<packet::type<packet_set, packet::AC_ACCEPT_LOGIN>::SERVER_ADDR>
-                            (htonl(data.ip_v4.to_ulong()),
-                             data.port,
-                             data.name.c_str(),
-                             data.user_count,
-                             data.state_num,
-                             data.property);
-                        }
-                      }
-                    } else {
-                      log()->info("AID {} session already exists, refusing new connection and kicking existing", user_data->aid);
-                      for (const auto& c : server_.char_servers()) {
-                        c->emplace_and_send<packet::type<packet_set, packet::ATHENA_AH_KICK_AID>>(user_data->aid);
-                      }
-                      // Close the other existing session for this aid
-                      server_.close_gracefuly(found);
-                      notify_ban(8); // 08 = Server still recognizes your last login
+                  SPDLOG_TRACE(log(), "Creating client::state");
+                  auto new_state = session_->as_mono();
+                  session_->variant().emplace<client::state>(std::move(new_state));
+                  client::state& c = session_->as_client();
+                  c.aid = user_data->aid;
+                  c.account_level = user_data->level;
+                  c.clienttype = clienttype;
+                  c.version = version;
+                  c.sex = user_data->sex;
+                  c.auth_code1 = auth_code1;
+                  c.auth_code2 = auth_code2;
+
+                  server_.add(session_);
+                                      
+                  session_->emplace_and_send<packet::current<packet::AC_ACCEPT_LOGIN>>
+                    (auth_code1,
+                     user_data->aid,
+                     auth_code2,
+                     0,
+                     "",
+                     user_data->sex,
+                     server_.char_servers().size());
+
+                  for (const auto& c : server_.char_servers()) {
+                    if (c) {
+                      const auto& data = c->as_char_server();
+                      session_->emplace_and_send<packet::current<packet::AC_ACCEPT_LOGIN>::SERVER_ADDR>
+                        (htonl(data.ip_v4.to_ulong()),
+                         data.port,
+                         data.name.c_str(),
+                         data.user_count,
+                         data.state_num,
+                         data.property);
                     }
-                  } else {
-                    log()->warn("Client request login, but no char server is available");
-                    notify_ban(1); // 1 = Server closed
                   }
-                });
+                } else {
+                  log()->info("AID {} session already exists, refusing the connection for new session {} and closing the existing one {}",
+                              user_data->aid, (void*)session_.get(), (void*)found.get());
+                  for (const auto& c : server_.char_servers()) {
+                    c->emplace_and_send<packet::current<packet::ATHENA_AH_KICK_AID>>(user_data->aid);
+                  }
+                  session_->emplace_and_send<packet::current<packet::SC_NOTIFY_BAN>>(8);  // 08 = Server still recognizes your last login
+                  server_.close_gracefuly(session_->shared_from_this());
+                  server_.close_abruptly(found);                  
+                }
+              } else {
+                log()->warn("Client request login, but no char server is available");
+                session_->emplace_and_send<packet::current<packet::SC_NOTIFY_BAN>>(1);
+                server_.close_gracefuly(session_->shared_from_this()); // 1 = Server closed
+              }
             } else {
               log()->error("Could not get user data for login {} from database", login);
-              refuse(3); // 3 = Rejected from Server
+              session_->emplace_and_send<packet::current<packet::AC_REFUSE_LOGIN>>(3); // 3 = Rejected from Server
+              server_.close_gracefuly(session_->shared_from_this());
             }
           }
 
@@ -117,7 +109,8 @@ namespace ares {
             if (conf.client_version) {
               if (conf.client_version != version) {
                 log()->info("Login attempt failed for login {}, incorrect client version {}, expected {} (login/password auth)", login, version, *conf.client_version);
-                refuse(5);
+                session_->emplace_and_send<packet::current<packet::AC_REFUSE_LOGIN>>(5);
+                server_.close_gracefuly(session_->shared_from_this());
                 return;
               }
             }
@@ -125,7 +118,8 @@ namespace ares {
               accept(login);
             } else {
               log()->info("Login attempt failed for login {}, incorrect password (login/password auth)", login);
-              refuse(1); // 1 = Incorrect Password
+              session_->emplace_and_send<packet::current<packet::AC_REFUSE_LOGIN>>(1); // 1 = Incorrect Password
+              server_.close_gracefuly(session_->shared_from_this());
             }
           }
 
@@ -179,7 +173,7 @@ namespace ares {
   }
 }
 
-void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>::operator()() {
+void ares::account::mono::packet_handler<ares::packet::current<ares::packet::CA_SSO_LOGIN_REQ::login_password>>::operator()() {
   SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password");
   auto pck_username = std::string(p_->ID(), p_->ID_size());
   auto pck_password = std::string(p_->Passwd(), p_->Passwd_size());
@@ -195,10 +189,11 @@ void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_
                                         p_->Version(),
                                         p_->clienttype());
   respond();
+  SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password end");
 }
 
-void ares::account::mono::packet_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::token_auth>::operator()() {
-  SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password");
+void ares::account::mono::packet_handler<ares::packet::current<ares::packet::CA_SSO_LOGIN_REQ::token_auth>>::operator()() {
+  SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::token_auth");
   auto pck_username = std::string(p_->ID(), p_->ID_size());
   auto pck_password = std::string(p_->Passwd(), p_->Passwd_size());
   auto zero_pos = pck_username.find(char(0));

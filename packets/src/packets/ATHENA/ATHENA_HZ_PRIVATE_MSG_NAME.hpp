@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_HZ_PRIVATE_MSG_NAME> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_HZ_PRIVATE_MSG_NAME;
   
   void emplace(const char* name, const size_t name_sz) {

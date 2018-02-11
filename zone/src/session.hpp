@@ -4,6 +4,7 @@
 #include <variant>
 
 #include <ares/network>
+#include <ares/packets>
 
 #include "mono/state.hpp"
 #include "client/state.hpp"
@@ -39,8 +40,12 @@ namespace ares {
       void on_eof();
       void on_socket_error();
       void on_packet_processed();
+      void defuse_asio();
 
-      size_t dispatch_packet(const uint16_t packet_id);
+      packet::alloc_info allocate(const uint16_t packet_id);
+      void dispatch_packet(const uint16_t packet_id,
+                           void* buf,
+                           std::function<void(void*)> deallocator);
 
     private:
       state_variant session_state_;

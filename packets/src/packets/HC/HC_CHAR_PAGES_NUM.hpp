@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, HC_CHAR_PAGES_NUM::with_nchars> {
+  using packet_set = PacketSet;
   using packet_name = HC_CHAR_PAGES_NUM::with_nchars;
   
   inline void emplace(const uint32_t npages,

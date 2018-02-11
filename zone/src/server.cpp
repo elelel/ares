@@ -21,7 +21,7 @@ void ares::zone::server::start() {
     char_server_ = std::make_shared<session>(*this,
                                              ep,
                                              nullptr,
-                                             std::chrono::seconds{10});
+                                             std::chrono::seconds{30});
     char_server_->variant().emplace<character_server::state>(*this, *char_server_);
     char_server_->set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
   } else {
@@ -37,11 +37,9 @@ void ares::zone::server::create_session(std::shared_ptr<asio::ip::tcp::socket> s
     s->obf_crypt_key.emplace(std::get<0>(k) * std::get<1>(k) + std::get<2>(k));
     SPDLOG_TRACE(log_, "Set new session obf_crypt_key to {:x}", *s->obf_crypt_key);
   }
-  on_rxthreads([this, s] () {
-      mono_.insert(s);
-      s->receive();
-      s->reset_idle_timer();      
-    });
+  add(s);
+  s->receive();
+  s->reset_idle_timer();      
 }
 
 auto ares::zone::server::conf() const -> const config& {

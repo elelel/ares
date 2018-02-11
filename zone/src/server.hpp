@@ -16,22 +16,22 @@ namespace ares {
       /*! Starts the zone server */
       void start();
 
+      /*! Adds a session to current sessions list tracking the state type.
+       \param s session to add */
+      void add(session_ptr s);
+
       const session_ptr& char_server() const;
       const config& conf() const;
 
-    private:
-      // Non-interfacing methods
-      template <typename Derived, typename Session>
-      friend struct ares::network::server;
+      std::set<std::string> map_names;
+    protected:
+      friend ares::network::server<server, session>;
+      friend ares::network::acceptor<server>;
 
       /*! Creates a network session within the server, called from acceptor
         \param socket TCP socket of the new network session
       */
       void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
-
-      /*! Adds a session to current sessions list. Should be called only from RX interface
-       \param s session to add */
-      void add(session_ptr s);
 
       /*! Removes a session from current sessions list. Should be called only from RX interface
        \param s session to remove */

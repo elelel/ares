@@ -4,7 +4,7 @@
 #include "../session.hpp"
 
 ares::account::client::state::state(ares::account::server& serv,
-                                           ares::account::session& sess) :
+                                    ares::account::session& sess) :
   server_(serv),
   session_(sess) {
   }
@@ -33,14 +33,32 @@ void ares::account::client::state::on_socket_error() {
 void ares::account::client::state::on_packet_processed() {
 }
 
-size_t ares::account::client::state::dispatch_packet(const uint16_t packet_id) {
+void ares::account::client::state::defuse_asio() {
+}
+
+auto ares::account::client::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+  switch (packet_id) {
+  default:
+    { // Packet id is not known to this server under selected packet set
+      log()->error("Unexpected packet_id {:#x} for client::state session while allocating", packet_id);
+      packet::alloc_info ai;
+      ai.expected_packet_sz = 0;
+      ai.buf = nullptr;
+      ai.buf_sz = 0;
+      ai.deallocator = [] (void*) {};
+      ai.PacketLength_offset = 0;
+      return std::move(ai);
+    }
+  }
+}
+
+void ares::account::client::state::dispatch_packet(const uint16_t packet_id, void* /*buf*/, std::function<void(void*)> /*deallocator*/) {
   switch (packet_id) {
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for client::state session, disconnecting", packet_id);
+      log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", packet_id);
       server_.close_gracefuly(session_.shared_from_this());
       session_.connected_ = false;
-      return 0;
     }
   }
 }

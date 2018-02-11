@@ -3,54 +3,86 @@
 #include <ares/packets>
 #include <ares/network>
 
-#include "../state.hpp"
+#include "../server.hpp"
 
-ares::character::zone_server::state::state(character::state& server_state, session& sess) :
-  server_state_(server_state),
+ares::character::zone_server::state::state(character::server& serv, session& sess) :
+  server_(serv),
   session_(sess) {
   }
 
 ares::character::zone_server::state::state(const mono::state& mono_state) :
-  server_state_(mono_state.server_state_),
+  server_(mono_state.server_),
   session_(mono_state.session_) {
+}
+
+void ares::character::zone_server::state::on_connect() {
+}
+
+void ares::character::zone_server::state::on_connection_reset() {
+  server_.close_abruptly(session_.shared_from_this());
+}
+
+void ares::character::zone_server::state::on_operation_aborted() {
+  server_.close_abruptly(session_.shared_from_this());
+}
+
+void ares::character::zone_server::state::on_eof() {
+  server_.close_abruptly(session_.shared_from_this());
+}
+
+void ares::character::zone_server::state::on_socket_error() {
+  server_.close_abruptly(session_.shared_from_this());
+}
+
+void ares::character::zone_server::state::on_packet_processed() {
 }
 
 void ares::character::zone_server::state::defuse_asio() {
 }
 
-void ares::character::zone_server::state::on_open() {
-  SPDLOG_TRACE(server_state_.log(), "zone_server::state on_open");
-}
-
-void ares::character::zone_server::state::before_close() {
-  SPDLOG_TRACE(server_state_.log(), "zone_server::state before_close");
-}
-
-void ares::character::zone_server::state::on_connection_reset() {
-  SPDLOG_TRACE(server_state_.log(), "zone_server::state on_connection_reset");
-}
-
-void ares::character::zone_server::state::on_eof() {
-  SPDLOG_TRACE(server_state_.log(), "zone_server::state on_eof");
-}
-
-void ares::character::zone_server::state::on_socket_error() {
-  SPDLOG_TRACE(server_state_.log(), "zone_server::state on_socket_error");
-}
-
-void ares::character::zone_server::state::on_operation_aborted() {
-  SPDLOG_TRACE(server_state_.log(), "zone_server::state on_operation_aborted");
-}
-
-size_t ares::character::zone_server::state::dispatch(const uint16_t PacketType) {
-  SPDLOG_TRACE(server_state_.log(), "zone_server::state::dispatch() switching on PacketType = {0:#x}", PacketType);
-  switch (PacketType) {
-    ARES_PACKET_CASE(ATHENA_ZH_ONLINE_USERS);
-    ARES_PACKET_CASE(ATHENA_ZH_USER_COUNT);
-    ARES_PACKET_CASE(ATHENA_ZH_GAME_RATES);
-    ARES_PACKET_CASE(ATHENA_ZH_PING_REQ);
-    ARES_PACKET_CASE(ARES_ZH_MAP_NAMES_REQ);
+auto ares::character::zone_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+  switch (packet_id) {
+    ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_ONLINE_USERS);
+    ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_USER_COUNT);
+    ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_GAME_RATES);
+    ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_PING_REQ);
+    ARES_ALLOCATE_PACKET_CASE(ARES_ZH_MAP_NAMES_REQ);
+  default:
+    { // Packet id is not known to this server under selected packet set
+      log()->error("Unexpected packet_id {:#x} for zone server session while allocating", packet_id);
+      packet::alloc_info ai;
+      ai.expected_packet_sz = 0;
+      ai.buf = nullptr;
+      ai.buf_sz = 0;
+      ai.deallocator = [] (void*) {};
+      ai.PacketLength_offset = 0;
+      return std::move(ai);
+    }
   }
-  server_state_.log()->error("Unexpected PacketType {0:#x} for zone_server::state session", PacketType);
-  throw ares::network::terminate_session();
+}
+
+
+void ares::character::zone_server::state::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
+  SPDLOG_TRACE(log(), "account_server::state::dispatch() switching on PacketType = {0:#x}", packet_id);
+  switch (packet_id) {
+    ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_ONLINE_USERS);
+    ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_USER_COUNT);
+    ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_GAME_RATES);
+    ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_PING_REQ);
+    ARES_DISPATCH_PACKET_CASE(ARES_ZH_MAP_NAMES_REQ);
+  default:
+    {
+      log()->error("Unexpected packet_id {:#x} for zone server session while dispatching, disconnecting", packet_id);
+      server_.close_gracefuly(session_.shared_from_this());
+      session_.connected_ = false;
+    }
+  }
+}
+
+auto ares::character::zone_server::state::log() const -> std::shared_ptr<spdlog::logger> {
+  return server_.log();
+}
+
+auto ares::character::zone_server::state::conf() const -> const config& {
+  return server_.conf();
 }

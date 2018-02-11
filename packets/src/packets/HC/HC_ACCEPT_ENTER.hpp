@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, HC_ACCEPT_ENTER> {
+  using packet_set = PacketSet;
   using packet_name = HC_ACCEPT_ENTER;
   
   inline void emplace(const uint8_t normal_slots,

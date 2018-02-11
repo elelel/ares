@@ -8,13 +8,15 @@
 #include <asio/ts/executor.hpp>
 #include <asio/ts/socket.hpp>
 #include <asio/ts/net.hpp>
+#include <asio/ts/buffer.hpp>
+#include <asio/ts/internet.hpp>
 
 #include "handlers.hpp"
 
 namespace ares {
   namespace network {
     /*! Generic session for Ares servers
-      \tparam Derived concrete session type
+      \tparam Derived concrete session type, must implement: allocate_packet_memory(packet_id), is_dynamic_packet(packet_id)
       \tparam Server server's server type
     */
     template <typename Derived, typename Server>
@@ -24,13 +26,10 @@ namespace ares {
               std::shared_ptr<asio::ip::tcp::socket> socket,
               const std::chrono::seconds idle_timer_timeout);
 
-      /*! Receives bytes from socket into receive buffer
-        \param receive_sz number of bytes to request. If 0, requests maximum unfragmented buffer size
-      */
-      void receive(const size_t receive_sz = 0);
+      /*! Initiate receive with requesting packet id
+       */
+      void receive();
 
-
-      
       /*! Takes a packet, checks the size and tries to send it as raw data
         \tparam Packet packet type
         \param p const reference to the packet
@@ -53,9 +52,6 @@ namespace ares {
       template <typename Packet, typename... Args>
       void emplace_and_send(Args&&... args);
 
-      /*! Contstant reference to receive buffer
-       */
-      const elelel::network_buffer& recv_buf() const;
       /*! Constant reference to send buffer
        */
       const elelel::network_buffer& send_buf() const;
@@ -84,24 +80,26 @@ namespace ares {
                                const std::chrono::seconds timeout);
 
       void reset_idle_timer();
-      
+
     private:
-      friend struct reconnect_timer_handler<Derived>;
-      friend struct send_handler<Derived>;
-      friend struct receive_handler<Derived>;
-      template <typename Derived_, typename PacketSet, typename PacketName, typename Server_, typename Session, typename SessionState>
+      friend struct handler::reconnect_timer<Derived>;
+      friend struct handler::session_base<Derived>;
+      friend struct handler::send<Derived>;
+      friend struct handler::receive_id<Derived>;
+      friend struct handler::receive_after_id<Derived>;
+
+      template <typename Derived_, typename Packet, typename Server_, typename Session, typename SessionState>
       friend struct packet_handler;
       template <typename Derived_, typename Session_>
       friend struct server;
       
-
       void send_wake_up(const void* data_start);
       
     protected:
-      elelel::network_buffer recv_buf_;
       elelel::network_buffer send_buf_;
       std::mutex send_mutex_;
       std::mutex recv_mutex_;
+      uint16_t packet_id_recv_buf_;
       std::atomic<bool> recv_buf_busy_;
       std::atomic<bool> send_buf_busy_;
     public:

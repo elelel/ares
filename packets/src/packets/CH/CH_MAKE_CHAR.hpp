@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, CH_MAKE_CHAR::with_stats> {
+  using packet_set = PacketSet;
   using packet_name = CH_MAKE_CHAR::with_stats;
   
   inline void emplace(const char* name,

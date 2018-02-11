@@ -5,6 +5,7 @@
 #include <ares/packets>
 
 #include "../session.hpp"
+#include "../handlers.hpp"
 
 template <typename Derived, typename Server>
 ares::network::session<Derived, Server>::session(Server& server,
@@ -32,29 +33,11 @@ ares::network::session<Derived, Server>::session(Server& server,
 
 template <typename Derived, typename Server>
 void ares::network::session<Derived, Server>::defuse() {
+  connected_ = false;
+  if (socket_) socket_->cancel();
   if (idle_timer_) idle_timer_->cancel();
   if (reconnect_timer_) reconnect_timer_->cancel();
-}
-
-template <typename Derived, typename Server>
-inline void ares::network::session<Derived, Server>::receive(const size_t receive_sz) {
-  if (connected_ && !receiving_ && socket_) {
-    receiving_ = true;
-    auto sz = receive_sz;
-    if (receive_sz == 0) {
-      sz = recv_buf_.unfragmented_free_size();
-    }
-    if (recv_buf_.free_size() >= sz) {
-      // TODO handler with recv_mutex
-      if (recv_buf_.unfragmented_free_size() < sz) { recv_buf_.defragment(); }
-      SPDLOG_TRACE(log(), "receive requesting {} bytes", sz);
-      auto h = receive_handler<Derived>(static_cast<Derived&>(*this).shared_from_this());
-      this->socket_->async_read_some(asio::buffer(recv_buf_.end(), sz), h);
-    } else {
-      log()->error("receive: out of buffer space, session {0:#x}", (uintptr_t)this);
-      server_.close_gracefuly(static_cast<Derived&>(*this).shared_from_this());
-    }
-  }
+  static_cast<Derived&>(*this).defuse_asio();
 }
 
 template <typename Derived, typename Server>
@@ -84,11 +67,23 @@ inline void ares::network::session<Derived, Server>::copy_and_send(const Packet&
 }
 
 template <typename Derived, typename Server>
+inline void ares::network::session<Derived, Server>::receive() {
+  if (!receiving_) {
+    receiving_ = true;
+    auto h = handler::receive_id(static_cast<Derived&>(*this).shared_from_this());
+    socket_->async_read_some(asio::buffer((void*)((uintptr_t)&packet_id_recv_buf_), sizeof(packet_id_recv_buf_)),
+                             std::move(h));
+  } else {
+    SPDLOG_TRACE(log(), "Ignoring receive request, receive operation is pending");
+  }
+}
+
+template <typename Derived, typename Server>
 inline void ares::network::session<Derived, Server>::send_wake_up(const void* data_start) {
   if (!sending_) {
     sending_ = true;
     SPDLOG_TRACE(log(), "Send handler wakeup, {} bytes to send", send_buf_.size());
-    auto h = send_handler<Derived>(static_cast<Derived&>(*this).shared_from_this());
+    auto h = handler::send<Derived>(static_cast<Derived&>(*this).shared_from_this());
     socket_->async_write_some(asio::buffer(data_start, send_buf_.head_size()), std::move(h));
   } else {
     SPDLOG_TRACE(log(), "Send handler wakeup ignoring, {} bytes to send, but a send operation is pending", send_buf_.size());
@@ -104,11 +99,11 @@ inline void ares::network::session<Derived, Server>::copy_and_send(const void* d
       const auto p = send_buf_.end();
       SPDLOG_TRACE(log(), "sending {} bytes, copying to {:#x}, offset from buf start {}, already in buf {}",
                    send_sz, (uintptr_t)send_buf_.end(), (uintptr_t)send_buf_.end() - (uintptr_t)send_buf_.begin(), send_buf_.size());
-      send_buf_.push_back(data, send_sz);
+      send_buf_.push_back((void*)data, send_sz);
       send_wake_up(p);
     } else {
       // TODO: autogrow, but make sure asio/rxcpp is not using the buffer
-      log()->error("send: out of buffer space, session {0:#x}", (uintptr_t)this);
+      log()->error("send: out of buffer space, session {}", (void*)this);
       auto s = static_cast<Derived&>(*this).shared_from_this();
       server_.close_gracefuly(s);
     }
@@ -140,7 +135,7 @@ inline void ares::network::session<Derived, Server>::emplace_and_send(Args&&... 
       send_wake_up(p);
     } else {
       // TODO: autogrow, but make sure asio is not using the buffer
-      log()->error("send: out of buffer space, session {0:#x}", (uintptr_t)this);
+      log()->error("send: out of buffer space, session {}", (void*)this);
       auto s = static_cast<Derived&>(*this).shared_from_this();
       server_.close_gracefuly(s);
     }
@@ -191,8 +186,13 @@ inline void ares::network::session<Derived, Server>::set_reconnect_timer(const s
     }
     reconnect_timer_->expires_at(std::chrono::steady_clock::now() + first_timeout);
     reconnect_timer_timeout_ = timeout;
-    reconnect_timer_->async_wait(reconnect_timer_handler<Derived>(static_cast<Derived&>(*this).shared_from_this(), timeout));
+    reconnect_timer_->async_wait(handler::reconnect_timer<Derived>(static_cast<Derived&>(*this).shared_from_this(), timeout));
   } else {
     SPDLOG_TRACE(log(), "Can't set reconnect timer: endpoint is none");
   }
+}
+
+template <typename Derived, typename Server>
+inline auto ares::network::session<Derived, Server>::send_buf() const -> const elelel::network_buffer& {
+  return send_buf_;
 }

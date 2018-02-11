@@ -22,20 +22,19 @@ namespace ares {
       struct state {
         state(account::server& serv, session& sess);
 
-        friend struct ::ares::account::client::state;
-        friend struct ::ares::account::character_server::state;
+        friend struct client::state;
+        friend struct character_server::state;
 
-        /*friend struct ares::account::mono::packe_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::login_password>;
-          friend struct ares::account::mono::packe_handler<ares::packet_set, ares::packet::CA_SSO_LOGIN_REQ::token_auth>;*/
-        
         void on_connect();
         void on_connection_reset();
         void on_operation_aborted();
         void on_eof();
         void on_socket_error();
         void on_packet_processed();
+        void defuse_asio();
 
-        size_t dispatch_packet(const uint16_t packet_id);
+        packet::alloc_info allocate(const uint16_t packet_id);
+        void dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator);
         
         std::shared_ptr<spdlog::logger> log() const;
         const config& conf() const;
@@ -50,12 +49,12 @@ namespace ares {
       };
 
       ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
-      // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_LOGIN_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(ATHENA_HA_PING_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(CA_EXE_HASHCHECK);
-      ARES_SIMPLE_PACKET_HANDLER(CA_SSO_LOGIN_REQ::login_password);
-      ARES_SIMPLE_PACKET_HANDLER(CA_SSO_LOGIN_REQ::token_auth);
+
+      ARES_PACKET_HANDLER(ATHENA_HA_LOGIN_REQ);
+      ARES_PACKET_HANDLER(ATHENA_HA_PING_REQ);
+      ARES_PACKET_HANDLER(CA_EXE_HASHCHECK);
+      ARES_PACKET_HANDLER(CA_SSO_LOGIN_REQ::login_password);
+      ARES_PACKET_HANDLER(CA_SSO_LOGIN_REQ::token_auth);
 
     }
   }

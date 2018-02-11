@@ -39,6 +39,7 @@ namespace ares {
 
     protected:
       friend ares::network::server<server, session>;
+      friend ares::network::acceptor<server>;
       
       /*! Creates a network session within the server, called from acceptor
         \param socket TCP socket of the new network session

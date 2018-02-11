@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_HA_PING_REQ> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_HA_PING_REQ;
   
   void emplace() {

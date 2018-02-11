@@ -23,13 +23,10 @@ void ares::account::server::start() {
 
 void ares::account::server::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "account::server::create_session");
-  auto s = std::make_shared<ares::account::session>(*this, std::optional<asio::ip::tcp::endpoint>{}, socket, std::chrono::seconds{120});
-  on_rxthreads([this, s = std::move(s)] () {
-      mono_.insert(s);
-      SPDLOG_TRACE(log_, "mono_.insert s ptr {} ", (void*)s.get());
-      s->receive();
-      s->reset_idle_timer();      
-    });
+  auto s = std::make_shared<session>(*this, std::optional<asio::ip::tcp::endpoint>{}, socket, std::chrono::seconds{120});
+  mono_.insert(s);
+  s->receive();
+  s->reset_idle_timer();      
 }
 
 auto ares::account::server::conf() const -> const config& {
@@ -46,7 +43,9 @@ void ares::account::server::add(session_ptr s) {
     }
 
     void operator()(const client::state&) {
+      SPDLOG_TRACE(s->log(), "Adding session as client, AID {}", s->as_client().aid);
       serv.clients_.insert({s->as_client().aid, s});
+      SPDLOG_TRACE(s->log(), "Clients list has now {} elements", serv.clients_.size());
       serv.mono_.erase(s);
     }
 
@@ -72,6 +71,7 @@ void ares::account::server::remove(session_ptr s) {
     }
 
     void operator()(const client::state&) {
+      SPDLOG_TRACE(s->log(), "Removing client session, AID {}", s->as_client().aid);
       serv.clients_.erase(s->as_client().aid);
     }
 
@@ -86,6 +86,7 @@ void ares::account::server::remove(session_ptr s) {
 }
 
 auto ares::account::server::client_by_aid(const uint32_t aid) -> session_ptr {
+  SPDLOG_TRACE(log(), "Searching in client list of size {} aid {}", clients_.size(), aid);
   auto found = clients_.find(aid);
   if (found != clients_.end()) {
     return found->second;

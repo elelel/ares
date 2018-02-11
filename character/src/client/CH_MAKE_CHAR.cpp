@@ -1,12 +1,12 @@
 #include <ares/common>
 
 #include "state.hpp"
-#include "../state.hpp"
+#include "../server.hpp"
 
-void ares::character::client::packet_handler<ares::packet_set, ares::packet::CH_MAKE_CHAR::no_stats>::operator()() {
+void ares::character::client::packet_handler<ares::packet::current<ares::packet::CH_MAKE_CHAR::no_stats>>::operator()() {
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR begin");
   auto& c = session_.as_client();
-  auto& db = server_state_.db;
+  auto& db = server_.db;
   auto slots = db.account_slots_for_aid(c.aid);
   if (slots) {
     // TODO: Check if new char creation is allowed in server configuration
@@ -49,11 +49,11 @@ void ares::character::client::packet_handler<ares::packet_set, ares::packet::CH_
               auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*i.delete_date - std::chrono::system_clock::now());
               delete_timeout = diff.count();
               if (delete_timeout < 0) {
-                server_state_.log()->error("Character {} of AID {} should already have been deleted for {} seconds", c.cid, c.aid, (delete_timeout / 1000) * -1);
+                log()->error("Character {} of AID {} should already have been deleted for {} seconds", c.cid, c.aid, (delete_timeout / 1000) * -1);
               }
             }
 
-            session_.emplace_and_send<packet_type<packet::HC_ACCEPT_MAKECHAR>>();
+            session_.emplace_and_send<packet::current<packet::HC_ACCEPT_MAKECHAR>>();
             session_.emplace_and_send<packet::CHARACTER_INFO>(c.cid,
                                                               s.base_exp,
                                                               s.zeny,
@@ -100,22 +100,22 @@ void ares::character::client::packet_handler<ares::packet_set, ares::packet::CH_
                                                               );
           } else {
             log()->error("Failed to get character info for newly created cid {} ", *cid);
-            throw network::terminate_session();            
+            server_.close_gracefuly(session_.shared_from_this());
           }
         } else {
           log()->error("Failed to make character for AID {}", c.aid);
-          throw network::terminate_session();            
+          server_.close_gracefuly(session_.shared_from_this());
         }
       } else {
         log()->error("Client with aid {} requested to create char with invalid job {}", c.aid, p_->job());
-        throw network::terminate_session();            
+        server_.close_gracefuly(session_.shared_from_this());
       }
     } else {
       // TODO: Send "Can't use this slot"
     }
   } else {
     log()->error("Could not find account data record for aid {} in SQL database, closing client session", c.aid);
-    throw network::terminate_session();            
+    server_.close_gracefuly(session_.shared_from_this());
   }
 
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR end");

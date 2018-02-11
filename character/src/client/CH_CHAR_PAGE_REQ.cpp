@@ -1,9 +1,9 @@
 #include <ares/common>
 
 #include "state.hpp"
-#include "../state.hpp"
+#include "../server.hpp"
 
-void ares::character::client::packet_handler<ares::packet_set, ares::packet::CH_CHAR_PAGE_REQ>::operator()() {
+void ares::character::client::packet_handler<ares::packet::current<ares::packet::CH_CHAR_PAGE_REQ>>::operator()() {
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ begin");
   auto& c = session_.as_client();
   auto& chars = c.char_select_character_info;
@@ -13,7 +13,7 @@ void ares::character::client::packet_handler<ares::packet_set, ares::packet::CH_
     if (chars.size() > 0) {
       size_t num_to_send = 3;
       if (chars.size() < 3) num_to_send = chars.size();
-      session_.emplace_and_send<packet_type<packet::HC_CHAR_PAGES>>(num_to_send);
+      session_.emplace_and_send<packet::current<packet::HC_CHAR_PAGES>>(num_to_send);
       for (size_t k = 0; k < num_to_send; ++k) {
         const auto& ci = chars[chars.size() - 1];
         long delete_timeout{0};
@@ -78,25 +78,25 @@ void ares::character::client::packet_handler<ares::packet_set, ares::packet::CH_
         chars.pop_back();
       }
       if ((num_to_send == 3) && (chars.size() == 0)) {
-        server_state_.log()->info("Sending page terminator 1");
+        SPDLOG_TRACE(log(), "Sending characters page terminator 1");
         // Send page terminator if we filled the whole page
-        session_.emplace_and_send<packet_type<packet::HC_CHAR_PAGES>>(0);
+        session_.emplace_and_send<packet::current<packet::HC_CHAR_PAGES>>(0);
       }
       if (chars.size() == 0) {
         c.char_select_all_sent = true;
       }
     } else {
       if (!c.char_select_all_sent) {
-        server_state_.log()->info("Sending page terminator 2");
+        SPDLOG_TRACE(log(), "Sending characters page terminator 2");
         // Send page terminator if there were no chars at all
-        session_.emplace_and_send<packet_type<packet::HC_CHAR_PAGES>>(0);
+        session_.emplace_and_send<packet::current<packet::HC_CHAR_PAGES>>(0);
         c.char_select_all_sent = true;
       }
     }
   } else {
     log()->error("Session for AID {} requested char page {} times, probably HC_CHAR_PAGES_NUM, or HC_CHAR_PAGES/CHARACTER_INFO format has changed, disconnecting",
                  c.aid, c.char_page_reqs);
-    throw ares::network::terminate_session();
+    server_.close_gracefuly(session_.shared_from_this());
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");
 }

@@ -1,14 +1,13 @@
 #include "state.hpp"
-#include "../state.hpp"
+#include "../server.hpp"
 #include "../zone_server/state.hpp"
 
-void ares::character::mono::packet_handler<ares::packet_set, ares::packet::ATHENA_ZH_LOGIN_REQ>::operator()() {
+void ares::character::mono::packet_handler<ares::packet::current<ares::packet::ATHENA_ZH_LOGIN_REQ>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_ZH_LOGIN_REQ: begin");
   // TODO: Check if char server isn't closed
-  auto& server = server_state_.server;
-  auto& conf = server_state_.conf;
+  auto& conf = server_.conf();
   SPDLOG_TRACE(log(), "ATHENA_ZH_LOGIN_REQ acquiring server lock");
-  std::lock_guard lock(server.mutex());
+  std::lock_guard lock(server_.mutex());
   SPDLOG_TRACE(log(), "ATHENA_ZH_LOGIN_REQ server lock acquired");
   
   auto found = std::find_if(conf.zone_servers.begin(),
@@ -18,38 +17,37 @@ void ares::character::mono::packet_handler<ares::packet_set, ares::packet::ATHEN
                             });
   if (found != conf.zone_servers.end()) {
     if (found->password == p_->password()) {
-      auto existing = find_if(server.zone_servers().begin(), server.zone_servers().end(), [this] (const session_ptr s) {
+      auto existing = find_if(server_.zone_servers().begin(), server_.zone_servers().end(), [this] (const session_ptr s) {
           return s->as_zone_server().login == p_->login();
         });
-      if (existing == server.zone_servers().end()) {
-        auto new_state = zone_server::state(session_state_);
-        session_.session_state_.emplace<zone_server::state>(std::move(new_state));
-        auto& server = session_.server_state_.server;
-        auto& conf = session_.server_state_.conf;
+      if (existing == server_.zone_servers().end()) {
+        session_.variant().emplace<zone_server::state>(std::move(zone_server::state(session_.as_mono()))); 
+        auto& server = session_.server_;
+        auto& conf = server.conf();
         auto& zone = session_.as_zone_server();
         zone.ip_v4 = asio::ip::address_v4(ntohl(p_->ip()));
         zone.port = ntohs(p_->port());
         SPDLOG_TRACE(log(), "Initializing maps to send to {} items", found->maps.size());
         std::copy(found->maps.begin(), found->maps.end(), std::back_inserter(zone.maps_to_send));
-        server.add(session_.shared_from_this());
+        server_.add(session_.shared_from_this());
         log()->info("Zone server accepted");
-        session_.emplace_and_send<packet_type<packet::ATHENA_HZ_LOGIN_RESULT>>(0);
-        session_.emplace_and_send<packet_type<packet::ATHENA_HZ_PRIVATE_MSG_NAME>>(*conf.priv_msg_server_name);
+        session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(0);
+        session_.emplace_and_send<packet::current<packet::ATHENA_HZ_PRIVATE_MSG_NAME>>(*conf.priv_msg_server_name);
 
       } else {
         log()->error("Connection refused for zone server, connection already exists for login {}", p_->login());
-        session_.emplace_and_send<packet_type<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
-        throw ares::network::terminate_session();
+        session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
+        server_.close_gracefuly(session_.shared_from_this());
       }
     } else {
       log()->error("Connection refused for zone server, wrong password for login {}", p_->login());
-      session_.emplace_and_send<packet_type<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
-      throw ares::network::terminate_session();
+      session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
+      server_.close_gracefuly(session_.shared_from_this());
     }
   } else {
     log()->error("Connection refused for zone server, wrong login {}", p_->login());
-    session_.emplace_and_send<packet_type<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
-    throw ares::network::terminate_session();
+    session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
+    server_.close_gracefuly(session_.shared_from_this());
   }
 
   SPDLOG_TRACE(log(), "handle_packet ATHENA_ZH_LOGIN_REQ: end");

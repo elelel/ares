@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_ZH_GAME_RATES> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_ZH_GAME_RATES;
   
   void emplace(const uint32_t base_rate,

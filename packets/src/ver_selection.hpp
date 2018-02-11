@@ -5,5 +5,12 @@
  */
 
 namespace ares {
-  using packet_set = packet_sets::ARES_PACKET_SET;
+  namespace packet_sets {
+    using current = packet_sets::ARES_PACKET_SET;
+  }
+
+  namespace packet {
+    template <typename PacketName>
+    using current = packet::type<packet_sets::ARES_PACKET_SET, PacketName>;
+  }
 }

@@ -2,11 +2,11 @@
 
 #include "server.hpp"
 
-ares::account::session::session(ares::account::server& serv,
+ares::account::session::session(account::server& serv,
                                 const std::optional<asio::ip::tcp::endpoint> connect_ep,
                                 std::shared_ptr<asio::ip::tcp::socket> socket,
                                 const std::chrono::seconds idle_timer_timeout) :
-  ares::network::session<session, ares::account::server>(serv, connect_ep, socket, idle_timer_timeout),
+  ares::network::session<session, account::server>(serv, connect_ep, socket, idle_timer_timeout),
   session_state_(std::in_place_type<mono::state>, serv, *this) {
 }
 
@@ -69,23 +69,25 @@ ARES_VARIANT_EVENT_DISPATCHER(on_operation_aborted);
 ARES_VARIANT_EVENT_DISPATCHER(on_eof);
 ARES_VARIANT_EVENT_DISPATCHER(on_socket_error);
 ARES_VARIANT_EVENT_DISPATCHER(on_packet_processed);
+ARES_VARIANT_EVENT_DISPATCHER(defuse_asio);
 
 #undef ARES_VARIANT_EVENT_DISPATCHER
 
-size_t ares::account::session::dispatch_packet(const uint16_t packet_id) {
+auto ares::account::session::allocate(const uint16_t packet_id) -> packet::alloc_info {
   struct visitor {
-    visitor(session& s, const uint16_t packet_id) : s(s), packet_id(packet_id) {};
+    visitor(session& s, const uint16_t packet_id) :
+      s(s), packet_id(packet_id) {};
 
-    size_t operator()(const mono::state&) {
-      return s.as_mono().dispatch_packet(packet_id);
+    packet::alloc_info operator()(const mono::state&) {
+      return s.as_mono().allocate(packet_id);
     }
 
-    size_t operator()(const character_server::state&) {
-      return s.as_char_server().dispatch_packet(packet_id);
+    packet::alloc_info operator()(const character_server::state&) {
+      return s.as_char_server().allocate(packet_id);
     }
     
-    size_t operator()(const client::state&) {
-      return s.as_client().dispatch_packet(packet_id);
+    packet::alloc_info operator()(const client::state&) {
+      return s.as_client().allocate(packet_id);
     }
 
   private:
@@ -94,4 +96,31 @@ size_t ares::account::session::dispatch_packet(const uint16_t packet_id) {
   };
 
   return std::visit(visitor(*this, packet_id), variant());
+}
+
+void ares::account::session::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
+  struct visitor {
+    visitor(session& s, const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) :
+      s(s), packet_id(packet_id), buf(buf), deallocator(deallocator) {};
+
+    void operator()(const mono::state&) {
+      s.as_mono().dispatch_packet(packet_id, buf, deallocator);
+    }
+
+    void operator()(const character_server::state&) {
+      s.as_char_server().dispatch_packet(packet_id, buf, deallocator);
+    }
+    
+    void operator()(const client::state&) {
+      s.as_client().dispatch_packet(packet_id, buf, deallocator);
+    }
+
+  private:
+    session& s;
+    const uint16_t packet_id;
+    void* buf;
+    std::function<void(void*)> deallocator;
+  };
+
+  return std::visit(visitor(*this, packet_id, buf, deallocator), variant());
 }

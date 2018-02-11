@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, CZ_REQUEST_MOVE> {
+  using packet_set = PacketSet;
   using packet_name = CZ_REQUEST_MOVE;
   
   inline void emplace(const uint16_t to_x, const uint16_t to_y) {

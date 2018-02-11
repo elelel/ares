@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, CH_SELECT_CHAR> {
+  using packet_set = PacketSet;
   using packet_name = CH_SELECT_CHAR;
   
   inline void emplace(const uint8_t CharNum) {

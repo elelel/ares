@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_ZH_USER_COUNT> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_ZH_USER_COUNT;
   
   void emplace(const uint16_t num_users) {

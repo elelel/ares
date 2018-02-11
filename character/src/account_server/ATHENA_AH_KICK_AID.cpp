@@ -1,15 +1,16 @@
 #include "state.hpp"
-#include "../state.hpp"
+#include "../server.hpp"
 
-void ares::character::account_server::packet_handler<ares::packet_set, ares::packet::ATHENA_AH_KICK_AID>::operator()() {
+void ares::character::account_server::packet_handler<ares::packet::current<ares::packet::ATHENA_AH_KICK_AID>>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_AH_KICK_AID: begin");
-  auto& server = server_state_.server;
-  std::lock_guard<std::mutex> lock(server.mutex());
-  auto s = server.client_by_aid(p_->aid());
+  session_ptr s;
+  {
+    std::lock_guard<std::mutex> lock(server_.mutex());
+    s = server_.client_by_aid(p_->aid());
+  }
   if (s != nullptr) {
-    std::lock_guard<std::mutex> lock(server.mutex());
-    s->remove_from_server();
     // TODO: Notify map servers to kick the user
+    server_.close_gracefuly(s);
   }
   SPDLOG_TRACE(log(), "ATHENA_AH_KICK_AID: end");
 }

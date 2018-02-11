@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../server.hpp"
 
-void ares::character::zone_server::packet_handler<ares::packet_set, ares::packet::ATHENA_ZH_ONLINE_USERS>::operator()() {
+void ares::character::zone_server::packet_handler<ares::packet::current<ares::packet::ATHENA_ZH_ONLINE_USERS>>::operator()() {
   SPDLOG_TRACE(log(), "ATHENA_HA_ONLINE_USERS: begin");
   const size_t user_count = (p_->PacketLength - sizeof(*p_)) / sizeof(handled_packet_type::aid_cid);
   SPDLOG_TRACE(log(), "Got {} users from map", user_count);

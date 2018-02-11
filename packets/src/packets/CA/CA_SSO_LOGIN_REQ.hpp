@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, CA_SSO_LOGIN_REQ::login_password> {
+  using packet_set = PacketSet;
   using packet_name = CA_SSO_LOGIN_REQ::login_password;
   
   void emplace(const uint32_t Version,
@@ -73,6 +74,7 @@ private:
 
 template <typename PacketSet>
 struct type<PacketSet, CA_SSO_LOGIN_REQ::token_auth> {
+  using packet_set = PacketSet;
   using packet_name = CA_SSO_LOGIN_REQ::token_auth;
   
   void emplace(const uint32_t Version,

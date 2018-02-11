@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, SC_NOTIFY_BAN> {
+  using packet_set = PacketSet;
   using packet_name = SC_NOTIFY_BAN;
   
   struct code {

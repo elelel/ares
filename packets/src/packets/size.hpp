@@ -10,6 +10,8 @@
     The member has to be public, otherwise the detection will assume it's a fixed-size packet.
  */
 
+#include "allocator.hpp"
+
 namespace ares {
   namespace packet {
     struct size {
@@ -32,7 +34,7 @@ namespace ares {
       template <typename Packet,
                 typename Buffer>
       static size_t get(Buffer&& buf) {
-        return get_<>((Packet*)buf.start_ptr(), buf.get(), dynamic_size());
+        return get_((Packet*)buf.start_ptr(), buf.get(), dynamic_size());
       }
 
       /*! Get the packet size in flat memory buffer
@@ -54,16 +56,11 @@ namespace ares {
         return validate_(p, dynamic_size());
       }
 
-      template <typename Packet, typename int_<decltype(Packet::PacketLength)>::type = 0>
-      constexpr static bool is_dynamic() {
-        return true;
-      }
-
       template <typename Packet>
-      constexpr static bool is_dynamic() {
-        return false;
+      static alloc_info allocate() {
+        Packet* p = nullptr;
+        return allocate_(p, dynamic_size());
       }
-
       
     private:
       template <typename> struct int_ { typedef int type; };
@@ -129,6 +126,25 @@ namespace ares {
       static bool validate_(const Packet&, fixed_size) {
         return true;
       }
+
+      template <typename Packet,
+                typename int_<decltype(Packet::PacketLength)>::type = 0>
+      static alloc_info allocate_(Packet*, dynamic_size) {
+        using pool_allocator_type = pool_allocator<(sizeof(Packet) > 1024) ? sizeof(Packet) + (1024 - (sizeof(Packet) % 1024)) : 1024>; 
+        const auto& [buf, buf_sz] = pool_allocator_type::allocate();
+        Packet* p;
+        ;
+        return {sizeof(Packet), buf, buf_sz, [] (void* p) { pool_allocator_type::deallocate(p); }, (uintptr_t)&p->PacketLength - (uintptr_t)p};
+      }
+
+      template <typename Packet>
+      static alloc_info allocate_(Packet*, fixed_size) {
+        using pool_allocator_type = pool_allocator<sizeof(Packet)>;
+        const auto& [buf, buf_sz] = pool_allocator_type::allocate();
+
+        return {sizeof(Packet), buf, buf_sz, [] (void* p) { pool_allocator_type::deallocate(p); }, 0 };
+      }
+      
     };
   }
 }

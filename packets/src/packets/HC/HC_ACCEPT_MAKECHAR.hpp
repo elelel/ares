@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, HC_ACCEPT_MAKECHAR> {
+  using packet_set = PacketSet;
   using packet_name = HC_ACCEPT_MAKECHAR;
   
   inline void emplace() {

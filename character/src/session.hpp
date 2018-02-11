@@ -6,10 +6,7 @@
 #include <variant>
 
 #include <ares/network>
-#include <ares/packets>
-
-#include "recv_handler.hpp"
-#include "send_handler.hpp"
+// #include <ares/packets>
 
 #include "mono/state.hpp"
 #include "client/state.hpp"
@@ -18,37 +15,19 @@
 
 namespace ares {
   namespace character {
-    struct session : ares::network::session<session>, std::enable_shared_from_this<session> {
+    struct server;
+    
+    struct session : ares::network::session<session, server>, std::enable_shared_from_this<session> {
       using state_variant = std::variant<mono::state, client::state, zone_server::state, account_server::state>;
       
-      struct inactivity_timer_handler : ares::network::handler::asio::base<inactivity_timer_handler, session> {
-        using ares::network::handler::asio::base<inactivity_timer_handler, session>::base;
-        void operator()(const std::error_code& ec);
-      };
-
-      friend struct recv_handler;
-      friend struct send_handler;
-
-      // Needed to allow changing of state type
-      friend struct mono::packet_handler<packet_set, packet::CH_ENTER>;
-      friend struct mono::packet_handler<packet_set, packet::ATHENA_ZH_LOGIN_REQ>;
-      friend struct account_server::packet_handler<packet_set, packet::ATHENA_AH_AID_AUTH_RESULT>;
+      friend struct mono::packet_handler<packet::current<packet::CH_ENTER>>;
+      friend struct mono::packet_handler<packet::current<packet::ATHENA_ZH_LOGIN_REQ>>;
+      friend struct account_server::packet_handler<packet::current<packet::ATHENA_AH_AID_AUTH_RESULT>>;
       
-      session(character::state& server_state, std::shared_ptr<asio::ip::tcp::socket> socket);
-
-      void defuse_asio();
-      void remove_from_server();
-      void on_disconnect();
-      
-      void on_open();
-      void before_close();
-      void on_connection_reset();
-      void on_eof();
-      void on_socket_error();
-      void on_operation_aborted();
-
-      void on_inactivity_timer();
-      void reset_inactivity_timer();
+      session(character::server& serv,
+              const std::optional<asio::ip::tcp::endpoint> connect_ep,
+              std::shared_ptr<asio::ip::tcp::socket> socket,
+              const std::chrono::seconds idle_timer_timeout);
 
       state_variant& variant();
 
@@ -61,14 +40,22 @@ namespace ares {
       bool is_client() const;
       client::state& as_client();
 
-      recv_handler make_recv_handler();
-      send_handler make_send_handler();
+      // Session handlers
+      void on_connect();
+      void on_connection_reset();
+      void on_operation_aborted();
+      void on_eof();
+      void on_socket_error();
+      void on_packet_processed();
+      void defuse_asio();
+      
+      packet::alloc_info allocate(const uint16_t packet_id);
+      void dispatch_packet(const uint16_t packet_id,
+                           void* buf,
+                           std::function<void(void*)> deallocator);
 
     private:
       state_variant session_state_;
-    public:
-      character::state& server_state_;
-      std::chrono::seconds inactivity_timeout_{120};
     };
 
     using session_ptr = std::shared_ptr<session>;

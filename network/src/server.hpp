@@ -17,7 +17,7 @@ namespace ares {
   namespace network {
     template <typename Derived, typename Session>
     struct server {
-      using acceptor = ares::network::acceptor<server<Derived, Session>>;
+      using acceptor = ares::network::acceptor<Derived>;
       using session_ptr = std::shared_ptr<Session>;
       
       /*! Constructs server
@@ -40,15 +40,13 @@ namespace ares {
       /*! Creates a network session within the server, called from acceptor
         \param socket TCP socket of the new network session
       */
-      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
+      //      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
       
       void close_gracefuly(session_ptr s);
       void close_abruptly(session_ptr s);
 
       void run();
 
-      template <typename F>
-      void on_rxthreads(F f);
     protected:
       decltype(rxcpp::observe_on_event_loop()) server_rxthreads = rxcpp::observe_on_event_loop();
 
@@ -78,8 +76,8 @@ namespace ares {
       std::set<std::shared_ptr<acceptor>> acceptors_;
 
       // RX stuff
-      rxcpp::composite_subscription lifetime;
-      rxcpp::rxsub::subject<session_ptr> add_session_stream;
+      std::thread hold_rx_;
+      
       rxcpp::rxsub::subject<session_ptr> close_gracefuly_stream;
       rxcpp::rxsub::subject<session_ptr> close_abruptly_stream;
     };

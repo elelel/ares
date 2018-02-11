@@ -54,6 +54,7 @@ inline void ares::network::acceptor<Server>::init() {
     boost_acceptor_->async_accept(*socket, [this, socket] (const std::error_code& ec) {
         if (ec.value() == 0) {
           SPDLOG_TRACE(log(), "Acceptor received request");
+          std::lock_guard<std::mutex> lock(server_.mutex());
           static_cast<Server*>(&server_)->create_session(socket);
         } else {
           log()->error("Acceptor on_accept failed {}, {}", ec.value(), ec.message());

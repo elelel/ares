@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ARES_HZ_MAP_NAMES> {
+  using packet_set = PacketSet;
   using packet_name = ARES_HZ_MAP_NAMES;
   
   inline void emplace(const std::set<std::string>& maps) {

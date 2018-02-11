@@ -20,8 +20,6 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/main.cpp
-  ${SRC}/server.cpp
   ${SRC}/session.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CZ_ENTER.cpp
@@ -34,11 +32,16 @@ set(SOURCES
   ${SRC}/config.cpp
   ${SRC}/database/database.cpp
   ${SRC}/database/map_index.cpp
+
+  ${SRC}/main.cpp
+  ${SRC}/server.cpp
   )
 
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)
 endif()
+
+add_subdirectory(${CONTRIB}/memory memory)
 
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}
@@ -52,6 +55,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/json
   ${CONTRIB}/network_buffer/include
   ${CONTRIB}/RxCpp/Rx/v2/src
+  ${CONTRIB}/memory/include
   ${ARES_DIR})
 
 message("Zone server compile definitions: ${ARES_COMPILE_DEFINITIONS}")
@@ -61,6 +65,6 @@ set_target_properties(ares_zone PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
   )
-target_link_libraries(ares_zone config common ${ARES_LINK_LIBRARIES})
+target_link_libraries(ares_zone foonathan_memory config common ${ARES_LINK_LIBRARIES})
 target_include_directories(ares_zone PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_zone PRIVATE ${ARES_COMPILE_DEFINITIONS})

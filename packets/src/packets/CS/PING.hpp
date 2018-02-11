@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, PING> {
+  using packet_set = PacketSet;
   using packet_name = PING;
   
   inline void emplace(const uint32_t aid) {

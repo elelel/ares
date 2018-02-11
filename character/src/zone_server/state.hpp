@@ -6,25 +6,35 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../mono/state.hpp"
+#include "../config.hpp"
 
 namespace ares {
   namespace character {
+    struct server;
+    struct session;
+
+    namespace mono {
+      struct state;
+    }
     
     namespace zone_server {
       struct state {
-        state(character::state& server_state, session& sess);        
+        state(server& server, session& sess);        
         state(const mono::state& mono_state);
 
-        // Interface with character::session
-        void on_open();
-        void before_close();
+        void on_connect();
         void on_connection_reset();
+        void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_operation_aborted();
-        size_t dispatch(const uint16_t PacketType);
+        void on_packet_processed();
         void defuse_asio();
+
+        packet::alloc_info allocate(const uint16_t packet_id);
+        void dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator);
+        
+        std::shared_ptr<spdlog::logger> log() const;
+        const config& conf() const;
 
         // Data
         std::string login;
@@ -40,22 +50,18 @@ namespace ares {
         uint32_t job_rate{0};
         uint32_t drop_rate{0};
 
-
       private:
-        character::state& server_state_;
+        server& server_;
         session& session_;
-
       };
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(character);
-
-      // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_ONLINE_USERS);
-      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_USER_COUNT);
-      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_GAME_RATES);
-      ARES_SIMPLE_PACKET_HANDLER(character, ATHENA_ZH_PING_REQ);
-      ARES_SIMPLE_PACKET_HANDLER(character, ARES_ZH_MAP_NAMES_REQ);
       
-      // Packet handlers that store state/structured
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+
+      ARES_PACKET_HANDLER(ATHENA_ZH_ONLINE_USERS);
+      ARES_PACKET_HANDLER(ATHENA_ZH_USER_COUNT);
+      ARES_PACKET_HANDLER(ATHENA_ZH_GAME_RATES);
+      ARES_PACKET_HANDLER(ATHENA_ZH_PING_REQ);
+      ARES_PACKET_HANDLER(ARES_ZH_MAP_NAMES_REQ);
     }
   }
 }

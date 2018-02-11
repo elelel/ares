@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ARES_ZH_MAP_NAMES_REQ> {
+  using packet_set = PacketSet;
   using packet_name = ARES_ZH_MAP_NAMES_REQ;
   
   inline void emplace(const size_t buf_sz) {

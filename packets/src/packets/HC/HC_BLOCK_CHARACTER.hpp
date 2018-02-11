@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, HC_BLOCK_CHARACTER> {
+  using packet_set = PacketSet;
   using packet_name = HC_BLOCK_CHARACTER;
   
   inline void emplace() {

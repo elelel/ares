@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, CZ_ENTER> {
+  using packet_set = PacketSet;
   using packet_name = CZ_ENTER;
   
   inline void emplace(const uint32_t AID,

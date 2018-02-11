@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_HA_ACCOUNT_DATA_REQ> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_HA_ACCOUNT_DATA_REQ;
   
   void emplace(const uint32_t aid) {

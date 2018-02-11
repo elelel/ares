@@ -1,7 +1,8 @@
 #include "state.hpp"
-#include "../state.hpp"
 
-void ares::character::client::packet_handler<ares::packet_set, ares::packet::PING>::operator()() {
-  SPDLOG_TRACE(server_state_.log(), "PING from client, aid {} ", p_->aid());
+#include "../server.hpp"
+
+void ares::character::client::packet_handler<ares::packet::current<ares::packet::PING>>::operator()() {
+  SPDLOG_TRACE(log(), "PING from client, aid {} ", p_->aid());
 }
 

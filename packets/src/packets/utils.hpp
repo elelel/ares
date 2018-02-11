@@ -4,9 +4,10 @@
   \brief Misc utility functions
 */
 
-#include <sstream>
 #include <chrono>
+#include <cstring>
 #include <iomanip>
+#include <sstream>
 
 namespace ares {
   /*! Copy raw bytes to a destination buffer of a predefined size and set unused destination bytes to 0.

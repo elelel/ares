@@ -20,8 +20,10 @@ namespace ares {
         void on_eof();
         void on_socket_error();
         void on_packet_processed();
+        void defuse_asio();
 
-        size_t dispatch_packet(const uint16_t packet_id);
+        packet::alloc_info allocate(const uint16_t packet_id);
+        void dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator);
         
         std::shared_ptr<spdlog::logger> log() const;
         const config& conf() const;
@@ -32,8 +34,8 @@ namespace ares {
       };
 
       ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
-      // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(CZ_ENTER);
+
+      ARES_PACKET_HANDLER(CZ_ENTER);
 
     }
   }

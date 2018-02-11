@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_AH_KICK_AID> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_AH_KICK_AID;
   
   inline void emplace(const uint32_t aid) {

@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_ZH_MAP_NAMES> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_ZH_MAP_NAMES;
   
   void emplace(const size_t num_maps) {

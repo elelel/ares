@@ -2,7 +2,7 @@
 
 #include "../server.hpp"
 
-void ares::zone::mono::packet_handler<ares::packet_set, ares::packet::CZ_ENTER>::operator()() {
+void ares::zone::mono::packet_handler<ares::packet::current<ares::packet::CZ_ENTER>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet CZ_ENTER: begin");
 
   SPDLOG_TRACE(log(), "CZ_ENTER: AID = {}, GID = {}, AuthCode = {}, clientTime = {}, Sex = {}",

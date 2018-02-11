@@ -10,16 +10,23 @@
 
 namespace ares {
   namespace character {
-    struct server : ares::network::server<server> {
-      server(state& state_);
+    struct server : ares::network::server<server, session> {
+      server(std::shared_ptr<spdlog::logger> log,
+             std::shared_ptr<asio::io_context> io_context,
+             const config& conf);
 
       void start();
-      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
 
+      const config& conf() const;
+
+      /*! Adds a session to current sessions list
+        \param s session to add */
       void add(session_ptr s);
-      void remove(session_ptr s);
-
+      
+      /*! Returns client session by account id 
+        \param aid account id */
       session_ptr client_by_aid(const uint32_t aid);
+      
       void link_aid_to_zone_server(const uint32_t aid, session_ptr s);
       void unlink_aid_from_zone_server(const uint32_t aid, session_ptr s);
 
@@ -32,17 +39,36 @@ namespace ares {
       const session_ptr& account_server() const;
       const std::set<session_ptr>& zone_servers() const;
 
-    private:
-      state& state_;
+      // Data
+      uint16_t state_num{0};
+      uint16_t property{0};
+    protected:
+      friend ares::network::server<server, session>;
+      friend ares::network::acceptor<server>;
+
+      /*! Creates a network session within the server, called from acceptor
+        \param socket TCP socket of the new network session
+      */
+      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
+
+      /*! Removes a session from current sessions list. Should be called only from RX interface
+       \param s session to remove */
+      void remove(session_ptr s);
       
+    private:
+      std::map<uint32_t, session_ptr> clients_;
       std::set<session_ptr> mono_;
       std::set<session_ptr> zone_servers_;
-      std::map<uint32_t, session_ptr> clients_;
+      session_ptr account_server_;
+      
       std::map<uint32_t, session_ptr> aid_to_zone_server_;
       // ATHENA_HA_AID_AUTH_REQ requests with timestamps
       std::map<int32_t, std::pair<session_ptr, std::chrono::time_point<std::chrono::steady_clock>>> auth_aid_requests_;
 
-      session_ptr account_server_;
+      const config& conf_;
+      
+    public:
+      database db;
 
     };
   }

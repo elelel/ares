@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, ATHENA_AH_LOGIN_RESULT> {
+  using packet_set = PacketSet;
   using packet_name = ATHENA_AH_LOGIN_RESULT;
   
   void emplace(const uint8_t ErrorCode) {

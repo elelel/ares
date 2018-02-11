@@ -40,39 +40,47 @@ inline void ares::network::server<Derived, Session>::run() {
     thread_pool_.push_back(std::move(th));
   }
 
-  {
-    using namespace rxcpp;
-    using namespace rxcpp::rxo;
-    auto close_gracefuly = close_gracefuly_stream.get_observable().observe_on(server_rxthreads)
-      | tap([this] (auto&) {
-          SPDLOG_TRACE(log(), "RX close_gracefuly");
+  hold_rx_ = std::thread([this] () {
+      using namespace rxcpp;
+      using namespace rxcpp::rxo;
+      auto close_gracefuly = close_gracefuly_stream.get_observable().observe_on(server_rxthreads)
+      | tap([this] (session_ptr s) {
+          SPDLOG_TRACE(log(), "RX close_gracefuly {}", (void*)s.get());
         })
       | delay(std::chrono::milliseconds(100))
       | tap([this] (session_ptr s) {
-          s->socket_->cancel();
-          s->idle_timer_->cancel();
-          s->connected_ = false;
+          s->defuse();
           s->socket_->close();
         })
-      | delay(std::chrono::seconds{2})
+      | delay(std::chrono::seconds{1})
       | publish()
       | ref_count();
 
-    auto close_abruptly = close_gracefuly 
+      close_gracefuly.subscribe(close_abruptly_stream.get_subscriber());
+    
+      auto close_abruptly = close_abruptly_stream.get_observable().observe_on(server_rxthreads)
       | tap([this] (session_ptr s) {
-          SPDLOG_TRACE(log(), "RX close_abruptly");
+          SPDLOG_TRACE(log(), "RX close_abruptly {}", (void*)s.get());
+          std::lock_guard<std::mutex> lock(mutex_);
           s->socket_->close();
           if (s->reconnect_timer_)
             s->set_reconnect_timer(s->reconnect_timer_timeout_, s->reconnect_timer_timeout_);
+          SPDLOG_TRACE(log(), "Removing session {}, ref count {}", (void*)s.get(), s.use_count());
           s->server_.remove(s);
         })
       | publish()
       | connect_forever();
 
-    while (true) {
-      std::this_thread::sleep_for(std::chrono::seconds{1});
-    }
-
+      // TODO: convert this to something normal like CV wait
+      while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds{60});
+      }
+    });
+  
+  hold_rx_.detach();
+  // TODO: convert this to something normal like CV wait
+  while (true) {
+    std::this_thread::sleep_for(std::chrono::seconds{60});
   }
 
 }
@@ -94,11 +102,12 @@ inline void ares::network::server<Derived, Session>::stop() {
   acceptors_.clear();
 }
 
+/*
 template <typename Derived, typename Session>
 inline void ares::network::server<Derived, Session>::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log(), "ares::network::server::create_session calling specialized create_session");
   static_cast<Derived*>(this)->create_session(socket);
-}
+  }*/
 
 template <typename Derived, typename Session>
 inline void ares::network::server<Derived, Session>::close_gracefuly(session_ptr s) {
@@ -132,10 +141,11 @@ inline std::mutex& ares::network::server<Derived, Session>::mutex() {
   return mutex_;
 }
 
+/*
 template <typename Derived, typename Session>
 template <typename F>
 inline void ares::network::server<Derived, Session>::on_rxthreads(F f) {
   using namespace rxcpp;
   observable<>::empty<int>(server_rxthreads).subscribe(make_subscriber<int>([] (int) {}, f));
 }
-                         
+*/                         

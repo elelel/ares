@@ -8,10 +8,10 @@ int main() {
     auto log = spdlog::stdout_color_mt("account");
     auto io_context = std::make_shared<asio::io_context>();
 
-    ares::account::config conf(log, io_context, std::optional<std::string>{});
-    ares::account::server s(log, io_context, conf);
-    s.start();
-    s.run();
+    auto conf = std::make_shared<ares::account::config>(log, io_context, std::optional<std::string>{});
+    auto s = std::make_shared<ares::account::server>(log, io_context, *conf);
+    s->start();
+    s->run();
     
   } catch (const std::runtime_error e) {
     std::cerr << "main: terminated with runtime error {} " << e.what() << std::endl;

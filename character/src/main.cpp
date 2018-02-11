@@ -1,21 +1,24 @@
 #include <iostream>
 
-#include "state.hpp"
+#include "server.hpp"
 
 int main() {
   // TODO: command line options: log destination, log level, config filename, foreground/background
-  auto io_service = std::make_shared<asio::io_service>();
   try {
-    ares::character::state s;
-    s.server.start();
-    while (true) {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    auto log = spdlog::stdout_color_mt("character");
+    auto io_context = std::make_shared<asio::io_context>();
+
+    auto conf = std::make_shared<ares::character::config>(log, io_context, std::optional<std::string>{});
+    auto s = std::make_shared<ares::character::server>(log, io_context, *conf);
+    s->start();
+    s->run();
+    
   } catch (const std::runtime_error e) {
-    std::cerr << "main: terminated with runtime error " << e.what() << std::endl;
+    std::cerr << "main: terminated with runtime error {} " << e.what() << std::endl;
   } catch (...) {
     std::cerr << "main: terminated with unknown exception" << std::endl;
     throw;
   }
   return 0;
 }
+

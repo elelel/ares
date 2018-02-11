@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, HC_CHAR_PAGES> {
+  using packet_set = PacketSet;
   using packet_name = HC_CHAR_PAGES;
   
   inline void emplace(const size_t nchars) {

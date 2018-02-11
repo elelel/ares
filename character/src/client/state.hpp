@@ -3,25 +3,36 @@
 #include <ares/network>
 #include <ares/packets>
 
-#include "../mono/state.hpp"
+#include "../config.hpp"
 #include "../database/database.hpp"
 
 namespace ares {
   namespace character {
+    struct server;
+    struct session;
+
+    namespace mono {
+      struct state;
+    }
+    
     namespace client {
       struct state {
-        state(character::state& state, session& sess);        
+        state(server& serv, session& sess);        
         state(const mono::state& mono_state);
-        
-        // Interface with character::session
-        void defuse_asio();
-        void on_open();
-        void before_close();
+
+        void on_connect();
         void on_connection_reset();
+        void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_operation_aborted();
-        size_t dispatch(const uint16_t PacketType);
+        void on_packet_processed();
+        void defuse_asio();
+
+        packet::alloc_info allocate(const uint16_t packet_id);
+        void dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator);
+        
+        std::shared_ptr<spdlog::logger> log() const;
+        const config& conf() const;
 
         // Data
         uint32_t aid{0};
@@ -50,20 +61,17 @@ namespace ares {
         std::optional<db::record::character_info> char_info;
         
       private:
-        character::state& server_state_;
+        server& server_;
         session& session_;
       };
       
-      ARES_DECLARE_PACKET_HANDLER_TEMPLATE(character);
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
 
-      // Simple packet handlers that do not define their own class structure
-      ARES_SIMPLE_PACKET_HANDLER(character, PING);
-      ARES_SIMPLE_PACKET_HANDLER(character, CH_MAKE_CHAR::no_stats);
-      ARES_SIMPLE_PACKET_HANDLER(character, CH_SELECT_CHAR);
-      ARES_SIMPLE_PACKET_HANDLER(character, CH_CHAR_PAGE_REQ);
+      ARES_PACKET_HANDLER(PING);
+      ARES_PACKET_HANDLER(CH_MAKE_CHAR::no_stats);
+      ARES_PACKET_HANDLER(CH_SELECT_CHAR);
+      ARES_PACKET_HANDLER(CH_CHAR_PAGE_REQ);
       
-      // Packet handlers that store state/structured
-        
     }
   }
 }

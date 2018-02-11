@@ -1,5 +1,6 @@
 template <typename PacketSet>
 struct type<PacketSet, CA_EXE_HASHCHECK> {
+  using packet_set = PacketSet;
   using packet_name = CA_EXE_HASHCHECK;
   
   void emplace(const uint8_t* HashValue,
