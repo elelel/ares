@@ -29,6 +29,11 @@ void ares::zone::client::state::on_socket_error() {
 }
 
 void ares::zone::client::state::on_packet_processed() {
+  if (session_.obf_crypt_key) {
+    session_.obf_crypt_key.emplace(*session_.obf_crypt_key *
+                                   std::get<1>(*server_.conf().obfuscation_key) +
+                                   std::get<2>(*server_.conf().obfuscation_key));
+  }
 }
 
 void ares::zone::client::state::defuse_asio() {
