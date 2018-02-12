@@ -5,11 +5,59 @@
 #include "../server.hpp"
 #include "../session.hpp"
 
+namespace ares {
+  namespace zone {
+    namespace character_server {
+      struct ping_character_server_handler {
+        ping_character_server_handler(session_ptr sess, const bool pinged) :
+          session_(sess),
+          pinged_(pinged) {
+        }
+        
+        ping_character_server_handler(const ping_character_server_handler& other) :
+          session_(other.session_),
+          pinged_(other.pinged_) {
+        }
+
+        void operator()(const std::error_code& ec) {
+          if (ec.value() == 0) {
+            if (pinged_) {
+              session_->log()->error("Timeout while waiting for ping response from character server, closing session");
+              session_->server().close_gracefuly(session_);
+            } else {
+              SPDLOG_TRACE(session_->log(), "sending ping to character server");
+              session_->emplace_and_send<packet::current<packet::ATHENA_ZH_PING_REQ>>();
+              session_->as_char_server().ping_character_server_timer_->expires_at(std::chrono::steady_clock::now() + std::chrono::seconds{5});
+              session_->as_char_server().ping_character_server_timer_->async_wait(ping_character_server_handler{session_, true});
+            }
+          }
+        }
+
+      private:
+        session_ptr session_;
+        bool pinged_;
+
+      };
+    }
+  }
+}
+
+
 ares::zone::character_server::state::state(ares::zone::server& serv,
                                            ares::zone::session& sess) :
   server_(serv),
-  session_(sess) {
+  session_(sess),
+  ping_character_server_timer_(std::make_shared<asio::steady_timer>(*server_.io_context())) {
   }
+
+void ares::zone::character_server::state::reset_ping_character_server_timer() {
+  const size_t timeout = 10;
+  SPDLOG_TRACE(log(), "character_server::state resetting ping timer, timeout {} second", timeout);
+  ping_character_server_timer_->cancel();
+  ping_character_server_timer_->expires_at(std::chrono::steady_clock::now() + std::chrono::seconds{timeout});
+  ping_character_server_timer_->async_wait(ping_character_server_handler{session_.shared_from_this(), false});
+  
+}
 
 void ares::zone::character_server::state::on_connect() {
   log()->info("Starting handshake with character server");
@@ -26,7 +74,7 @@ void ares::zone::character_server::state::on_connect() {
 void ares::zone::character_server::state::on_connection_reset() {
   log()->warn("Disconnected from character server, reconnecting");
   server_.close_abruptly(session_.shared_from_this());
-  session_.set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
+  session_.set_reconnect_timer(std::chrono::seconds{1}, std::chrono::seconds{5});
 }
 
 void ares::zone::character_server::state::on_operation_aborted() {

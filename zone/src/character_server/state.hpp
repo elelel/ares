@@ -23,18 +23,19 @@ namespace ares {
         void defuse_asio();
 
         packet::alloc_info allocate(const uint16_t packet_id);
-       
         void dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator);
 
         std::shared_ptr<spdlog::logger> log() const;
         const config& conf() const;
         
+        void reset_ping_character_server_timer();
       private:
         server& server_;
         session& session_;
 
-        std::atomic<bool> awaiting_ping_ack_{false};
-        rxcpp::rxsub::subject<bool> ping_stream;
+      public:
+        std::shared_ptr<asio::steady_timer> ping_character_server_timer_;
+
       };
 
       ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
