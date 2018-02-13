@@ -20,6 +20,8 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/main.cpp
+  ${SRC}/server.cpp
   ${SRC}/session.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CZ_ENTER.cpp
@@ -33,8 +35,6 @@ set(SOURCES
   ${SRC}/database/database.cpp
   ${SRC}/database/map_index.cpp
 
-  ${SRC}/main.cpp
-  ${SRC}/server.cpp
   )
 
 if (NOT TARGET common) 
@@ -52,7 +52,7 @@ set(INCLUDE_DIRS
   ${DATABASE}/include
   ${CONTRIB}/asio/asio/include
   ${CONTRIB}/spdlog/include
-  ${CONTRIB}/json
+  ${CONTRIB}/json/include
   ${CONTRIB}/network_buffer/include
   ${CONTRIB}/RxCpp/Rx/v2/src
   ${CONTRIB}/memory/include

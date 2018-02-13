@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ares/indestructible>
+
 #include "../server.hpp"
 
 template <typename Derived, typename Session>
@@ -40,44 +42,40 @@ inline void ares::network::server<Derived, Session>::run() {
     thread_pool_.push_back(std::move(th));
   }
 
-  hold_rx_ = std::thread([this] () {
-      using namespace rxcpp;
-      using namespace rxcpp::rxo;
-      auto close_gracefuly = close_gracefuly_stream.get_observable().observe_on(server_rxthreads)
-      | tap([this] (session_ptr s) {
-          SPDLOG_TRACE(log(), "RX close_gracefuly {}", (void*)s.get());
-        })
-      | delay(std::chrono::milliseconds(100))
-      | tap([this] (session_ptr s) {
-          s->defuse();
-          s->socket_->close();
-        })
-      | delay(std::chrono::seconds{1})
-      | publish()
-      | ref_count();
+  using namespace rxcpp;
+  using namespace rxcpp::rxo;
+  auto close_gracefuly = make_indestructible::from_move_constructor
+    (close_gracefuly_stream.get_observable().observe_on(server_rxthreads)
+     | tap([this] (session_ptr s) {
+         SPDLOG_TRACE(log(), "RX close_gracefuly {}", (void*)s.get());
+       })
+     | delay(std::chrono::milliseconds(100))
+     | tap([this] (session_ptr s) {
+         s->defuse();
+         s->socket_->close();
+       })
+     | delay(std::chrono::seconds{1})
+     | publish()
+     | ref_count()
+     );
 
-      close_gracefuly.subscribe(close_abruptly_stream.get_subscriber());
+  close_gracefuly->subscribe(close_abruptly_stream.get_subscriber());
     
-      auto close_abruptly = close_abruptly_stream.get_observable().observe_on(server_rxthreads)
-      | tap([this] (session_ptr s) {
-          SPDLOG_TRACE(log(), "RX close_abruptly {}", (void*)s.get());
-          std::lock_guard<std::mutex> lock(mutex_);
-          s->socket_->close();
-          if (s->reconnect_timer_)
-            s->set_reconnect_timer(s->reconnect_timer_timeout_, s->reconnect_timer_timeout_);
-          SPDLOG_TRACE(log(), "Removing session {}, ref count {}", (void*)s.get(), s.use_count());
-          s->server_.remove(s);
-        })
-      | publish()
-      | connect_forever();
+  auto close_abruptly = make_indestructible::from_move_constructor
+    (close_abruptly_stream.get_observable().observe_on(server_rxthreads)
+     | tap([this] (session_ptr s) {
+         SPDLOG_TRACE(log(), "RX close_abruptly {}", (void*)s.get());
+         std::lock_guard<std::mutex> lock(mutex_);
+         s->socket_->close();
+         if (s->reconnect_timer_)
+           s->set_reconnect_timer(s->reconnect_timer_timeout_, s->reconnect_timer_timeout_);
+         SPDLOG_TRACE(log(), "Removing session {}, ref count {}", (void*)s.get(), s.use_count());
+         s->server_.remove(s);
+       })
+     | publish()
+     | connect_forever();
+     );
 
-      // TODO: convert this to something normal like CV wait
-      while (true) {
-        std::this_thread::sleep_for(std::chrono::seconds{60});
-      }
-    });
-  
-  hold_rx_.detach();
   // TODO: convert this to something normal like CV wait
   while (true) {
     std::this_thread::sleep_for(std::chrono::seconds{60});
