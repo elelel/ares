@@ -10,7 +10,7 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
     //    SPDLOG_TRACE(log(), "Character server for private messages is set to '{}'", cs.private_msg_name);
   } else {
     log()->error("Error parsing ATENA_HZ_PRIVATE_MSG_NAME, name length is 0");
-    server_.close_gracefuly(session_.shared_from_this());
+    session_.close_gracefuly();
   }
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HZ_PRIVATE_MSG_NAME: end");
 }

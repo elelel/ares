@@ -40,7 +40,7 @@ inline void ares::network::handler::session_base<Session>::act_on_error(const st
     break;
   default:
     s.log()->error("session_base::act_on_error '{}' failed on socket {}, error {}, {}",
-                    handler_name, (void*)s.socket_.get(), ec.value(), ec.message());
+                   handler_name, (void*)s.socket_.get(), ec.value(), ec.message());
     s.on_socket_error();
     break;
   }
@@ -48,19 +48,19 @@ inline void ares::network::handler::session_base<Session>::act_on_error(const st
 
 template <typename Session>
 inline ares::network::handler::reconnect_timer<Session>::reconnect_timer(std::shared_ptr<Session> s,
-                                                                                const std::chrono::seconds timeout) :
+                                                                         const std::chrono::seconds timeout) :
   session_base<Session>(s),
   timeout_(timeout) {
   };
 
 template <typename Session>
-inline ares::network::handler::reconnect_timer<Session>::reconnect_timer(const reconnect_timer& other) :
+inline ares::network::handler::reconnect_timer<Session>::reconnect_timer(const reconnect_timer<Session>& other) :
   session_base<Session>(other),
   timeout_(other.timeout_) {
 }
 
 template <typename Session>
-inline ares::network::handler::reconnect_timer<Session>::reconnect_timer(reconnect_timer&& other) :
+inline ares::network::handler::reconnect_timer<Session>::reconnect_timer(reconnect_timer<Session>&& other) :
   session_base<Session>(std::move(other)),
   timeout_(other.timeout_) {
 }
@@ -110,6 +110,31 @@ inline void ares::network::handler::reconnect_timer<Session>::operator()(const s
     }
   } else {
     SPDLOG_TRACE(s.log(), "Reconnect timer error {}, {}", ec.value(), ec.message());
+  }
+}
+
+template <typename Session>
+inline ares::network::handler::close_gracefuly_timer<Session>::close_gracefuly_timer(std::shared_ptr<Session> s) :
+  session_base<Session>(s) {
+}
+
+template <typename Session>
+inline ares::network::handler::close_gracefuly_timer<Session>::close_gracefuly_timer(const close_gracefuly_timer<Session>& other) :
+  session_base<Session>(other) {
+}
+
+template <typename Session>
+inline ares::network::handler::close_gracefuly_timer<Session>::close_gracefuly_timer(close_gracefuly_timer<Session>&& other) :
+  session_base<Session>(std::move(other)) {
+}
+
+template <typename Session>
+inline void ares::network::handler::close_gracefuly_timer<Session>::operator()(const std::error_code& ec) {
+  auto& s = *this->session_;
+  if (ec.value() == 0) {
+    s.close_abruptly();
+  } else {
+    SPDLOG_TRACE(s.log(), "Close gracefuly timer error {}, {}", ec.value(), ec.message());
   }
 }
 
@@ -201,7 +226,7 @@ inline void ares::network::handler::receive_id<Session>::operator()(const std::e
             } else {
               s.log()->error("Failed to allocate memory for packet {:#x}, closing session", packet_id);
             }
-            s.server_.close_gracefuly(s.shared_from_this());
+            s.close_gracefuly();
           }
         } else if (need_more_ < sizeof(packet_id)) {
           // Not whole packet_id received, request more bytes
@@ -210,15 +235,15 @@ inline void ares::network::handler::receive_id<Session>::operator()(const std::e
                                      std::move(h));
         } else {
           s.log()->error("receive received more bytes than needed (receiving packet_id)");
-          s.server_.close_gracefuly(s.shared_from_this());
+          s.close_gracefuly();
         }
       } else {
         s.log()->error("receive received triggered when no more bytes needed (receiving packet_id)");
-        s.server_.close_gracefuly(s.shared_from_this());
+        s.close_gracefuly();
       }
     } else {
       SPDLOG_TRACE(s.log(), "received zero bytes, terminating session (receiving packet_id)!");
-      s.server_.close_gracefuly(s.shared_from_this());
+      s.close_gracefuly();
     }
   } else {
     s.receiving_ = false;
@@ -226,11 +251,10 @@ inline void ares::network::handler::receive_id<Session>::operator()(const std::e
   }
 }
 
-
 template <typename Session>
 inline ares::network::handler::receive_after_id<Session>::receive_after_id(std::shared_ptr<Session> s,
-                                                                                packet::alloc_info&& ai,
-                                                                                const size_t already_received) :
+                                                                           packet::alloc_info&& ai,
+                                                                           const size_t already_received) :
   session_base<Session>(s),
   ai_(std::move(ai)),
   bytes_received_(already_received) {
@@ -241,14 +265,14 @@ ares::network::handler::receive_after_id<Session>::receive_after_id(const receiv
   session_base<Session>(other),
   ai_(other.ai_),
   bytes_received_(bytes_received_) {
-}
+  }
 
 template <typename Session>
 ares::network::handler::receive_after_id<Session>::receive_after_id(receive_after_id&& other) :
   session_base<Session>(std::move(other)),
   ai_(std::move(other.ai_)),
   bytes_received_(std::move(other.bytes_received_)) {
-}
+  }
 
 template <typename Session>
 inline void ares::network::handler::receive_after_id<Session>::operator()(const std::error_code& ec, const size_t sz) {
@@ -295,16 +319,16 @@ inline void ares::network::handler::receive_after_id<Session>::operator()(const 
                                        handler::receive_after_id<Session>(this->session_, std::move(ai_), bytes_received_));
           } else {
             s.log()->error("failed to allocate new buffer in malloc fallback scheme, closing session");
-            s.server_.close_gracefuly(s.shared_from_this());
+            s.close_gracefuly();
           }
         }
       } else {
         s.log()->error("received more bytes than expected, closing session");
-        s.server_.close_gracefuly(s.shared_from_this());
+        s.close_gracefuly();
       }
     } else {
       SPDLOG_TRACE(s.log(), "received zero bytes, terminating session (receiving packet_id)!");
-      s.server_.close_gracefuly(s.shared_from_this());
+      s.close_gracefuly();
     }
   } else {
     s.receiving_ = false;

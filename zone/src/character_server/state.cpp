@@ -23,7 +23,7 @@ namespace ares {
           if (ec.value() == 0) {
             if (pinged_) {
               session_->log()->error("Timeout while waiting for ping response from character server, closing session");
-              session_->server().close_gracefuly(session_);
+              session_->close_gracefuly();
             } else {
               SPDLOG_TRACE(session_->log(), "sending ping to character server");
               session_->emplace_and_send<packet::current<packet::ATHENA_ZH_PING_REQ>>();
@@ -72,24 +72,28 @@ void ares::zone::character_server::state::on_connect() {
 }
 
 void ares::zone::character_server::state::on_connection_reset() {
-  log()->warn("Disconnected from character server, reconnecting");
-  server_.close_abruptly(session_.shared_from_this());
-  session_.set_reconnect_timer(std::chrono::seconds{1}, std::chrono::seconds{5});
+  log()->warn("Disconnected from character server (connection reset)");
+  session_.close_abruptly();
 }
 
 void ares::zone::character_server::state::on_operation_aborted() {
-  on_connection_reset();
+  log()->warn("Operation aborted while communicating with character server");
+  session_.close_abruptly();
 }
 
 void ares::zone::character_server::state::on_eof() {
-  on_connection_reset();
+  log()->warn("Character server closed connection (eof)");
+  session_.close_abruptly();
 }
 
 void ares::zone::character_server::state::on_socket_error() {
-  on_connection_reset();
+  log()->warn("Socket error while communicating with character server");
+  session_.close_abruptly();
 }
 
 void ares::zone::character_server::state::defuse_asio() {
+  if (ping_character_server_timer_)
+    ping_character_server_timer_->cancel();
 }
 
 auto ares::zone::character_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
@@ -122,8 +126,7 @@ void ares::zone::character_server::state::dispatch_packet(void* buf, std::functi
   default:
     {
       log()->error("Unexpected packet_id {:#x} for character server session, disconnecting", *packet_id);
-      server_.close_gracefuly(session_.shared_from_this());
-      session_.connected_ = false;
+      session_.close_gracefuly();
     }
   }
 }

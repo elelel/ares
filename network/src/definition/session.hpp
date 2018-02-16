@@ -33,10 +33,12 @@ ares::network::session<Derived, Server>::session(Server& server,
 
 template <typename Derived, typename Server>
 void ares::network::session<Derived, Server>::defuse() {
+  SPDLOG_TRACE(log(), "network::session defuse");
   connected_ = false;
   if (socket_) socket_->cancel();
   if (idle_timer_) idle_timer_->cancel();
   if (reconnect_timer_) reconnect_timer_->cancel();
+  SPDLOG_TRACE(log(), "network::session calling defuse_asio");
   static_cast<Derived&>(*this).defuse_asio();
 }
 
@@ -104,8 +106,7 @@ inline void ares::network::session<Derived, Server>::copy_and_send(const void* d
     } else {
       // TODO: autogrow, but make sure asio/rxcpp is not using the buffer
       log()->error("send: out of buffer space, session {}", (void*)this);
-      auto s = static_cast<Derived&>(*this).shared_from_this();
-      server_.close_gracefuly(s);
+      close_gracefuly();
     }
   }
 }
@@ -136,8 +137,7 @@ inline void ares::network::session<Derived, Server>::emplace_and_send(Args&&... 
     } else {
       // TODO: autogrow, but make sure asio is not using the buffer
       log()->error("send: out of buffer space, session {}", (void*)this);
-      auto s = static_cast<Derived&>(*this).shared_from_this();
-      server_.close_gracefuly(s);
+      close_gracefuly();
     }
   } else {
     log()->error("Packet send failed, attempted to send over unconnected socket");
@@ -160,6 +160,11 @@ inline auto ares::network::session<Derived, Server>::server() -> Server& {
 }
 
 template <typename Derived, typename Server>
+inline auto ares::network::session<Derived, Server>::send_buf() const -> const elelel::network_buffer& {
+  return send_buf_;
+}
+
+template <typename Derived, typename Server>
 inline void ares::network::session<Derived, Server>::reset_idle_timer() {
   idle_timer_->cancel();
   idle_timer_->expires_at(std::chrono::steady_clock::now() + idle_timer_timeout_);
@@ -168,7 +173,7 @@ inline void ares::network::session<Derived, Server>::reset_idle_timer() {
   idle_timer_->async_wait([s] (const std::error_code& ec) {
       if (ec.value() == 0) {
         SPDLOG_TRACE(s->log(), "Idle timer for session {} fired", (void*)s.get());
-        s->server().close_gracefuly(s);
+        s->close_gracefuly();
       }
     });
 }
@@ -192,6 +197,27 @@ inline void ares::network::session<Derived, Server>::set_reconnect_timer(const s
 }
 
 template <typename Derived, typename Server>
-inline auto ares::network::session<Derived, Server>::send_buf() const -> const elelel::network_buffer& {
-  return send_buf_;
+void ares::network::session<Derived, Server>::close_gracefuly() {
+  connected_ = false;
+  if (close_gracefuly_timer_) {
+    close_gracefuly_timer_->cancel();
+  } else {
+    close_gracefuly_timer_ = std::make_shared<asio::steady_timer>(*io_context());
+  }
+  SPDLOG_TRACE(log(), "Starting close gracefuly timer");
+  close_gracefuly_timer_->expires_at(std::chrono::steady_clock::now() + std::chrono::milliseconds{400});
+  auto s = static_cast<Derived*>(this)->shared_from_this();
+  close_gracefuly_timer_->async_wait(handler::close_gracefuly_timer<Derived>(static_cast<Derived&>(*this).shared_from_this()));
+}
+
+template <typename Derived, typename Server>
+void ares::network::session<Derived, Server>::close_abruptly() {
+  SPDLOG_TRACE(log(), "network::session close_abruptly");
+  connected_ = false;
+  socket_ = nullptr;
+  SPDLOG_TRACE(log(), "network::session socket closed, calling defuse");
+  defuse();
+  if (reconnect_timer_) set_reconnect_timer(reconnect_timer_timeout_, reconnect_timer_timeout_);
+  std::lock_guard<std::mutex> lock(server_.mutex());
+  server_.remove_session(static_cast<Derived*>(this)->shared_from_this());
 }

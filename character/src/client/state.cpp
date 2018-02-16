@@ -15,19 +15,19 @@ void ares::character::client::state::on_connect() {
 }
 
 void ares::character::client::state::on_connection_reset() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::client::state::on_operation_aborted() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::client::state::on_eof() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::client::state::on_socket_error() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::client::state::defuse_asio() {
@@ -63,7 +63,7 @@ void ares::character::client::state::dispatch_packet(void* buf, std::function<vo
   default:
     {
       log()->error("Unexpected packet_id {:#x} for client session while dispatching, disconnecting", *packet_id);
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
       session_.connected_ = false;
       return;
     }

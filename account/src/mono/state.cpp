@@ -13,19 +13,20 @@ void ares::account::mono::state::on_connect() {
 }
 
 void ares::account::mono::state::on_connection_reset() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::account::mono::state::on_operation_aborted() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::account::mono::state::on_eof() {
-  // This can be correct disconnect by client, do not close the authenticated session
+  // This can be correct disconnect by client, do not close the authenticated session for now
+  // TODO: make authenticated AIDs independent from sessions 
 }
 
 void ares::account::mono::state::on_socket_error() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::account::mono::state::defuse_asio() {
@@ -63,7 +64,7 @@ void ares::account::mono::state::dispatch_packet(void* buf, std::function<void(v
   default:
     {
       log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", *packet_id);
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
       session_.connected_ = false;
       return;
     }

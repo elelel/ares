@@ -38,8 +38,7 @@ namespace ares {
             auto user_data = server_.db.user_data_for_login(login);
             if (user_data) {
               SPDLOG_TRACE(log(), "login responder running accept procedure");
-              std::lock_guard<std::mutex> lock(server_.mutex());
-
+              std::unique_lock<std::mutex> l(server_.mutex());
               if (server_.char_servers().size() > 0) {
                 auto found = server_.client_by_aid(user_data->aid);
                 if (!found) {
@@ -89,18 +88,20 @@ namespace ares {
                     c->emplace_and_send<packet::current<packet::ATHENA_AH_KICK_AID>>(user_data->aid);
                   }
                   session_->emplace_and_send<packet::current<packet::SC_NOTIFY_BAN>>(8);  // 08 = Server still recognizes your last login
-                  server_.close_gracefuly(session_->shared_from_this());
-                  server_.close_abruptly(found);                  
+                  session_->close_gracefuly();
+                  // close_abruptly locks server mutex
+                  l.unlock();
+                  found->close_abruptly();
                 }
               } else {
                 log()->warn("Client request login, but no char server is available");
                 session_->emplace_and_send<packet::current<packet::SC_NOTIFY_BAN>>(1);
-                server_.close_gracefuly(session_->shared_from_this()); // 1 = Server closed
+                session_->close_gracefuly(); // 1 = Server closed
               }
             } else {
               log()->error("Could not get user data for login {} from database", login);
               session_->emplace_and_send<packet::current<packet::AC_REFUSE_LOGIN>>(3); // 3 = Rejected from Server
-              server_.close_gracefuly(session_->shared_from_this());
+              session_->close_gracefuly();
             }
           }
 
@@ -110,7 +111,7 @@ namespace ares {
               if (conf.client_version != version) {
                 log()->info("Login attempt failed for login {}, incorrect client version {}, expected {} (login/password auth)", login, version, *conf.client_version);
                 session_->emplace_and_send<packet::current<packet::AC_REFUSE_LOGIN>>(5);
-                server_.close_gracefuly(session_->shared_from_this());
+                session_->close_gracefuly();
                 return;
               }
             }
@@ -119,7 +120,7 @@ namespace ares {
             } else {
               log()->info("Login attempt failed for login {}, incorrect password (login/password auth)", login);
               session_->emplace_and_send<packet::current<packet::AC_REFUSE_LOGIN>>(1); // 1 = Incorrect Password
-              server_.close_gracefuly(session_->shared_from_this());
+              session_->close_gracefuly();
             }
           }
 

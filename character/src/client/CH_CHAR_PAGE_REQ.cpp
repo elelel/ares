@@ -96,7 +96,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
   } else {
     log()->error("Session for AID {} requested char page {} times, probably HC_CHAR_PAGES_NUM, or HC_CHAR_PAGES/CHARACTER_INFO format has changed, disconnecting",
                  c.aid, c.char_page_reqs);
-    server_.close_gracefuly(session_.shared_from_this());
+    session_.close_gracefuly();
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");
 }

@@ -37,17 +37,17 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::A
       } else {
         log()->error("Connection refused for zone server, connection already exists for login {}", p_->login());
         session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
-        server_.close_gracefuly(session_.shared_from_this());
+        session_.close_gracefuly();
       }
     } else {
       log()->error("Connection refused for zone server, wrong password for login {}", p_->login());
       session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
     }
   } else {
     log()->error("Connection refused for zone server, wrong login {}", p_->login());
     session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
-    server_.close_gracefuly(session_.shared_from_this());
+    session_.close_gracefuly();
   }
 
   SPDLOG_TRACE(log(), "handle_packet ATHENA_ZH_LOGIN_REQ: end");

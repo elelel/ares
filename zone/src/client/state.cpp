@@ -21,19 +21,19 @@ void ares::zone::client::state::on_connect() {
 }
 
 void ares::zone::client::state::on_connection_reset() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::zone::client::state::on_operation_aborted() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::zone::client::state::on_eof() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::zone::client::state::on_socket_error() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::zone::client::state::rotate_obf_crypt_key() {
@@ -71,7 +71,7 @@ void ares::zone::client::state::dispatch_packet(void* buf, std::function<void(vo
   default:
     {
       log()->error("Unexpected packet_id {:#x} for client::state session, disconnecting", *packet_id);
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
       session_.connected_ = false;
       return;
     }

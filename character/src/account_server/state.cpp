@@ -23,7 +23,7 @@ namespace ares {
           if (ec.value() == 0) {
             if (pinged_) {
               session_->log()->error("Timeout while waiting for ping response from account server, closing session");
-              session_->server().close_gracefuly(session_);
+              session_->close_gracefuly();
             } else {
               SPDLOG_TRACE(session_->log(), "sending ping to account server");
               session_->emplace_and_send<packet::current<packet::ATHENA_HA_PING_REQ>>();
@@ -36,7 +36,6 @@ namespace ares {
       private:
         session_ptr session_;
         bool pinged_;
-
       };
     }
   }
@@ -80,23 +79,24 @@ void ares::character::account_server::state::on_connect() {
 }
 
 void ares::character::account_server::state::on_connection_reset() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::account_server::state::on_operation_aborted() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::account_server::state::on_eof() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::account_server::state::on_socket_error() {
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::character::account_server::state::defuse_asio() {
-  ping_account_server_timer_->cancel();
+  if (ping_account_server_timer_)
+    ping_account_server_timer_->cancel();
   
   //send_aids_timer.cancel();
   //send_user_count_timer.cancel();
@@ -134,7 +134,7 @@ void ares::character::account_server::state::dispatch_packet(void* buf, std::fun
   default:
     {
       log()->error("Unexpected packet_id {:#x} for account server session while dispatching, disconnecting", *packet_id);
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
       session_.connected_ = false;
       return;
     }

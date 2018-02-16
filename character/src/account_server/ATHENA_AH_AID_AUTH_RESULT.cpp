@@ -25,10 +25,10 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
     } else {
       log()->warn("Aid {} is not authenticated by account server, closing session!", p_->aid());
       s->emplace_and_send<packet::current<packet::AC_REFUSE_LOGIN>>(8); // Rejected by server
-      server_.close_gracefuly(s);
+      s->close_gracefuly();
     }
   } else {
     log()->error("ATHENA_AH_AID_AUTH_RESULT account server rejected login request. Check login/password configuration");
-    server_.close_gracefuly(s);
+    s->close_gracefuly();
   }
 }

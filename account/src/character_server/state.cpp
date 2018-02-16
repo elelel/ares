@@ -18,25 +18,24 @@ void ares::account::character_server::state::on_connect() {
 }
 
 void ares::account::character_server::state::on_connection_reset() {
-  SPDLOG_TRACE(log(), "character_server::state on_connection_reset");
-  log()->warn("Character server disconnected, closing it's session");
+  log()->warn("Disconnected from character server (connection reset)");
   // TODO: set offline aids
-  server_.close_abruptly(session_.shared_from_this());
+  session_.close_abruptly();
 }
 
 void ares::account::character_server::state::on_operation_aborted() {
-  SPDLOG_TRACE(log(), "character_server::state on_operation_aborted, forwarding to connection reset");
-  on_connection_reset();
+  log()->warn("Operation aborted while communicating with character server");
+  session_.close_abruptly();
 }
 
 void ares::account::character_server::state::on_eof() {
-  SPDLOG_TRACE(log(), "character_server::state on_eof. forwarding to connection reset");
-  on_connection_reset();
+  log()->warn("Character server closed connection (eof)");
+  session_.close_abruptly();
 }
 
 void ares::account::character_server::state::on_socket_error() {
-  log()->warn("Character socket error, closing it's session");
-  server_.close_abruptly(session_.shared_from_this());
+  log()->warn("Socket error while communicating with character server");
+  session_.close_abruptly();
 }
 
 void ares::account::character_server::state::defuse_asio() {
@@ -78,7 +77,7 @@ void ares::account::character_server::state::dispatch_packet(void* buf, std::fun
   default:
     {
       log()->error("Unexpected packet_id {:#x} for mono session, disconnecting", *packet_id);
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
       session_.connected_ = false;
       return;
     }

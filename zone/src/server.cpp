@@ -7,10 +7,10 @@ ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
                            const ares::zone::config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   conf_(conf),
-  world_(*this),
+  //  world_(*this),
   db(log, *conf.postgres) {
   log_->set_level(spdlog::level::trace);
-  world::initialize(world_);
+  //  world::initialize(world_);
 }
 
 void ares::zone::server::start() {

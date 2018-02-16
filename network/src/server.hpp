@@ -42,8 +42,7 @@ namespace ares {
       */
       //      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
       
-      void close_gracefuly(session_ptr s);
-      void close_abruptly(session_ptr s);
+      void remove_session(session_ptr s);
 
       void run();
 
@@ -76,11 +75,6 @@ namespace ares {
       std::vector<std::unique_ptr<std::thread>> thread_pool_;
       std::set<std::shared_ptr<acceptor>> acceptors_;
 
-      // RX stuff
-      std::thread hold_rx_;
-      
-      rxcpp::rxsub::subject<session_ptr> close_gracefuly_stream;
-      rxcpp::rxsub::subject<session_ptr> close_abruptly_stream;
     };
   }
 }

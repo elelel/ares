@@ -70,9 +70,12 @@ namespace ares {
        */
       std::shared_ptr<spdlog::logger> log() const;
 
-      /*! Terminates pending Asio operations that might hold reference to this session
+      /*! Closes session gracefuly (with a delay)
        */
-      void defuse();
+      void close_gracefuly();
+
+      /*! closes socket immediately and removes session from server */
+      void close_abruptly();
 
       /*! Starts a timer that periodically checks if the session is connected. If not, intiates connection
        */
@@ -83,6 +86,7 @@ namespace ares {
 
     private:
       friend struct handler::reconnect_timer<Derived>;
+      friend struct handler::close_gracefuly_timer<Derived>;
       friend struct handler::session_base<Derived>;
       friend struct handler::send<Derived>;
       friend struct handler::receive_id<Derived>;
@@ -95,6 +99,10 @@ namespace ares {
       
       void send_wake_up(const void* data_start);
       
+      /*! Terminates pending Asio operations that might hold reference to this session
+       */
+      void defuse();
+
     protected:
       elelel::network_buffer send_buf_;
       std::mutex send_mutex_;
@@ -119,7 +127,7 @@ namespace ares {
       std::chrono::seconds idle_timer_timeout_;
       std::shared_ptr<asio::steady_timer> reconnect_timer_;
       std::chrono::seconds reconnect_timer_timeout_;
-
+      std::shared_ptr<asio::steady_timer> close_gracefuly_timer_;
     };
   }
 }

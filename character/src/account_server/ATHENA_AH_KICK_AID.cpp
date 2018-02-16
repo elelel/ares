@@ -10,7 +10,7 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
   }
   if (s != nullptr) {
     // TODO: Notify map servers to kick the user
-    server_.close_gracefuly(s);
+    s->close_gracefuly();
   }
   SPDLOG_TRACE(log(), "ATHENA_AH_KICK_AID: end");
 }

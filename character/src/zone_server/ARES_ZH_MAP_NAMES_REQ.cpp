@@ -26,7 +26,7 @@ void ares::character::zone_server::packet_handler<ares::packet::current<ares::pa
       SPDLOG_TRACE(log(), "Sent maps batch of {} bytes to zone server", sz);
     } else {
       log()->error("Can't send maps to zone server: buffer size limits are too low, closing session");
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
     }
   } else {
     SPDLOG_TRACE(log(), "No more maps to send to zone server");

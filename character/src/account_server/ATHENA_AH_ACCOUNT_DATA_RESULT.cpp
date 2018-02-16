@@ -73,7 +73,7 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
       s->emplace_and_send<packet::current<packet::HC_BLOCK_CHARACTER>>();
     } else {
       log()->error("Could not create account data record for aid {} in SQL database, closing session", p_->aid());
-      server_.close_gracefuly(s);
+      s->close_gracefuly();
     }
   } else {
     log()->warn("Received account data from account server for aid {}, but no session with such aid found", p_->aid());

@@ -26,16 +26,16 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                                                               (*found_zs)->as_zone_server().port);
       } else {
         log()->warn("AID {} requested map {} which is not found in any active zone servers", c.aid, ci->location.map_name);
-        server_.close_gracefuly(session_.shared_from_this());
+        session_.close_gracefuly();
       }
     } else {
       log()->warn("AID {} requested slot number {}, but char info is not found in database", c.aid, p_->CharNum());
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
     }
   } else {
     log()->warn("AID {} requested slot number {} above playable slots {}", c.aid, p_->CharNum(), c.playable_slots);
     // TODO: Send slot is not usable
-    server_.close_gracefuly(session_.shared_from_this());
+    session_.close_gracefuly();
   }
   SPDLOG_TRACE(log(), "CH_SELECT_CHAR end");
 }

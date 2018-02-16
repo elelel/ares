@@ -32,6 +32,16 @@ namespace ares {
       };
 
       template <typename Session>
+      struct close_gracefuly_timer : session_base<Session> {
+        close_gracefuly_timer(std::shared_ptr<Session> s);
+        close_gracefuly_timer(const close_gracefuly_timer& other);
+        close_gracefuly_timer(close_gracefuly_timer&& other);
+
+        void operator()(const std::error_code& ec);
+      };
+      
+
+      template <typename Session>
       struct send : session_base<Session> {
         send(std::shared_ptr<Session> s);
         send(const send& other);

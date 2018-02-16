@@ -12,7 +12,7 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
     // TODO: start timer with ATHENA_ZH_PING_REQ
   } else {
     log()->error("Failed to connect to character server, login result ErrorCode {}", p_->ErrorCode());
-    server_.close_gracefuly(session_.shared_from_this());
+    session_.close_gracefuly();
   }
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HZ_LOGIN_RESULT: end");
 }

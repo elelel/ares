@@ -9,7 +9,7 @@ void ares::account::character_server::packet_handler<ares::packet::current<ares:
     s->emplace_and_send<packet::current<packet::ATHENA_AH_PING_ACK>>();
   } else {
     log()->warn("Char server packet ATHENA_HA_LOGIN_REQ received from session not listed as character server, closing.");
-    server_.close_gracefuly(s);
+    session_.close_gracefuly();
   }
 
   SPDLOG_TRACE(log(), "ATHENA_HA_PING_REQ end");

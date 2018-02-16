@@ -44,18 +44,18 @@ void ares::account::mono::packet_handler<ares::packet::current<ares::packet::ATH
         log()->warn("Got login request from character server with login '{}', name '{}', but connection for this login already exist (existing server name '{}'), closing both sessions",
                     p_->server_name(), p_->login(), (*existing)->as_char_server().name);
         session_.emplace_and_send<packet::current<packet::ATHENA_AH_LOGIN_RESULT>>(3);
-        server_.close_gracefuly(*existing);
-        server_.close_gracefuly(session_.shared_from_this());
+        (*existing)->close_gracefuly();
+        session_.close_gracefuly();
       }
     } else {
       log()->error("Connection refused for char server '{}', wrong password", p_->server_name());
       session_.emplace_and_send<packet::current<packet::ATHENA_AH_LOGIN_RESULT>>(3);
-      server_.close_gracefuly(session_.shared_from_this());
+      session_.close_gracefuly();
     }
   } else {
     log()->error("Connection refused for char server '{}', wrong login", p_->server_name());
     session_.emplace_and_send<packet::current<packet::ATHENA_AH_LOGIN_RESULT>>(3);
-    server_.close_gracefuly(session_.shared_from_this());
+    session_.close_gracefuly();
   }
 
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HA_LOGIN_REQ: end");
