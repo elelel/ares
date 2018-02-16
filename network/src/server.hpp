@@ -9,7 +9,6 @@
 #include <asio/ts/executor.hpp>
 #include <asio/ts/socket.hpp>
 #include <asio/ts/net.hpp>
-#include <rxcpp/rx.hpp>
 
 #include "acceptor.hpp"
 
@@ -45,8 +44,6 @@ namespace ares {
       void remove_session(session_ptr s);
 
       void run();
-
-      decltype(rxcpp::observe_on_event_loop()) server_rxthreads = rxcpp::observe_on_event_loop();
 
     protected:
 

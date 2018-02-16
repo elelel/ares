@@ -21,7 +21,7 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::C
   if (client &&
       (p_->AuthCode() == client->as_client().auth_code1) &&
       ((int32_t)p_->userLevel() == client->as_client().auth_code2)) {
-    // TODO:: from zone server
+    // TODO: from zone server
   } else {
     // Login from account server
     SPDLOG_TRACE(log(), "Sending ATHENA_HA_AID_AUTH_REQ");

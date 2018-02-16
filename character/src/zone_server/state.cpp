@@ -44,6 +44,7 @@ auto ares::character::zone_server::state::allocate(const uint16_t packet_id) -> 
     ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_GAME_RATES);
     ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_PING_REQ);
     ARES_ALLOCATE_PACKET_CASE(ARES_ZH_MAP_NAMES_REQ);
+    ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_CID_AUTH_REQ);
   default:
     { // Packet id is not known to this server under selected packet set
       log()->error("Unexpected packet_id {:#x} for zone server session while allocating", packet_id);
@@ -66,6 +67,7 @@ void ares::character::zone_server::state::dispatch_packet(void* buf, std::functi
     ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_GAME_RATES);
     ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_PING_REQ);
     ARES_DISPATCH_PACKET_CASE(ARES_ZH_MAP_NAMES_REQ);
+    ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_CID_AUTH_REQ);
   default:
     {
       log()->error("Unexpected packet_id {:#x} for zone server session while dispatching, disconnecting", *packet_id);

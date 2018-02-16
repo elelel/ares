@@ -85,12 +85,3 @@ template <typename Derived, typename Session>
 inline std::mutex& ares::network::server<Derived, Session>::mutex() {
   return mutex_;
 }
-
-/*
-template <typename Derived, typename Session>
-template <typename F>
-inline void ares::network::server<Derived, Session>::on_rxthreads(F f) {
-  using namespace rxcpp;
-  observable<>::empty<int>(server_rxthreads).subscribe(make_subscriber<int>([] (int) {}, f));
-}
-*/                         

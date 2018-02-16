@@ -3,8 +3,11 @@
 
 void ares::account::character_server::packet_handler<ares::packet::current<ares::packet::ATHENA_HA_AID_AUTH_REQ>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HA_AID_AUTH_REQ: begin");
-  std::lock_guard<std::mutex> lock(server_.mutex());
-  auto found = server_.client_by_aid(p_->aid());
+  session_ptr found;
+  {
+    std::lock_guard<std::mutex> lock(server_.mutex());
+    found = server_.client_by_aid(p_->aid());
+  }
   if (found) {
     const auto& data = found->as_client();
     if ((data.auth_code1 == p_->auth_code1()) &&

@@ -40,6 +40,7 @@ set(SOURCES
   ${SRC}/zone_server/ATHENA_ZH_GAME_RATES.cpp
   ${SRC}/zone_server/ATHENA_ZH_PING_REQ.cpp
   ${SRC}/zone_server/ARES_ZH_MAP_NAMES_REQ.cpp
+  ${SRC}/zone_server/ATHENA_ZH_CID_AUTH_REQ.cpp
   ${SRC}/database/database.cpp
   ${SRC}/database/account_create.cpp
   ${SRC}/database/account_storage.cpp

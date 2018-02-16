@@ -19,6 +19,8 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                      return false;
                                    });
       if (found_zs != server_.zone_servers().end()) {
+        // Store selected char_info
+        if (!state_.char_info) { state_.char_info = std::move(ci); };
         SPDLOG_TRACE(log(), "map server found, sendint NOTIFY_ZONESVR to client");
         session_.emplace_and_send<packet::current<packet::HC_NOTIFY_ZONESVR>>(ci->info.cid,
                                                                               ci->location.map_name + ".gat",

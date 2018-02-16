@@ -5,8 +5,6 @@
 #include "config.hpp"
 #include "session.hpp"
 #include "database/database.hpp"
-#include "world/events.hpp"
-//#include "world/world.hpp"
 
 namespace ares {
   namespace zone {
@@ -35,7 +33,7 @@ namespace ares {
       */
       void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
 
-      /*! Removes a session from current sessions list. Should be called only from RX interface
+      /*! Removes a session from current sessions list
        \param s session to remove */
       void remove(session_ptr s);
 
@@ -48,13 +46,13 @@ namespace ares {
       session_ptr char_server_;
       std::set<session_ptr> mono_;
 
+      std::map<int32_t, std::pair<session_ptr, std::chrono::time_point<std::chrono::steady_clock>>> auth_aid_requests_;
+      
       const config& conf_;
-      //      zone::world world_;
       
     public:
       database db;
 
-      rxcpp::rxsub::subject<event::add_map> add_map_stream;
     };
   }
 }

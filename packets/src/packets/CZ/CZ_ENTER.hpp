@@ -8,7 +8,7 @@ struct type<PacketSet, CZ_ENTER> {
                       const int32_t AuthCode,
                       const uint32_t clientTime,
                       const uint8_t Sex) {
-    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
+    PacketType = packet_sets::id_of<packet_set, packet_name>::value;
     AID_ = AID;
     GID_ = GID;
     AuthCode_ = AuthCode;
@@ -16,7 +16,7 @@ struct type<PacketSet, CZ_ENTER> {
     Sex_ = Sex;
   }
 
-  explicit type<PacketSet, CZ_ENTER>(const uint32_t AID,
+  inline explicit type<PacketSet, CZ_ENTER>(const uint32_t AID,
                       const uint32_t GID,
                       const int32_t AuthCode,
                       const uint32_t clientTime,

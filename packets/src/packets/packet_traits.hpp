@@ -97,6 +97,8 @@ namespace ares {
     struct ATHENA_ZH_ONLINE_USERS {};
     struct ATHENA_ZH_USER_COUNT {};
     struct ATHENA_ZH_GAME_RATES {};
+    struct ATHENA_ZH_CID_AUTH_REQ {};
+    struct ATHENA_HZ_CID_AUTH_FAILED {};
 
     // Ares
     struct ARES_ZH_MAP_NAMES_REQ {};

@@ -61,6 +61,8 @@ namespace ares {
 #include "ATHENA/ATHENA_ZH_USER_COUNT.hpp"    
 #include "ATHENA/ATHENA_ZH_GAME_RATES.hpp"    
 #include "ATHENA/ATHENA_ZH_MAP_NAMES.hpp"
+#include "ATHENA/ATHENA_ZH_CID_AUTH_REQ.hpp"
+#include "ATHENA/ATHENA_HZ_CID_AUTH_FAILED.hpp"
 #include "ARES/ARES_ZH_MAP_NAMES_REQ.hpp"
 #include "ARES/ARES_HZ_MAP_NAMES.hpp"
 

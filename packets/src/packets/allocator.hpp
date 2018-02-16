@@ -41,7 +41,6 @@ namespace ares {
     struct send_buf_allocator : pool_allocator<64 * 1024> {
     };
 
-
     
     template <typename Packet>
     std::shared_ptr<Packet> make_shared_packet(void* buf, std::function<void(void*)> deallocator) {
