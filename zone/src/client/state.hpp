@@ -25,14 +25,15 @@ namespace ares {
         void on_operation_aborted();
         void on_eof();
         void on_socket_error();
-        void on_packet_processed();
         void defuse_asio();
 
-        packet::alloc_info allocate(const uint16_t packet_id);
-        void dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator);
+        packet::alloc_info allocate(uint16_t& packet_id);
+        void dispatch_packet(void* buf, std::function<void(void*)> deallocator);
         
         std::shared_ptr<spdlog::logger> log() const;
         const config& conf() const;
+        
+        void rotate_obf_crypt_key();
         
         // Data
         /*! Account ID */
@@ -46,6 +47,7 @@ namespace ares {
       private:
         server& server_;
         session& session_;
+        std::optional<uint32_t> obf_crypt_key_;
       };
     }
   }

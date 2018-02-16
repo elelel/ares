@@ -89,9 +89,6 @@ void ares::zone::character_server::state::on_socket_error() {
   on_connection_reset();
 }
 
-void ares::zone::character_server::state::on_packet_processed() {
-}
-
 void ares::zone::character_server::state::defuse_asio() {
 }
 
@@ -115,15 +112,16 @@ auto ares::zone::character_server::state::allocate(const uint16_t packet_id) -> 
   }
 }
 
-void ares::zone::character_server::state::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
-  switch (packet_id) {
+void ares::zone::character_server::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+  switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_LOGIN_RESULT);
     ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_PRIVATE_MSG_NAME);
     ARES_DISPATCH_PACKET_CASE(ATHENA_HZ_PING_ACK);
     ARES_DISPATCH_PACKET_CASE(ARES_HZ_MAP_NAMES);
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for character server session, disconnecting", packet_id);
+      log()->error("Unexpected packet_id {:#x} for character server session, disconnecting", *packet_id);
       server_.close_gracefuly(session_.shared_from_this());
       session_.connected_ = false;
     }

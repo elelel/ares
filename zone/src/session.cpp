@@ -68,14 +68,13 @@ ARES_VARIANT_EVENT_DISPATCHER(on_connection_reset);
 ARES_VARIANT_EVENT_DISPATCHER(on_operation_aborted);
 ARES_VARIANT_EVENT_DISPATCHER(on_eof);
 ARES_VARIANT_EVENT_DISPATCHER(on_socket_error);
-ARES_VARIANT_EVENT_DISPATCHER(on_packet_processed);
 ARES_VARIANT_EVENT_DISPATCHER(defuse_asio);
 
 #undef ARES_VARIANT_EVENT_DISPATCHER
 
-auto ares::zone::session::allocate(const uint16_t packet_id) -> packet::alloc_info {
+auto ares::zone::session::allocate(uint16_t& packet_id) -> packet::alloc_info {
   struct visitor {
-    visitor(session& s, const uint16_t packet_id) :
+    visitor(session& s, uint16_t& packet_id) :
       s(s), packet_id(packet_id) {};
 
     packet::alloc_info operator()(const mono::state&) {
@@ -92,35 +91,34 @@ auto ares::zone::session::allocate(const uint16_t packet_id) -> packet::alloc_in
 
   private:
     session& s;
-    const uint16_t packet_id;
+    uint16_t& packet_id;
   };
 
   return std::visit(visitor(*this, packet_id), variant());
 }
 
-void ares::zone::session::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
+void ares::zone::session::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
   struct visitor {
-    visitor(session& s, const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) :
-      s(s), packet_id(packet_id), buf(buf), deallocator(deallocator) {};
+    visitor(session& s, void* buf, std::function<void(void*)> deallocator) :
+      s(s),  buf(buf), deallocator(deallocator) {};
 
     void operator()(const mono::state&) {
-      s.as_mono().dispatch_packet(packet_id, buf, deallocator);
+      s.as_mono().dispatch_packet(buf, deallocator);
     }
 
     void operator()(const character_server::state&) {
-      s.as_char_server().dispatch_packet(packet_id, buf, deallocator);
+      s.as_char_server().dispatch_packet(buf, deallocator);
     }
     
     void operator()(const client::state&) {
-      s.as_client().dispatch_packet(packet_id, buf, deallocator);
+      s.as_client().dispatch_packet(buf, deallocator);
     }
 
   private:
     session& s;
-    const uint16_t packet_id;
     void* buf;
     std::function<void(void*)> deallocator;
   };
 
-  return std::visit(visitor(*this, packet_id, buf, deallocator), variant());
+  return std::visit(visitor(*this, buf, deallocator), variant());
 }

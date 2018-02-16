@@ -20,21 +20,21 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/main.cpp
-  ${SRC}/server.cpp
-  ${SRC}/session.cpp
-  ${SRC}/mono/state.cpp
+#  ${SRC}/world/world.cpp
+  ${SRC}/mono/state.cpp  
   ${SRC}/mono/CZ_ENTER.cpp
+  ${SRC}/character_server/state.cpp
   ${SRC}/character_server/ARES_HZ_MAP_NAMES.cpp
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
-  ${SRC}/character_server/state.cpp
   ${SRC}/client/state.cpp
+  ${SRC}/main.cpp
+  ${SRC}/server.cpp
+  ${SRC}/session.cpp
   ${SRC}/config.cpp
   ${SRC}/database/database.cpp
   ${SRC}/database/map_index.cpp
-
   )
 
 if (NOT TARGET common) 

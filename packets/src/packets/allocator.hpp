@@ -17,6 +17,7 @@ namespace ares {
     template <size_t Size>
     struct memory_pool {
       inline static foonathan::memory::memory_pool<foonathan::memory::node_pool>& instance() {
+        // TODO: Should I add align difference to Size or foonathan does that for me?
         static foonathan::memory::memory_pool<foonathan::memory::node_pool> pool(Size, Size*32);
         return pool;
       }

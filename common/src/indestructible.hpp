@@ -25,6 +25,10 @@ namespace ares {
     inline bool operator==(const indestructible<T>& other) {
       return p_ == other.p_;
     }
+
+    inline bool operator==(const bool& b) {
+      return p_ != nullptr;
+    }
     
     /*! Returns reference to the contained object */
     inline T& operator*() {
@@ -48,6 +52,7 @@ namespace ares {
     /*! Deallocates memory for the contained object on demand (without a call to destructor) */
     void free() {
       free(p_);
+      p_ = nullptr;
     }
     
     friend struct make_indestructible;

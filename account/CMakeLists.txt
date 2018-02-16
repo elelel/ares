@@ -60,7 +60,7 @@ set(INCLUDE_DIRS
   ${DATABASE}/include
   ${CONTRIB}/asio/asio/include
   ${CONTRIB}/spdlog/include
-  ${CONTRIB}/json
+  ${CONTRIB}/json/include
   ${CONTRIB}/network_buffer/include
   ${CONTRIB}/RxCpp/Rx/v2/src
   ${CONTRIB}/memory/include

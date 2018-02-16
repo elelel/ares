@@ -28,9 +28,6 @@ void ares::account::mono::state::on_socket_error() {
   server_.close_abruptly(session_.shared_from_this());
 }
 
-void ares::account::mono::state::on_packet_processed() {
-}
-
 void ares::account::mono::state::defuse_asio() {
 }
 
@@ -55,8 +52,9 @@ auto ares::account::mono::state::allocate(const uint16_t packet_id) -> packet::a
   }
 }
 
-void ares::account::mono::state::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
-  switch (packet_id) {
+void ares::account::mono::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+  switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(CA_EXE_HASHCHECK);
     ARES_DISPATCH_PACKET_CASE(CA_SSO_LOGIN_REQ::login_password);
     ARES_DISPATCH_PACKET_CASE(CA_SSO_LOGIN_REQ::token_auth);
@@ -64,9 +62,10 @@ void ares::account::mono::state::dispatch_packet(const uint16_t packet_id, void*
     ARES_DISPATCH_PACKET_CASE(ATHENA_HA_PING_REQ);
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", packet_id);
+      log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", *packet_id);
       server_.close_gracefuly(session_.shared_from_this());
       session_.connected_ = false;
+      return;
     }
   }
 }

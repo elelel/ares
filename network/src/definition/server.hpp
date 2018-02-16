@@ -42,6 +42,7 @@ inline void ares::network::server<Derived, Session>::run() {
     thread_pool_.push_back(std::move(th));
   }
 
+  // Could use plain static instead of indestructible here
   using namespace rxcpp;
   using namespace rxcpp::rxo;
   auto close_gracefuly = make_indestructible::from_move_constructor
@@ -54,27 +55,28 @@ inline void ares::network::server<Derived, Session>::run() {
          s->defuse();
          s->socket_->close();
        })
-     | delay(std::chrono::seconds{1})
+     | delay(std::chrono::milliseconds{300})
      | publish()
      | ref_count()
      );
-
   close_gracefuly->subscribe(close_abruptly_stream.get_subscriber());
     
   auto close_abruptly = make_indestructible::from_move_constructor
     (close_abruptly_stream.get_observable().observe_on(server_rxthreads)
      | tap([this] (session_ptr s) {
          SPDLOG_TRACE(log(), "RX close_abruptly {}", (void*)s.get());
-         std::lock_guard<std::mutex> lock(mutex_);
+         s->defuse();
          s->socket_->close();
+         std::lock_guard<std::mutex> lock(mutex_);
          if (s->reconnect_timer_)
            s->set_reconnect_timer(s->reconnect_timer_timeout_, s->reconnect_timer_timeout_);
          SPDLOG_TRACE(log(), "Removing session {}, ref count {}", (void*)s.get(), s.use_count());
          s->server_.remove(s);
        })
      | publish()
-     | connect_forever();
+
      );
+  close_abruptly->connect_forever();
 
   // TODO: convert this to something normal like CV wait
   while (true) {

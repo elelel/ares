@@ -181,17 +181,17 @@ inline void ares::network::handler::receive_id<Session>::operator()(const std::e
         // receiving packet_id
         need_more_ -= sz;
         if (need_more_ == 0) {
-          // Allocate memory buffer of the type suitable for this packet type and place packet_id into memory chunk's start
+          // Deobfuscate packet_id if needed, allocate memory buffer
           packet::alloc_info ai = s.allocate(packet_id);
           if (ai.buf != nullptr) {
+            // Place packet_id into memory chunk's start
             auto pck_id = (decltype(s.packet_id_recv_buf_)*)ai.buf;
             *pck_id = packet_id;
             if (ai.expected_packet_sz > sizeof(packet_id)) {
               s.socket_->async_read_some(asio::buffer((void*)((uintptr_t)ai.buf + sizeof(packet_id)), ai.expected_packet_sz - sizeof(packet_id)),
                                          handler::receive_after_id(this->session_, std::move(ai), sizeof(packet_id)));
             } else {
-              s.dispatch_packet(packet_id, ai.buf, ai.deallocator);
-              s.on_packet_processed();
+              s.dispatch_packet(ai.buf, ai.deallocator);
               s.receiving_ = false;
               s.receive();
             }
@@ -270,9 +270,7 @@ inline void ares::network::handler::receive_after_id<Session>::operator()(const 
       }
       need_more = need_more > need_more_dyn_length ? need_more : need_more_dyn_length;
       if (need_more == 0) {
-        auto packet_id = (uint16_t*)ai_.buf;
-        s.dispatch_packet(*packet_id, ai_.buf, ai_.deallocator);
-        s.on_packet_processed();
+        s.dispatch_packet(ai_.buf, ai_.deallocator);
         s.receiving_ = false;
         s.receive();
       } else if (need_more > 0) {

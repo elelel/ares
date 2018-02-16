@@ -7,8 +7,10 @@ ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
                            const ares::zone::config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   conf_(conf),
+  world_(*this),
   db(log, *conf.postgres) {
   log_->set_level(spdlog::level::trace);
+  world::initialize(world_);
 }
 
 void ares::zone::server::start() {
@@ -32,11 +34,6 @@ void ares::zone::server::start() {
 void ares::zone::server::create_session(std::shared_ptr<asio::ip::tcp::socket> socket) {
   SPDLOG_TRACE(log_, "zone::server::create_session");
   auto s = std::make_shared<session>(*this, std::optional<asio::ip::tcp::endpoint>{}, socket, std::chrono::seconds{120});
-  if (conf_.obfuscation_key) {
-    const auto& k = *conf_.obfuscation_key;
-    s->obf_crypt_key.emplace(std::get<0>(k) * std::get<1>(k) + std::get<2>(k));
-    SPDLOG_TRACE(log_, "Set new session obf_crypt_key to {:x}", *s->obf_crypt_key);
-  }
   add(s);
   s->receive();
   s->reset_idle_timer();      

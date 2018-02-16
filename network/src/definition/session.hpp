@@ -163,9 +163,8 @@ template <typename Derived, typename Server>
 inline void ares::network::session<Derived, Server>::reset_idle_timer() {
   idle_timer_->cancel();
   idle_timer_->expires_at(std::chrono::steady_clock::now() + idle_timer_timeout_);
-  SPDLOG_TRACE(log(), "Idle timer creating session copy");
+  SPDLOG_TRACE(log(), "Idle timer - recreating");
   auto s = static_cast<Derived*>(this)->shared_from_this();
-  SPDLOG_TRACE(log(), "Idle timer created session copy");
   idle_timer_->async_wait([s] (const std::error_code& ec) {
       if (ec.value() == 0) {
         SPDLOG_TRACE(s->log(), "Idle timer for session {} fired", (void*)s.get());

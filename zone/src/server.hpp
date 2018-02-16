@@ -5,6 +5,8 @@
 #include "config.hpp"
 #include "session.hpp"
 #include "database/database.hpp"
+#include "world/events.hpp"
+#include "world/world.hpp"
 
 namespace ares {
   namespace zone {
@@ -47,13 +49,12 @@ namespace ares {
       std::set<session_ptr> mono_;
 
       const config& conf_;
+      zone::world world_;
       
     public:
       database db;
 
-    private:
-
-
+      rxcpp::rxsub::subject<event::add_map> add_map_stream;
     };
   }
 }

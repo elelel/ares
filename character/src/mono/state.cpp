@@ -30,9 +30,6 @@ void ares::character::mono::state::on_socket_error() {
   server_.close_abruptly(session_.shared_from_this());
 }
 
-void ares::character::mono::state::on_packet_processed() {
-}
-
 void ares::character::mono::state::defuse_asio() {
 }
 
@@ -54,16 +51,17 @@ auto ares::character::mono::state::allocate(const uint16_t packet_id) -> packet:
   }
 }
 
-void ares::character::mono::state::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
-  SPDLOG_TRACE(log(), "account_server::state::dispatch() switching on PacketType = {0:#x}", packet_id);
-  switch (packet_id) {
+void ares::character::mono::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+  switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(CH_ENTER);
     ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_LOGIN_REQ);
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for mono session while dispatching, disconnecting", packet_id);
+      log()->error("Unexpected packet_id {:#x} for mono session while dispatching, disconnecting", *packet_id);
       server_.close_gracefuly(session_.shared_from_this());
       session_.connected_ = false;
+      return;
     }
   }
 }

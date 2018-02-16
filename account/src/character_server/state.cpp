@@ -18,25 +18,25 @@ void ares::account::character_server::state::on_connect() {
 }
 
 void ares::account::character_server::state::on_connection_reset() {
+  SPDLOG_TRACE(log(), "character_server::state on_connection_reset");
   log()->warn("Character server disconnected, closing it's session");
   // TODO: set offline aids
   server_.close_abruptly(session_.shared_from_this());
 }
 
 void ares::account::character_server::state::on_operation_aborted() {
+  SPDLOG_TRACE(log(), "character_server::state on_operation_aborted, forwarding to connection reset");
   on_connection_reset();
 }
 
 void ares::account::character_server::state::on_eof() {
+  SPDLOG_TRACE(log(), "character_server::state on_eof. forwarding to connection reset");
   on_connection_reset();
 }
 
 void ares::account::character_server::state::on_socket_error() {
   log()->warn("Character socket error, closing it's session");
   server_.close_abruptly(session_.shared_from_this());
-}
-
-void ares::account::character_server::state::on_packet_processed() {
 }
 
 void ares::account::character_server::state::defuse_asio() {
@@ -65,8 +65,9 @@ auto ares::account::character_server::state::allocate(const uint16_t packet_id) 
   }
 }
 
-void ares::account::character_server::state::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
-  switch (packet_id) {
+void ares::account::character_server::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+  switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(ATHENA_HA_PING_REQ);
     ARES_DISPATCH_PACKET_CASE(ATHENA_HA_ONLINE_AIDS);
     ARES_DISPATCH_PACKET_CASE(ATHENA_HA_USER_COUNT);
@@ -76,9 +77,10 @@ void ares::account::character_server::state::dispatch_packet(const uint16_t pack
     ARES_DISPATCH_PACKET_CASE(ATHENA_HA_SET_AID_OFFLINE);
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for mono session, disconnecting", packet_id);
+      log()->error("Unexpected packet_id {:#x} for mono session, disconnecting", *packet_id);
       server_.close_gracefuly(session_.shared_from_this());
       session_.connected_ = false;
+      return;
     }
   }
 }

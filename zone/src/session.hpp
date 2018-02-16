@@ -42,16 +42,12 @@ namespace ares {
       void on_packet_processed();
       void defuse_asio();
 
-      packet::alloc_info allocate(const uint16_t packet_id);
-      void dispatch_packet(const uint16_t packet_id,
-                           void* buf,
+      packet::alloc_info allocate(uint16_t& packet_id);
+      void dispatch_packet(void* buf,
                            std::function<void(void*)> deallocator);
 
     private:
       state_variant session_state_;
-
-    public:
-      std::optional<uint32_t> obf_crypt_key;
 
     };
 

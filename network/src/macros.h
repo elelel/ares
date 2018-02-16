@@ -38,7 +38,7 @@
     auto pck = packet::make_shared_packet<packet_type>(buf, deallocator); \
     packet_handler<packet_type> h(server_, session_, *this, pck);       \
     h();                                                                \
-    return;                                                             \
+    break;                                                              \
   }                                                                     \
 
 

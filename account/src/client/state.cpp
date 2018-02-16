@@ -30,9 +30,6 @@ void ares::account::client::state::on_eof() {
 void ares::account::client::state::on_socket_error() {
 }
 
-void ares::account::client::state::on_packet_processed() {
-}
-
 void ares::account::client::state::defuse_asio() {
 }
 
@@ -52,13 +49,15 @@ auto ares::account::client::state::allocate(const uint16_t packet_id) -> packet:
   }
 }
 
-void ares::account::client::state::dispatch_packet(const uint16_t packet_id, void* /*buf*/, std::function<void(void*)> /*deallocator*/) {
-  switch (packet_id) {
+void ares::account::client::state::dispatch_packet(void* buf, std::function<void(void*)> /*deallocator*/) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+  switch (*packet_id) {
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", packet_id);
+      log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", *packet_id);
       server_.close_gracefuly(session_.shared_from_this());
       session_.connected_ = false;
+      return;
     }
   }
 }

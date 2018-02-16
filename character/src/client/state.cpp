@@ -30,9 +30,6 @@ void ares::character::client::state::on_socket_error() {
   server_.close_abruptly(session_.shared_from_this());
 }
 
-void ares::character::client::state::on_packet_processed() {
-}
-
 void ares::character::client::state::defuse_asio() {
 }
 
@@ -56,18 +53,19 @@ auto ares::character::client::state::allocate(const uint16_t packet_id) -> packe
   }
 }
 
-void ares::character::client::state::dispatch_packet(const uint16_t packet_id, void* buf, std::function<void(void*)> deallocator) {
-  SPDLOG_TRACE(log(), "account_server::state::dispatch() switching on PacketType = {0:#x}", packet_id);
-  switch (packet_id) {
+void ares::character::client::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+  switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(PING);
     ARES_DISPATCH_PACKET_CASE(CH_MAKE_CHAR::no_stats);
     ARES_DISPATCH_PACKET_CASE(CH_SELECT_CHAR);
     ARES_DISPATCH_PACKET_CASE(CH_CHAR_PAGE_REQ);
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for client session while dispatching, disconnecting", packet_id);
+      log()->error("Unexpected packet_id {:#x} for client session while dispatching, disconnecting", *packet_id);
       server_.close_gracefuly(session_.shared_from_this());
       session_.connected_ = false;
+      return;
     }
   }
 }

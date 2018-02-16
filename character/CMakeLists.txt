@@ -20,18 +20,17 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/account_server/state.cpp
-
+  ${SRC}/account_server/state.cpp  
   ${SRC}/account_server/ATHENA_AH_LOGIN_RESULT.cpp
   ${SRC}/account_server/ATHENA_AH_PING_ACK.cpp
   ${SRC}/account_server/ATHENA_AH_AID_AUTH_RESULT.cpp
   ${SRC}/account_server/ATHENA_AH_ACCOUNT_DATA_RESULT.cpp
+  ${SRC}/account_server/ATHENA_AH_KICK_AID.cpp
   ${SRC}/client/state.cpp
   ${SRC}/client/PING.cpp
   ${SRC}/client/CH_MAKE_CHAR.cpp
   ${SRC}/client/CH_CHAR_PAGE_REQ.cpp
   ${SRC}/client/CH_SELECT_CHAR.cpp
-  ${SRC}/account_server/ATHENA_AH_KICK_AID.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CH_ENTER.cpp
   ${SRC}/mono/ATHENA_ZH_LOGIN_REQ.cpp
@@ -49,12 +48,10 @@ set(SOURCES
   ${SRC}/database/character_info.cpp
   ${SRC}/database/make_char.cpp
   ${SRC}/database/map_index.cpp
-
   ${SRC}/main.cpp
   ${SRC}/server.cpp
-  ${SRC}/config.cpp
   ${SRC}/session.cpp
-
+  ${SRC}/config.cpp
   )
 
 if (NOT TARGET common) 
@@ -72,7 +69,7 @@ set(INCLUDE_DIRS
   ${DATABASE}/include
   ${CONTRIB}/asio/asio/include
   ${CONTRIB}/spdlog/include
-  ${CONTRIB}/json
+  ${CONTRIB}/json/include
   ${CONTRIB}/network_buffer/include
   ${CONTRIB}/RxCpp/Rx/v2/src
   ${CONTRIB}/memory/include

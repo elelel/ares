@@ -47,8 +47,9 @@ namespace ares {
 
       void run();
 
-    protected:
       decltype(rxcpp::observe_on_event_loop()) server_rxthreads = rxcpp::observe_on_event_loop();
+
+    protected:
 
       /*! Start the generic server, called from the concrete Derived descendant
         \param listen_info network endpoint to listen on
