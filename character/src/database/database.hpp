@@ -2,6 +2,7 @@
 
 #include <ares/database>
 #include <ares/common>
+#include <ares/packets>
 
 #include "../config.hpp"
 #include "structs.hpp"
@@ -37,11 +38,11 @@ namespace ares {
 
       std::optional<size_t> num_chars_for_aid(const uint32_t aid, const size_t max_chars);
       
-      std::vector<db::record::character_info> character_info_for_aid(const uint32_t aid, const size_t max_chars);
+      std::vector<ares::character_info> character_info_for_aid(const uint32_t aid, const size_t max_chars);
 
-      std::optional<db::record::character_info> character_info(const uint32_t cid);
+      std::optional<ares::character_info> character_info(const uint32_t cid);
 
-      std::optional<db::record::character_info> character_info_for_slot(const uint32_t cid, const uint16_t slot);
+      std::optional<ares::character_info> character_info_for_slot(const uint32_t aid, const uint16_t slot);
       
       std::optional<uint32_t> make_char(const uint32_t aid,
                                         const std::string& name,

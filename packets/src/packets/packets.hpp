@@ -1,9 +1,12 @@
 #include <string>
 #include <set>
 
+#pragma pack(push, 1)
+
+#include "ARES/character_info.hpp"
+
 namespace ares {
   namespace packet {
-#pragma pack(push, 1)
 
 #include "CHARACTER_INFO.hpp"
     
@@ -66,7 +69,7 @@ namespace ares {
 #include "ARES/ARES_ZH_MAP_NAMES_REQ.hpp"
 #include "ARES/ARES_HZ_MAP_NAMES.hpp"
 
-#pragma pack(pop)
   }
 }
-    
+
+#pragma pack(pop)

@@ -20,10 +20,13 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                    });
       if (found_zs != server_.zone_servers().end()) {
         // Store selected char_info
-        if (!state_.char_info) { state_.char_info = std::move(ci); };
-        SPDLOG_TRACE(log(), "map server found, sendint NOTIFY_ZONESVR to client");
-        session_.emplace_and_send<packet::current<packet::HC_NOTIFY_ZONESVR>>(ci->info.cid,
-                                                                              ci->location.map_name + ".gat",
+        SPDLOG_TRACE(log(), "map server found, user selected cid {}", ci->main.cid);
+        if (!state_.char_info) {
+          state_.char_info = std::move(ci);
+        }
+        SPDLOG_TRACE(log(), "sending NOTIFY_ZONESVR to client");
+        session_.emplace_and_send<packet::current<packet::HC_NOTIFY_ZONESVR>>(state_.char_info->main.cid,
+                                                                              state_.char_info->location.map_name + ".gat",
                                                                               htonl((*found_zs)->as_zone_server().ip_v4.to_ulong()),
                                                                               (*found_zs)->as_zone_server().port);
       } else {

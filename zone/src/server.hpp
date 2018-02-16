@@ -20,10 +20,16 @@ namespace ares {
        \param s session to add */
       void add(session_ptr s);
 
+
+      /*! Returns client session by account id 
+       \param aid account id */
+      session_ptr client_by_aid(const uint32_t aid);
+      
       const session_ptr& char_server() const;
       const config& conf() const;
 
       std::set<std::string> map_names;
+      
     protected:
       friend ares::network::server<server, session>;
       friend ares::network::acceptor<server>;
@@ -36,10 +42,6 @@ namespace ares {
       /*! Removes a session from current sessions list
        \param s session to remove */
       void remove(session_ptr s);
-
-      /*! Returns client session by account id 
-       \param aid account id */
-      session_ptr client_by_aid_(const uint32_t aid);
 
     private:
       std::map<uint32_t, session_ptr> clients_;

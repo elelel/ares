@@ -17,21 +17,21 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
       for (size_t k = 0; k < num_to_send; ++k) {
         const auto& ci = chars[chars.size() - 1];
         long delete_timeout{0};
-        auto& i = ci.info;
+        auto& m = ci.main;
         auto& s = ci.stats;
         auto& a = ci.appearance;
         auto& l = ci.location;
-        if (i.delete_date) {
-          auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*i.delete_date - std::chrono::system_clock::now());
+        if (m.delete_date) {
+          auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*m.delete_date - std::chrono::system_clock::now());
           delete_timeout = diff.count();
           if (delete_timeout < 0) {
-            log()->error("Character {} of AID {} should already have been deleted for {} seconds", i.cid, c.aid, (delete_timeout / 1000) * -1);
+            log()->error("Character {} of AID {} should already have been deleted for {} seconds", m.cid, c.aid, (delete_timeout / 1000) * -1);
           }
         }
 
-        SPDLOG_TRACE(log(), "Sending character {} in response to char page req", i.cid);
+        SPDLOG_TRACE(log(), "Sending character {} in response to char page req", m.cid);
 
-        session_.emplace_and_send<packet::CHARACTER_INFO>(i.cid,
+        session_.emplace_and_send<packet::CHARACTER_INFO>(m.cid,
                                                           s.base_exp,
                                                           s.zeny,
                                                           s.job_exp,
@@ -47,7 +47,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                                           s.sp,
                                                           s.max_sp,
                                                           150, // TODO: Walk speed
-                                                          i.job,
+                                                          m.job,
                                                           a.head,
                                                           a.body,
                                                           a.weapon,
@@ -59,21 +59,21 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                                           a.head_mid, // accessory3
                                                           a.head_palette,
                                                           a.body_palette,
-                                                          i.name,
+                                                          m.name,
                                                           s.Str,
                                                           s.Agi,
                                                           s.Vit,
                                                           s.Int,
                                                           s.Dex,
                                                           s.Luk,
-                                                          i.slot,
-                                                          i.rename,
+                                                          m.slot,
+                                                          m.rename,
                                                           l.map_name + ".gat",
                                                           delete_timeout,
                                                           a.robe,
-                                                          (i.slot < c.playable_slots) ? 1 : 0,
-                                                          (i.rename > 0) && (i.slot < c.playable_slots) ? 1 : 0,
-                                                          i.sex
+                                                          (m.slot < c.playable_slots) ? 1 : 0,
+                                                          (m.rename > 0) && (m.slot < c.playable_slots) ? 1 : 0,
+                                                          m.sex
                                                           );
         chars.pop_back();
       }

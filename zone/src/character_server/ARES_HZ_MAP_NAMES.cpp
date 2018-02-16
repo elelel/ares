@@ -12,8 +12,8 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
         std::string s((char*)&(p_->map_names()[i]));
         i += s.size() + 1;
         if (server_.map_names.find(s) == server_.map_names.end()) {
+          SPDLOG_TRACE(log(), "ARES_HZ_MAP_NAMES: character server assigning map '{}'", s);
           server_.map_names.insert(std::move(s));
-          SPDLOG_TRACE(log(), "ARES_HZ_MAP_NAMES: character server assigned map '{}'", s);
         }
       }
     }

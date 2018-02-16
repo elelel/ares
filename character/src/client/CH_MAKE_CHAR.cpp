@@ -36,25 +36,24 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                 starting_map_x,
                                 starting_map_y);
         if (cid) {
-          auto ci = db.character_info(*cid);
+          state_.char_info = db.character_info(*cid);
+          auto &ci = state_.char_info;
           if (ci) {
-            c.cid = *cid;
-            
             long delete_timeout{0};
-            auto& i = ci->info;
+            auto& m = ci->main;
             auto& s = ci->stats;
             auto& a = ci->appearance;
             auto& l = ci->location;
-            if (i.delete_date) {
-              auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*i.delete_date - std::chrono::system_clock::now());
+            if (m.delete_date) {
+              auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*m.delete_date - std::chrono::system_clock::now());
               delete_timeout = diff.count();
               if (delete_timeout < 0) {
-                log()->error("Character {} of AID {} should already have been deleted for {} seconds", c.cid, c.aid, (delete_timeout / 1000) * -1);
+                log()->error("Character {} of AID {} should already have been deleted for {} seconds", m.cid, c.aid, (delete_timeout / 1000) * -1);
               }
             }
 
             session_.emplace_and_send<packet::current<packet::HC_ACCEPT_MAKECHAR>>();
-            session_.emplace_and_send<packet::CHARACTER_INFO>(c.cid,
+            session_.emplace_and_send<packet::CHARACTER_INFO>(m.cid,
                                                               s.base_exp,
                                                               s.zeny,
                                                               s.job_exp,
@@ -70,7 +69,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                                               s.sp,
                                                               s.max_sp,
                                                               150, // TODO: Walk speed
-                                                              i.job,
+                                                              m.job,
                                                               a.head,
                                                               a.body,
                                                               a.weapon,
@@ -82,21 +81,21 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                                               a.head_mid, // accessory3
                                                               a.head_palette,
                                                               a.body_palette,
-                                                              i.name,
+                                                              m.name,
                                                               s.Str,
                                                               s.Agi,
                                                               s.Vit,
                                                               s.Int,
                                                               s.Dex,
                                                               s.Luk,
-                                                              i.slot,
-                                                              i.rename,
+                                                              m.slot,
+                                                              m.rename,
                                                               l.map_name,
                                                               delete_timeout,
                                                               a.robe,
-                                                              i.slot,
-                                                              i.rename,
-                                                              i.sex
+                                                              m.slot,
+                                                              m.rename,
+                                                              m.sex
                                                               );
           } else {
             log()->error("Failed to get character info for newly created cid {} ", *cid);

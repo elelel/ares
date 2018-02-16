@@ -35,7 +35,6 @@ namespace ares {
 
         // Data
         uint32_t aid{0};
-        uint32_t cid{0};
         /*! Athena auth code 1 */
         int32_t auth_code1{0};
         /*! Athena auth code 2 (original userLevel) */
@@ -52,12 +51,12 @@ namespace ares {
         size_t playable_slots{0};
         size_t creatable_slots{0};
         /*! Character info for char select */
-        std::vector<db::record::character_info> char_select_character_info;
+        std::vector<ares::character_info> char_select_character_info;
         bool char_select_all_sent{false};
         size_t char_page_reqs{0};
 
         /*! Character info for active session */
-        std::optional<db::record::character_info> char_info;
+        std::optional<ares::character_info> char_info;
         
       private:
         server& server_;

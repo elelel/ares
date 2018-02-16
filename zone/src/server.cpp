@@ -96,7 +96,7 @@ void ares::zone::server::remove(session_ptr s) {
 }
 
 
-auto ares::zone::server::client_by_aid_(const uint32_t aid) -> session_ptr {
+auto ares::zone::server::client_by_aid(const uint32_t aid) -> session_ptr {
   auto found = clients_.find(aid);
   if (found != clients_.end()) {
     return found->second;

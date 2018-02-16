@@ -28,6 +28,7 @@ set(SOURCES
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
+  ${SRC}/character_server/ATHENA_HZ_CID_AUTH_FAILED.cpp
   ${SRC}/client/state.cpp
   ${SRC}/main.cpp
   ${SRC}/server.cpp
