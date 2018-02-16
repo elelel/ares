@@ -72,7 +72,6 @@ void ares::zone::client::state::dispatch_packet(void* buf, std::function<void(vo
     {
       log()->error("Unexpected packet_id {:#x} for client::state session, disconnecting", *packet_id);
       session_.close_gracefuly();
-      session_.connected_ = false;
       return;
     }
   }

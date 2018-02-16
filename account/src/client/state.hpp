@@ -57,8 +57,8 @@ namespace ares {
         uint8_t sex{0};
         /*! Is account online */
         bool online{false};
-        
       };
+
     }
   }
 }

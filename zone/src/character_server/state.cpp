@@ -127,6 +127,7 @@ void ares::zone::character_server::state::dispatch_packet(void* buf, std::functi
     {
       log()->error("Unexpected packet_id {:#x} for character server session, disconnecting", *packet_id);
       session_.close_gracefuly();
+      return;
     }
   }
 }

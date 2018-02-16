@@ -65,7 +65,6 @@ void ares::character::account_server::state::on_connect() {
   log()->info("Starting handshake with account server");
   auto& conf = server_.conf();
   std::lock_guard<std::mutex> lock(server_.mutex());
-  session_.connected_ = true;
   log()->info("Starting handshake with account server");
   const auto my_ipv4 = conf.listen_ipv4[0].address().to_v4().to_ulong();
   const auto my_port = conf.listen_ipv4[0].port();
@@ -135,7 +134,6 @@ void ares::character::account_server::state::dispatch_packet(void* buf, std::fun
     {
       log()->error("Unexpected packet_id {:#x} for account server session while dispatching, disconnecting", *packet_id);
       session_.close_gracefuly();
-      session_.connected_ = false;
       return;
     }
   }

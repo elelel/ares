@@ -23,7 +23,6 @@ void ares::character::client::state::on_operation_aborted() {
 }
 
 void ares::character::client::state::on_eof() {
-  session_.close_abruptly();
 }
 
 void ares::character::client::state::on_socket_error() {
@@ -64,7 +63,6 @@ void ares::character::client::state::dispatch_packet(void* buf, std::function<vo
     {
       log()->error("Unexpected packet_id {:#x} for client session while dispatching, disconnecting", *packet_id);
       session_.close_gracefuly();
-      session_.connected_ = false;
       return;
     }
   }

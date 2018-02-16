@@ -108,15 +108,13 @@ namespace ares {
       std::mutex send_mutex_;
       std::mutex recv_mutex_;
       uint16_t packet_id_recv_buf_;
-      std::atomic<bool> recv_buf_busy_;
-      std::atomic<bool> send_buf_busy_;
-    public:
-      std::atomic<bool> connected_;
+
     protected:
 
       std::shared_ptr<asio::ip::tcp::socket> socket_;
       Server& server_;
-
+      
+      std::atomic<bool> connected_;
       std::atomic<bool> connecting_;
       std::atomic<bool> receiving_;
       std::atomic<bool> sending_;

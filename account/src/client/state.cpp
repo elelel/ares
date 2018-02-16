@@ -28,7 +28,6 @@ void ares::account::client::state::on_operation_aborted() {
 }
 
 void ares::account::client::state::on_eof() {
-  // Treat it as normal disconnect for now (won't ever happen)
 }
 
 void ares::account::client::state::on_socket_error() {
@@ -60,7 +59,6 @@ void ares::account::client::state::dispatch_packet(void* buf, std::function<void
     {
       log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", *packet_id);
       session_.close_gracefuly();
-      session_.connected_ = false;
       return;
     }
   }
