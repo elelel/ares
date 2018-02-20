@@ -5,9 +5,11 @@
 #include "../../src/session.hpp"
 #include "../../src/handlers.hpp"
 #include "../../src/packet_handler.hpp"
+#include "../../src/auth_request_manager.hpp"
 
 #include "../../src/definition/server.hpp"
 #include "../../src/definition/acceptor.hpp"
 #include "../../src/definition/session.hpp"
 #include "../../src/definition/handlers.hpp"
 #include "../../src/definition/packet_handler.hpp"
+#include "../../src/definition/auth_request_manager.hpp"

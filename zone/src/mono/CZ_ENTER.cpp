@@ -11,15 +11,24 @@ void ares::zone::mono::packet_handler<ares::packet::current<ares::packet::CZ_ENT
   // TODO: Check for existing connections
   
   // TODO: Post auth request to char server
-  server_.char_server()->emplace_and_send<packet::current<packet::ATHENA_ZH_CID_AUTH_REQ>>(p_->AID(),
-                                                                                           p_->GID(),
-                                                                                           p_->AuthCode(),
-                                                                                           p_->Sex(),
-                                                                                           0,
-                                                                                           0
-                                                                                           );
-  // TODO: Save client time diff
-  // TODO: Do something with ip
+  {
+    // TODO: diff client time
+    //     state_.client_time_diff = std::chrono::system_clock::now() - std::chrono::milliseconds(p_->clientTime());
+    state_.auth_code1 = p_->AuthCode();
+    state_.cid = p_->GID();
+    
+    std::lock_guard<std::mutex> lock(server_.mutex());
+    SPDLOG_TRACE(log(), "Sending ATHENA_HA_AID_AUTH_REQ");
+    uint32_t request_id;
+    {
+      std::lock_guard<std::mutex> lock(server_.mutex());
+      request_id = server_.auth_requests->new_request(session_.shared_from_this());
+    }
+    server_.char_server()->emplace_and_send<packet::current<packet::ARES_ZH_CID_AUTH_REQ>>(request_id,
+                                                                                           state_.cid,
+                                                                                           state_.auth_code1);
+  }
+
   
   // TODO: This should happen after char server has authorized the session
   if (server_.conf().obfuscation_key) {

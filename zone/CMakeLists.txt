@@ -21,6 +21,7 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/auth_request_manager.cpp
   ${SRC}/mono/state.cpp  
   ${SRC}/mono/CZ_ENTER.cpp
   ${SRC}/character_server/state.cpp
@@ -28,8 +29,7 @@ set(SOURCES
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
-  ${SRC}/character_server/ATHENA_HZ_CID_AUTH_FAILED.cpp
-  ${SRC}/character_server/ARES_HZ_CID_AUTH_OK.cpp
+  ${SRC}/character_server/ARES_HZ_CID_AUTH_RESULT.cpp
   ${SRC}/client/state.cpp
   ${SRC}/main.cpp
   ${SRC}/server.cpp

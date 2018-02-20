@@ -32,7 +32,7 @@ set(SOURCES
   ${SRC}/character_server/ATHENA_HA_SET_AID_OFFLINE.cpp
   ${SRC}/character_server/ATHENA_HA_USER_COUNT.cpp
   ${SRC}/character_server/ATHENA_HA_PING_REQ.cpp
-  ${SRC}/character_server/ATHENA_HA_AID_AUTH_REQ.cpp
+  ${SRC}/character_server/ARES_HA_AID_AUTH_REQ.cpp
   ${SRC}/mono/state.cpp
   ${SRC}/mono/CA_SSO_LOGIN_REQ.cpp
   ${SRC}/mono/CA_EXE_HASHCHECK.cpp

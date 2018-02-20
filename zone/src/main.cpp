@@ -7,7 +7,7 @@ int main() {
   try {
     auto log = spdlog::stdout_color_mt("zone");
     auto io_context = std::make_shared<asio::io_context>();
-
+    log->set_level(spdlog::level::trace);
     ares::zone::config conf(log, io_context, std::optional<std::string>{});
     ares::zone::server s(log, io_context, conf);
     s.start();

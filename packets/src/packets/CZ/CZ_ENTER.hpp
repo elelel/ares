@@ -17,10 +17,10 @@ struct type<PacketSet, CZ_ENTER> {
   }
 
   inline explicit type<PacketSet, CZ_ENTER>(const uint32_t AID,
-                      const uint32_t GID,
-                      const int32_t AuthCode,
-                      const uint32_t clientTime,
-                      const uint8_t Sex) {
+                                            const uint32_t GID,
+                                            const int32_t AuthCode,
+                                            const uint32_t clientTime,
+                                            const uint8_t Sex) {
     emplace(AID, GID, AuthCode, clientTime, Sex);
   }
 

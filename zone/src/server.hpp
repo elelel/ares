@@ -2,6 +2,7 @@
 
 #include <ares/network>
 
+#include "auth_request_manager.hpp"
 #include "config.hpp"
 #include "session.hpp"
 #include "database/database.hpp"
@@ -29,7 +30,8 @@ namespace ares {
       const config& conf() const;
 
       std::set<std::string> map_names;
-      
+
+      std::shared_ptr<auth_request_manager> auth_requests;
     protected:
       friend ares::network::server<server, session>;
       friend ares::network::acceptor<server>;
@@ -48,7 +50,7 @@ namespace ares {
       session_ptr char_server_;
       std::set<session_ptr> mono_;
 
-      std::map<int32_t, std::pair<session_ptr, std::chrono::time_point<std::chrono::steady_clock>>> auth_aid_requests_;
+      std::map<uint32_t, std::pair<session_ptr, std::chrono::time_point<std::chrono::steady_clock>>> auth_cid_requests_;
       
       const config& conf_;
       

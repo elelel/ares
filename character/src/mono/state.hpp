@@ -37,7 +37,9 @@ namespace ares {
         
         std::shared_ptr<spdlog::logger> log() const;
         const config& conf() const;
-        
+
+        int32_t auth_code1{0};
+        int32_t auth_code2{0};
       private:
         server& server_;
         session& session_;

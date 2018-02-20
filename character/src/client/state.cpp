@@ -7,6 +7,8 @@ ares::character::client::state::state(character::server& serv, session& sess) :
   }
 
 ares::character::client::state::state(const mono::state& mono_state) :
+  auth_code1(mono_state.auth_code1),
+  auth_code2(mono_state.auth_code2),
   server_(mono_state.server_),
   session_(mono_state.session_) {
 }

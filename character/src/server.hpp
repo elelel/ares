@@ -5,6 +5,7 @@
 
 #include <ares/network>
 
+#include "auth_request_manager.hpp"
 #include "session.hpp"
 #include "database/database.hpp"
 
@@ -43,10 +44,12 @@ namespace ares {
       const session_ptr& account_server() const;
       const std::set<session_ptr>& zone_servers() const;
 
-
+      std::shared_ptr<auth_request_manager> auth_requests;
+      
       // Data
       uint16_t state_num{0};
       uint16_t property{0};
+      
     protected:
       friend ares::network::server<server, session>;
       friend ares::network::acceptor<server>;
@@ -59,7 +62,7 @@ namespace ares {
       /*! Removes a session from current sessions list. Should be called only from RX interface
        \param s session to remove */
       void remove(session_ptr s);
-      
+
     private:
       std::map<uint32_t, session_ptr> clients_;
       std::set<session_ptr> mono_;

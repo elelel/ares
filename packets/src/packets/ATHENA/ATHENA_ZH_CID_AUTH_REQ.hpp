@@ -8,7 +8,8 @@ struct type<PacketSet, ATHENA_ZH_CID_AUTH_REQ> {
                       const int32_t auth_code1,
                       const uint8_t sex,
                       const uint32_t ip,
-                      const uint8_t autotrade) {
+                      const uint8_t autotrade,
+                      const uint32_t request_id) {
     PacketType = packet_sets::id_of<packet_set, packet_name>::value;
     aid_ = aid;
     cid_ = cid;
@@ -23,7 +24,8 @@ struct type<PacketSet, ATHENA_ZH_CID_AUTH_REQ> {
                        const int32_t auth_code1,
                        const uint8_t sex,
                        const uint32_t ip,
-                       const uint8_t autotrade) {
+                       const uint8_t autotrade,
+                       const uint32_t request_id) {
     emplace(aid, cid, auth_code1, sex, ip, autotrade);
   }
   
@@ -59,4 +61,5 @@ private:
   uint8_t sex_;
   uint32_t ip_;
   uint8_t autotrade_;
+  uint32_t request_id;
 };

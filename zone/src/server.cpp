@@ -6,11 +6,9 @@ ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
                            std::shared_ptr<asio::io_context> io_context,
                            const ares::zone::config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
+  auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds(5))),
   conf_(conf),
-  //  world_(*this),
   db(log, *conf.postgres) {
-  log_->set_level(spdlog::level::trace);
-  //  world::initialize(world_);
 }
 
 void ares::zone::server::start() {

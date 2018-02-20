@@ -66,9 +66,13 @@ namespace ares {
 #include "ATHENA/ATHENA_ZH_MAP_NAMES.hpp"
 #include "ATHENA/ATHENA_ZH_CID_AUTH_REQ.hpp"
 #include "ATHENA/ATHENA_HZ_CID_AUTH_FAILED.hpp"
-#include "ARES/ARES_HZ_CID_AUTH_OK.hpp"
+    
 #include "ARES/ARES_ZH_MAP_NAMES_REQ.hpp"
 #include "ARES/ARES_HZ_MAP_NAMES.hpp"
+#include "ARES/ARES_HA_AID_AUTH_REQ.hpp"
+#include "ARES/ARES_AH_AID_AUTH_RESULT.hpp"
+#include "ARES/ARES_ZH_CID_AUTH_REQ.hpp"
+#include "ARES/ARES_HZ_CID_AUTH_RESULT.hpp"
 
   }
 }

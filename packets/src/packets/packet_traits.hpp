@@ -103,6 +103,9 @@ namespace ares {
     // Ares
     struct ARES_ZH_MAP_NAMES_REQ {};
     struct ARES_HZ_MAP_NAMES {};
-    struct ARES_HZ_CID_AUTH_OK {};
+    struct ARES_HA_AID_AUTH_REQ {};
+    struct ARES_AH_AID_AUTH_RESULT {};
+    struct ARES_ZH_CID_AUTH_REQ {};
+    struct ARES_HZ_CID_AUTH_RESULT {};
   }
 }

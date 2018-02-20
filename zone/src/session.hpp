@@ -18,6 +18,8 @@ namespace ares {
                      std::enable_shared_from_this<session> {
 
       using state_variant = std::variant<mono::state, client::state, character_server::state>;
+
+      friend struct character_server::packet_handler<packet::current<packet::ARES_HZ_CID_AUTH_RESULT>>;
       
       session(ares::zone::server& n,
               const std::optional<asio::ip::tcp::endpoint> connect_ep,

@@ -32,6 +32,10 @@ namespace ares {
         const config& conf() const;
 
         void rotate_obf_crypt_key();
+
+        std::chrono::milliseconds client_time_diff;
+        int32_t auth_code1;
+        uint32_t cid;
       private:
         friend struct zone::client::state;
         
