@@ -36,7 +36,7 @@ inline auto ares::model::fixed_string<Size>::operator=(const fixed_string<OtherS
 }
 
 template <size_t Size>
-inline bool ares::model::fixed_string<Size>::operator==(const fixed_string<Size>& other) {
+inline bool ares::model::fixed_string<Size>::operator==(const fixed_string<Size>& other) const {
   return strncmp(data_, other.data_, Size) == 0;
 }
 

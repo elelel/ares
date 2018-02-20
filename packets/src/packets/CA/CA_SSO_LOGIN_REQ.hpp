@@ -4,32 +4,14 @@ struct type<PacketSet, CA_SSO_LOGIN_REQ::login_password> {
   using packet_name = CA_SSO_LOGIN_REQ::login_password;
   
   void emplace(const uint32_t Version,
-               const char* ID,
-               const size_t ID_sz,
-               const char* Passwd,
-               const size_t Passwd_sz,
+               const std::string& ID,
+               const std::string& Passwd,
                const uint8_t clienttype) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     Version_ = Version;
     clienttype_ = clienttype;
-    copy_buf_with_zero_pad(ID_, sizeof(ID_), ID, ID_sz);
-    copy_buf_with_zero_pad(Passwd_, sizeof(Passwd_), Passwd, Passwd_sz);
-  }
-
-  void emplace(const uint32_t Version,
-               const std::string& ID,
-               const std::string& Passwd,
-               const uint8_t clienttype) {
-    emplace(Version, ID.c_str(), ID.size(), Passwd.c_str(), Passwd.size(), clienttype);
-  }
-
-  explicit type(const uint32_t Version,
-                const char* ID,
-                const size_t ID_sz,
-                const char* Passwd,
-                const size_t Passwd_sz,
-                const uint8_t clienttype) {
-    emplace(Version, ID, ID_sz, Passwd, Passwd_sz, clienttype);
+    ID_ = ID;
+    Passwd_ = Passwd;
   }
 
   explicit type(const uint32_t Version,
@@ -43,11 +25,11 @@ struct type<PacketSet, CA_SSO_LOGIN_REQ::login_password> {
     return Version_;
   }
 
-  const char* ID() const {
+  const model::login_string& ID() const {
     return ID_;
   }
 
-  const char* Passwd() const {
+  const model::fixed_string<24> Passwd() const {
     return Passwd_;
   }
 
@@ -55,20 +37,11 @@ struct type<PacketSet, CA_SSO_LOGIN_REQ::login_password> {
     return clienttype_;
   }
 
-  constexpr static size_t ID_size() {
-    return 24;
-  }
-
-  constexpr static size_t Passwd_size() {
-    return 24;
-  }
-
   uint16_t PacketType;
 private:
   uint32_t Version_;
-  char ID_[ID_size()];
-  char Passwd_[Passwd_size()];
-private:  
+  model::login_string ID_;
+  model::fixed_string<24> Passwd_;
   uint8_t clienttype_;
 };
 
@@ -174,10 +147,9 @@ struct type<PacketSet, CA_SSO_LOGIN_REQ::token_auth> {
 private:
   uint32_t Version_;
   uint8_t clienttype_;
-  char ID_[24];
-  char Passwd_[27];
-private:  
-  char MacAddress_[17];
-  char IP_[15];
+  model::login_string ID_[24];
+  model::fixed_string<27> Passwd_[27];
+  model::fixed_string<17> MacAddress_[17];
+  model::fixed_string<15> IP_[15];
   char token_[];
 };

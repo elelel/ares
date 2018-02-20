@@ -32,7 +32,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
         }
         if (starting_map_id != 0) {
           auto cid = db.make_char(c.aid,
-                                  p_->name(),
+                                  std::string(p_->name()),
                                   p_->CharNum(),
                                   p_->head_palette(),
                                   p_->head(),

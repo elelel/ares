@@ -54,8 +54,8 @@ namespace ares {
       uint8_t virtue;
       int16_t honor;
  
-      location::map_location location_last;
-      location::map_location location_save;
+      map_location location_last;
+      map_location location_save;
     };
   }
 }

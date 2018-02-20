@@ -3,30 +3,6 @@ struct type<PacketSet, CH_MAKE_CHAR::with_stats> {
   using packet_set = PacketSet;
   using packet_name = CH_MAKE_CHAR::with_stats;
   
-  inline void emplace(const char* name,
-                      const size_t name_sz,
-                      uint8_t Str,
-                      uint8_t Agi,
-                      uint8_t Vit,
-                      uint8_t Int,
-                      uint8_t Dex,
-                      uint8_t Luk,
-                      uint8_t CharNum,
-                      int16_t headPal,
-                      int16_t head) {
-    PacketType = PacketSet::template id_of<CH_MAKE_CHAR::with_stats>::value;
-    copy_buf_with_zero_pad(name_, sizeof(name_), name, name_sz);
-    Str_ = Str;
-    Agi_ = Agi;
-    Vit_ = Vit;
-    Int_ = Int;
-    Dex_ = Dex;
-    Luk_ = Luk;
-    CharNum_ = CharNum;
-    headPal_ = headPal;
-    head_ = head;
-  }
-
   inline void emplace(const std::string& name,
                       uint8_t Str,
                       uint8_t Agi,
@@ -37,21 +13,17 @@ struct type<PacketSet, CH_MAKE_CHAR::with_stats> {
                       uint8_t CharNum,
                       int16_t headPal,
                       int16_t head) {
-    emplace(name.c_str(), name.size(), Str, Agi, Vit, Int, Dex, Luk, CharNum, headPal, head);
-  }
-
-  explicit type(const char* name,
-                const size_t name_sz,
-                uint8_t Str,
-                uint8_t Agi,
-                uint8_t Vit,
-                uint8_t Int,
-                uint8_t Dex,
-                uint8_t Luk,
-                uint8_t CharNum,
-                int16_t headPal,
-                int16_t head) {
-    emplace(name, name_sz, Str, Agi, Vit, Int, Dex, Luk, CharNum, headPal, head);
+    PacketType = PacketSet::template id_of<CH_MAKE_CHAR::with_stats>::value;
+    name_ = name;
+    Str_ = Str;
+    Agi_ = Agi;
+    Vit_ = Vit;
+    Int_ = Int;
+    Dex_ = Dex;
+    Luk_ = Luk;
+    CharNum_ = CharNum;
+    headPal_ = headPal;
+    head_ = head;
   }
 
   explicit type(const std::string& name,
@@ -126,52 +98,31 @@ template <typename PacketSet>
 struct type<PacketSet, CH_MAKE_CHAR::no_stats> {
   using packet_name = CH_MAKE_CHAR::no_stats;
   
-  inline void emplace(const char* name,
-                      const size_t name_sz,
-                      const uint8_t CharNum,
-                      const uint16_t head_palette,
-                      const uint16_t head,
-                      const uint16_t job,
-                      const uint8_t sex) {
-    PacketType = PacketSet::template id_of<CH_MAKE_CHAR::no_stats>::value;
-    CharNum_ = CharNum;
-    head_palette_ = head_palette;
-    head_ = head;
-    job_ = job;
-    sex_ = sex;
-
-    copy_buf_with_zero_pad(name_, sizeof(name_), name, name_sz);
-  }
-
   inline void emplace(const std::string& name,
                       const uint8_t CharNum,
                       const uint16_t head_palette,
                       const uint16_t head,
                       const uint16_t job,
                       const uint8_t sex) {
-    emplace(name.c_str(), name.size(), CharNum, head_palette, head, job, sex);
+    PacketType = PacketSet::template id_of<CH_MAKE_CHAR::no_stats>::value;
+    name_ = name;
+    CharNum_ = CharNum;
+    head_palette_ = head_palette;
+    head_ = head;
+    job_ = job;
+    sex_ = sex;
   }
 
-  explicit type(const char* name,
-                const size_t name_sz,
-                const uint8_t CharNum,
-                const uint16_t head_palette,
-                const uint16_t head,
-                const uint16_t job,
-                const uint8_t sex) {
-    emplace(name, name_sz, CharNum, head_palette, head, job, sex);
+  explicit inline type(const std::string& name,
+                       const uint8_t CharNum,
+                       const uint16_t head_palette,
+                       const uint16_t head,
+                       const uint16_t job,
+                       const uint8_t sex) {
+    emplace(name, CharNum, head_palette, head, job, sex);
   }
 
-  explicit type(const std::string& name,
-                const uint8_t CharNum,
-                const uint16_t head_palette,
-                const uint16_t head,
-                const uint16_t job,
-                const uint8_t sex) {
-    emplace(name.c_str(), name.size(), CharNum, head_palette, head, job, sex);
-  }
-
-  inline const char* name() const {
+  inline const model::pc_name_string& name() const {
     return name_;
   }
 
@@ -197,7 +148,7 @@ struct type<PacketSet, CH_MAKE_CHAR::no_stats> {
 
   uint16_t PacketType;
 private:
-  char name_[24];
+  model::pc_name_string name_;
   uint8_t CharNum_;
   uint16_t head_palette_;
   uint16_t head_;

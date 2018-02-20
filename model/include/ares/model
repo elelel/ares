@@ -2,6 +2,7 @@
 
 #include "../../src/utils.hpp"
 #include "../../src/fixed_string.hpp"
+#include "../../src/account.hpp"
 #include "../../src/location.hpp"
 #include "../../src/pc.hpp"
 

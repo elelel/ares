@@ -3,13 +3,19 @@ struct type<PacketSet, ARES_HZ_CID_AUTH_RESULT> {
   using packet_set = PacketSet;
   using packet_name = ARES_HZ_CID_AUTH_RESULT;
 
-  void emplace(const uint32_t request_id,
-               const uint32_t cid,
-               const uint8_t result) {
+  inline void emplace(const uint32_t request_id,
+                      const uint32_t cid,
+                      const uint8_t result) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     request_id_ = request_id;
     cid_ = cid;
     result_ = result;
+  }
+
+  explicit inline type(const uint32_t request_id,
+                       const uint32_t cid,
+                       const uint8_t result) {
+    emplace(request_id, cid, result);
   }
 
   inline uint32_t cid() const {

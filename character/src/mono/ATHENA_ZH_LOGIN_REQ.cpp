@@ -13,12 +13,12 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::A
   auto found = std::find_if(conf.zone_servers.begin(),
                             conf.zone_servers.end(),
                             [this] (const config::zone_server_config_record &c) {
-                              return c.login == p_->login();
+                              return p_->login() == c.login;
                             });
   if (found != conf.zone_servers.end()) {
-    if (found->password == p_->password()) {
+    if (p_->password() == found->password) {
       auto existing = find_if(server_.zone_servers().begin(), server_.zone_servers().end(), [this] (const session_ptr s) {
-          return s->as_zone_server().login == p_->login();
+          return  p_->login() == s->as_zone_server().login;
         });
       if (existing == server_.zone_servers().end()) {
         session_.variant().emplace<zone_server::state>(std::move(zone_server::state(session_.as_mono()))); 
@@ -35,17 +35,17 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::A
         session_.emplace_and_send<packet::current<packet::ATHENA_HZ_PRIVATE_MSG_NAME>>(*conf.priv_msg_server_name);
 
       } else {
-        log()->error("Connection refused for zone server, connection already exists for login {}", p_->login());
+        log()->error("Connection refused for zone server, connection already exists for login {}", p_->login().data());
         session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
         session_.close_gracefuly();
       }
     } else {
-      log()->error("Connection refused for zone server, wrong password for login {}", p_->login());
+      log()->error("Connection refused for zone server, wrong password for login {}", p_->login().data());
       session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
       session_.close_gracefuly();
     }
   } else {
-    log()->error("Connection refused for zone server, wrong login {}", p_->login());
+    log()->error("Connection refused for zone server, wrong login {}", p_->login().data());
     session_.emplace_and_send<packet::current<packet::ATHENA_HZ_LOGIN_RESULT>>(3);
     session_.close_gracefuly();
   }

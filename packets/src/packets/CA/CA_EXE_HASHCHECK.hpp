@@ -3,18 +3,18 @@ struct type<PacketSet, CA_EXE_HASHCHECK> {
   using packet_set = PacketSet;
   using packet_name = CA_EXE_HASHCHECK;
   
-  void emplace(const uint8_t* HashValue,
-               const size_t HashValue_sz) {
+  inline void emplace(const uint8_t* HashValue,
+                      const size_t HashValue_sz) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
-    copy_buf_with_zero_pad(HashValue_, sizeof(HashValue_), HashValue, HashValue_sz);
+    model::copy_buf_with_zero_pad(HashValue_, sizeof(HashValue_), HashValue, HashValue_sz);
   }
 
-  explicit type(const uint8_t* HashValue,
-                const size_t HashValue_sz) {
+  explicit inline type(const uint8_t* HashValue,
+                       const size_t HashValue_sz) {
     emplace(HashValue, HashValue_sz);
   }
 
-  const uint8_t* HashValue() const {
+  inline const uint8_t* HashValue() const {
     return HashValue_;
   }
   

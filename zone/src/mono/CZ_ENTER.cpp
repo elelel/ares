@@ -12,9 +12,9 @@ void ares::zone::mono::packet_handler<ares::packet::current<ares::packet::CZ_ENT
   
   // TODO: Post auth request to char server
   {
-    // TODO: diff client time
-    //     state_.client_time_diff = std::chrono::system_clock::now() - std::chrono::milliseconds(p_->clientTime());
+    state_.client_time_diff = model::to_host_epoch_time(std::chrono::system_clock::now()) - p_->clientTime();
     state_.auth_code1 = p_->AuthCode();
+    state_.aid = p_->AID();
     state_.cid = p_->GID();
     
     std::lock_guard<std::mutex> lock(server_.mutex());
@@ -25,6 +25,7 @@ void ares::zone::mono::packet_handler<ares::packet::current<ares::packet::CZ_ENT
       request_id = server_.auth_requests->new_request(session_.shared_from_this());
     }
     server_.char_server()->emplace_and_send<packet::current<packet::ARES_ZH_CID_AUTH_REQ>>(request_id,
+                                                                                           state_.aid,
                                                                                            state_.cid,
                                                                                            state_.auth_code1);
   }

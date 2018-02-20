@@ -3,30 +3,22 @@ struct type<PacketSet, ATHENA_HZ_PRIVATE_MSG_NAME> {
   using packet_set = PacketSet;
   using packet_name = ATHENA_HZ_PRIVATE_MSG_NAME;
   
-  void emplace(const char* name, const size_t name_sz) {
+  inline void emplace(const std::string& name) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
     dummy_ = 0;
-    copy_buf_with_zero_pad(name_, sizeof(name_), name, name_sz);
+    name_ = name;
   }
 
-  void emplace(const std::string& name) {
-    emplace(name.c_str(), name.size());
-  }
-  
-  explicit type(const char* name, const size_t name_sz) {
-    emplace(name, name_sz);
+  explicit inline type(const std::string& name) {
+    emplace(name);
   }
 
-  explicit type(const std::string& name) {
-    emplace(name.c_str(), name.size());
-  }
-
-  const char* name() const {
+  inline const model::fixed_string<24>& name() const {
     return name_;
   }
 
   uint16_t PacketType;
 private:
   uint8_t dummy_;
-  char name_[24];
+  model::fixed_string<24> name_;
 };

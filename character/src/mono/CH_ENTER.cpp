@@ -33,9 +33,9 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::C
     state_.auth_code1 = p_->AuthCode();
     state_.auth_code2 = p_->userLevel();
     server_.account_server()->emplace_and_send<packet::current<packet::ARES_HA_AID_AUTH_REQ>>(request_id,
-                                                                                              p_.AID(),
+                                                                                              p_->AID(),
                                                                                               state_.auth_code1,
-                                                                                              state_.auth_code2,
+                                                                                              state_.auth_code2
                                                                                               );
   }
   SPDLOG_TRACE(log(), "CH_ENTER: end");

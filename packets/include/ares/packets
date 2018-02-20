@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../src/packets/utils.hpp"
 #include "../../src/packets/packet_traits.hpp"
 #include "../../src/packetsets/packetsets.hpp"
 #include "../../src/packets/packets.hpp"

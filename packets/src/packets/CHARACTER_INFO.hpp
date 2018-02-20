@@ -97,7 +97,7 @@ private:
   uint8_t Luk_;
   uint16_t CharNum_;
   uint16_t rename_;
-  model::location::map_name_ext_string last_map_name_;
+  model::map_name_ext_string last_map_name_;
   int32_t delete_timeout_;
   int32_t robe_;
   uint32_t change_slot_enabled_;

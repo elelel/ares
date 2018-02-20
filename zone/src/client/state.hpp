@@ -44,6 +44,8 @@ namespace ares {
         int32_t auth_code1{0};
         /*! Athena auth code 2 (original userLevel) */
         int32_t auth_code2{0};
+
+        int32_t client_time_diff{0};
       private:
         server& server_;
         session& session_;

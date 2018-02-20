@@ -9,8 +9,7 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
                       const uint32_t AID,
                       const uint32_t userLevel,
                       const uint32_t lastLoginIP,
-                      const char* lastLoginTime,
-                      const size_t lastLoginTime_sz,
+                      const std::string& lastLoginTime,
                       const uint8_t Sex,
                       const size_t servers_count) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
@@ -19,31 +18,10 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
     AID_ = AID;
     userLevel_ = userLevel;
     lastLoginIP_ = lastLoginIP;
+    lastLoginTime_ = lastLoginTime;
     Sex_ = Sex;
     someNewByte_ = 0;
-    copy_buf_with_zero_pad(lastLoginTime_, sizeof(lastLoginTime_), lastLoginTime, lastLoginTime_sz);
     memset(someNewBuf_, 0, sizeof(someNewBuf_));
-  }
-
-  inline void emplace(const int32_t AuthCode,
-                      const uint32_t AID,
-                      const uint32_t userLevel,
-                      const uint32_t lastLoginIP,
-                      const std::string& lastLoginTime,
-                      const uint8_t Sex,
-                      const size_t servers_count) {
-    emplace(AuthCode, AID, userLevel, lastLoginIP, lastLoginTime.c_str(), lastLoginTime.size() + 1, Sex, servers_count);
-  }
-
-  explicit type(const int32_t AuthCode,
-                           const uint32_t AID,
-                           const uint32_t userLevel,
-                           const uint32_t lastLoginIP,
-                           const char* lastLoginTime,
-                           const size_t lastLoginTime_sz,
-                           const uint8_t Sex,
-                           const size_t servers_count) {
-    emplace(AuthCode, AID, userLevel, lastLoginIP, lastLoginTime, lastLoginTime_sz, Sex, servers_count);
   }
 
   explicit type(const int32_t AuthCode,
@@ -59,39 +37,19 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
   struct SERVER_ADDR {
     void emplace(const uint32_t ip,
                  const uint16_t port,
-                 const char* name,
-                 const uint32_t name_sz,
+                 const std::string& name,
                  const uint16_t user_count,
                  const uint16_t state,
                  const uint16_t property) {
       ip_ = ip;
       port_ = port;
+      name_ = name;
       usercount_ = user_count;
       state_ = state;
       property_ = property;
-      copy_buf_with_zero_pad(name_, sizeof(name_), name, name_sz);
       memset(&twitter_token_, 0, TWITTER_TOKEN_SIZE);
     }
-
-    void emplace(const uint32_t ip,
-                 const uint16_t port,
-                 const std::string& name,
-                 const uint16_t user_count,
-                 const uint16_t state,
-                 const uint16_t property) {
-      emplace(ip, port, name.c_str(), name.size() + 1, user_count, state, property);
-    }
       
-    explicit SERVER_ADDR(const uint32_t ip,
-                         const uint16_t port,
-                         const char* name,
-                         const uint32_t name_sz,
-                         const uint16_t user_count,
-                         const uint16_t state,
-                         const uint16_t property) {
-      emplace(ip, port, name, name_sz, user_count, state, property);
-    }
-
     explicit SERVER_ADDR(const uint32_t ip,
                          const uint16_t port,
                          const std::string& name,
@@ -104,7 +62,7 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
   private:
     uint32_t ip_;
     uint16_t port_;
-    char name_[20];
+    model::fixed_string<20> name_;
     uint16_t usercount_;
     uint16_t state_;
     uint16_t property_;
@@ -127,7 +85,7 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
     return lastLoginIP_;
   }
 
-  inline const char* lastLoginTime() const {
+  inline const model::fixed_string<26>& lastLoginTime() const {
     return lastLoginTime_;
   }
 
@@ -155,7 +113,7 @@ private:
   uint32_t AID_;
   uint32_t userLevel_;
   uint32_t lastLoginIP_;
-  char lastLoginTime_[26];
+  model::fixed_string<26> lastLoginTime_;
   uint8_t Sex_;
   char someNewBuf_[16];
   uint8_t someNewByte_;

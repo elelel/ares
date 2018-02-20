@@ -12,8 +12,10 @@ ares::zone::client::state::state(ares::zone::server& serv,
   }
 
 ares::zone::client::state::state(const ares::zone::mono::state& mono_state) :
+  aid(mono_state.aid),
   cid(mono_state.cid),
   auth_code1(mono_state.auth_code1),
+  client_time_diff(mono_state.client_time_diff),
   server_(mono_state.server_),
   session_(mono_state.session_),
   obf_crypt_key_(mono_state.obf_crypt_key_) {

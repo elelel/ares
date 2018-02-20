@@ -19,7 +19,7 @@ namespace ares {
       fixed_string(const fixed_string<OtherSize>& other);
       template <size_t OtherSize>
       fixed_string<Size>& operator=(const fixed_string<OtherSize>& other);
-      bool operator==(const fixed_string<Size>& other);
+      bool operator==(const fixed_string<Size>& other) const;
 
       operator const char* () const;
       operator const void* () const;
