@@ -34,10 +34,15 @@ namespace ares {
       session_ptr session_by_auth_request_id(const int32_t request_id);
       void remove_auth_aid_request(const int32_t request_id);
       void prune_auth_aid_requests();
+      session_ptr zone_server_by_map_id(const uint32_t map_id) const;
+
+      const std::string& map_name_by_map_id(const uint32_t map_id) const;
+      uint32_t map_id_by_map_name(const std::string& map_name) const;
 
       const std::map<uint32_t, session_ptr>& clients() const;
       const session_ptr& account_server() const;
       const std::set<session_ptr>& zone_servers() const;
+
 
       // Data
       uint16_t state_num{0};
@@ -59,16 +64,20 @@ namespace ares {
       std::map<uint32_t, session_ptr> clients_;
       std::set<session_ptr> mono_;
       std::set<session_ptr> zone_servers_;
+      std::map<uint32_t, session_ptr> map_id_to_zone_server_;
       session_ptr account_server_;
       
       std::map<uint32_t, session_ptr> aid_to_zone_server_;
       // ATHENA_HA_AID_AUTH_REQ requests with timestamps
       std::map<int32_t, std::pair<session_ptr, std::chrono::time_point<std::chrono::steady_clock>>> auth_aid_requests_;
 
+      std::unordered_map<std::string, uint32_t> map_name_to_id_;
+      std::map<uint32_t, std::string> map_id_to_name_;
+
       const config& conf_;
       
     public:
-      database db;
+      character::database db;
 
     };
   }

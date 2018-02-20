@@ -6,19 +6,22 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   conf_(conf),
   db(log, *conf.postgres) {
-  log_->set_level(spdlog::level::trace);
 
   std::vector<db::record::map_index> known_maps = db.whole_map_index();
+  for (const auto& m : known_maps) {
+    map_name_to_id_[m.name] = m.id;
+    map_id_to_name_[m.id] = m.name;
+  }
+  
   std::vector<std::string> unknown_maps;
   for (const auto& zs : conf.zone_servers) {
-    for (const auto& lhs : zs.maps) {
-      if (std::find_if(known_maps.begin(), known_maps.end(), [&lhs] (const db::record::map_index& rhs) {
-            return lhs == rhs.name;
-          }) == known_maps.end()) {
-        unknown_maps.push_back(lhs);
+    for (const auto& m : zs.maps) {
+      if (map_name_to_id_.find(m) == map_name_to_id_.end()) {
+        unknown_maps.push_back(m);
       }
     }
   }
+  
   if (unknown_maps.size() > 0) {
     bool need_comma = false;
     std::string msg;
@@ -144,6 +147,14 @@ auto ares::character::server::zone_servers() const -> const std::set<session_ptr
   return zone_servers_;
 }
 
+auto ares::character::server::zone_server_by_map_id(const uint32_t map_id) const -> session_ptr {
+  auto found = map_id_to_zone_server_.find(map_id);
+  if (found != map_id_to_zone_server_.end()) {
+    return found->second;
+  }
+  return nullptr;
+}
+
 auto ares::character::server::account_server() const -> const session_ptr& {
   return account_server_;
 }
@@ -152,9 +163,8 @@ auto ares::character::server::client_by_aid(const uint32_t aid) -> session_ptr {
   auto found = clients_.find(aid);
   if (found != clients_.end()) {
     return found->second;
-  } else {
-    return nullptr;
   }
+  return nullptr;
 }
 
 auto ares::character::server::clients() const -> const std::map<uint32_t, session_ptr>& {
@@ -202,4 +212,22 @@ void ares::character::server::prune_auth_aid_requests() {
     }
   }
   for (auto s : timed_out) remove(s);
+}
+
+const std::string& ares::character::server::map_name_by_map_id(const uint32_t map_id) const {
+  static std::string empty_string;
+  auto found = map_id_to_name_.find(map_id);
+  if (found != map_id_to_name_.end()) {
+    return found->second;
+  }
+  return empty_string;
+}
+
+uint32_t ares::character::server::map_id_by_map_name(const std::string& name) const {
+  static std::string empty_string;
+  auto found = map_name_to_id_.find(name);
+  if (found != map_name_to_id_.end()) {
+    return found->second;
+  }
+  return 0;
 }

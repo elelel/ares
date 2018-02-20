@@ -14,67 +14,33 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
       size_t num_to_send = 3;
       if (chars.size() < 3) num_to_send = chars.size();
       session_.emplace_and_send<packet::current<packet::HC_CHAR_PAGES>>(num_to_send);
+      std::lock_guard<std::mutex> lock(server_.mutex());
       for (size_t k = 0; k < num_to_send; ++k) {
         const auto& ci = chars[chars.size() - 1];
         long delete_timeout{0};
-        auto& m = ci.main;
-        auto& s = ci.stats;
-        auto& a = ci.appearance;
-        auto& l = ci.location;
-        if (m.delete_date) {
-          auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*m.delete_date - std::chrono::system_clock::now());
+        if (ci.delete_date) {
+          auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*ci.delete_date - std::chrono::system_clock::now());
           delete_timeout = diff.count();
           if (delete_timeout < 0) {
-            log()->error("Character {} of AID {} should already have been deleted for {} seconds", m.cid, c.aid, (delete_timeout / 1000) * -1);
+            log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci.pc.cid, ci.pc.aid, (delete_timeout / 1000) * -1);
           }
         }
 
-        SPDLOG_TRACE(log(), "Sending character {} in response to char page req", m.cid);
+        const auto& last_map_name = server_.map_name_by_map_id(ci.pc.location_last.map_id);
+        if (last_map_name.size() > 0) {
+          SPDLOG_TRACE(log(), "Sending character {} in response to char page req", ci.pc.cid);
 
-        session_.emplace_and_send<packet::CHARACTER_INFO>(m.cid,
-                                                          s.base_exp,
-                                                          s.zeny,
-                                                          s.job_exp,
-                                                          s.job_level,
-                                                          s.body_state,  // Unused?
-                                                          s.health_state, // Unused?
-                                                          s.effect_state,
-                                                          s.virtue,
-                                                          s.honor,
-                                                          s.job_point,
-                                                          s.hp,
-                                                          s.max_hp,
-                                                          s.sp,
-                                                          s.max_sp,
-                                                          150, // TODO: Walk speed
-                                                          m.job,
-                                                          a.head,
-                                                          a.body,
-                                                          a.weapon,
-                                                          s.base_level,
-                                                          s.skill_point,
-                                                          a.head_bottom, // accessory
-                                                          a.shield,
-                                                          a.head_top, // accessory2 
-                                                          a.head_mid, // accessory3
-                                                          a.head_palette,
-                                                          a.body_palette,
-                                                          m.name,
-                                                          s.Str,
-                                                          s.Agi,
-                                                          s.Vit,
-                                                          s.Int,
-                                                          s.Dex,
-                                                          s.Luk,
-                                                          m.slot,
-                                                          m.rename,
-                                                          l.map_name + ".gat",
+          session_.emplace_and_send<packet::CHARACTER_INFO>(ci.pc,
+                                                          last_map_name,
                                                           delete_timeout,
-                                                          a.robe,
-                                                          (m.slot < c.playable_slots) ? 1 : 0,
-                                                          (m.rename > 0) && (m.slot < c.playable_slots) ? 1 : 0,
-                                                          m.sex
+                                                          (ci.pc.slot < c.playable_slots) ? 1 : 0,
+                                                          (ci.pc.rename > 0) && (ci.pc.slot < c.playable_slots) ? 1 : 0
                                                           );
+
+        } else {
+          log()->error("Character {} has unknown map id {} in last location, not sending to client", ci.pc.cid, ci.pc.location_last.map_id);
+          --k;
+        }
         chars.pop_back();
       }
       if ((num_to_send == 3) && (chars.size() == 0)) {

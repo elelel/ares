@@ -78,7 +78,6 @@ void ares::account::character_server::state::dispatch_packet(void* buf, std::fun
     {
       log()->error("Unexpected packet_id {:#x} for mono session, disconnecting", *packet_id);
       session_.close_gracefuly();
-      session_.connected_ = false;
       return;
     }
   }

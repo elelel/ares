@@ -24,85 +24,61 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           starting_map_x = 48;
           starting_map_y = 297;
         }
-        auto cid = db.make_char(c.aid,
-                                p_->name(),
-                                p_->CharNum(),
-                                p_->head_palette(),
-                                p_->head(),
-                                job,
-                                p_->sex(),
-                                starting_zeny,
-                                starting_map,
-                                starting_map_x,
-                                starting_map_y);
-        if (cid) {
-          state_.char_info = db.character_info(*cid);
-          auto &ci = state_.char_info;
-          if (ci) {
-            long delete_timeout{0};
-            auto& m = ci->main;
-            auto& s = ci->stats;
-            auto& a = ci->appearance;
-            auto& l = ci->location;
-            if (m.delete_date) {
-              auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*m.delete_date - std::chrono::system_clock::now());
-              delete_timeout = diff.count();
-              if (delete_timeout < 0) {
-                log()->error("Character {} of AID {} should already have been deleted for {} seconds", m.cid, c.aid, (delete_timeout / 1000) * -1);
-              }
-            }
 
-            session_.emplace_and_send<packet::current<packet::HC_ACCEPT_MAKECHAR>>();
-            session_.emplace_and_send<packet::CHARACTER_INFO>(m.cid,
-                                                              s.base_exp,
-                                                              s.zeny,
-                                                              s.job_exp,
-                                                              s.job_level,
-                                                              s.body_state,  // Unused?
-                                                              s.health_state, // Unused?
-                                                              s.effect_state,
-                                                              s.virtue,
-                                                              s.honor,
-                                                              s.job_point,
-                                                              s.hp,
-                                                              s.max_hp,
-                                                              s.sp,
-                                                              s.max_sp,
-                                                              150, // TODO: Walk speed
-                                                              m.job,
-                                                              a.head,
-                                                              a.body,
-                                                              a.weapon,
-                                                              s.base_level,
-                                                              s.skill_point,
-                                                              a.head_bottom, // accessory
-                                                              a.shield,
-                                                              a.head_top, // accessory2 
-                                                              a.head_mid, // accessory3
-                                                              a.head_palette,
-                                                              a.body_palette,
-                                                              m.name,
-                                                              s.Str,
-                                                              s.Agi,
-                                                              s.Vit,
-                                                              s.Int,
-                                                              s.Dex,
-                                                              s.Luk,
-                                                              m.slot,
-                                                              m.rename,
-                                                              l.map_name,
-                                                              delete_timeout,
-                                                              a.robe,
-                                                              m.slot,
-                                                              m.rename,
-                                                              m.sex
-                                                              );
+        uint32_t starting_map_id{0};
+        {
+          std::lock_guard<std::mutex> lock(server_.mutex());
+          starting_map_id = server_.map_id_by_map_name(starting_map);
+        }
+        if (starting_map_id != 0) {
+          auto cid = db.make_char(c.aid,
+                                  p_->name(),
+                                  p_->CharNum(),
+                                  p_->head_palette(),
+                                  p_->head(),
+                                  job,
+                                  p_->sex(),
+                                  starting_zeny,
+                                  starting_map_id,
+                                  starting_map_x,
+                                  starting_map_y);
+          if (cid) {
+            state_.char_info = db.character_info(*cid);
+            auto &ci = state_.char_info;
+            if (ci) {
+              long delete_timeout{0};
+              if (ci->delete_date) {
+                auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*ci->delete_date - std::chrono::system_clock::now());
+                delete_timeout = diff.count();
+                if (delete_timeout < 0) {
+                  log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci->pc.cid, ci->pc.aid, (delete_timeout / 1000) * -1);
+                }
+              }
+
+              std::lock_guard<std::mutex> lock(server_.mutex());
+              const auto& last_map_name = server_.map_name_by_map_id(ci->pc.location_last.map_id);
+              if (last_map_name.size() > 0) {
+                session_.emplace_and_send<packet::current<packet::HC_ACCEPT_MAKECHAR>>();
+                session_.emplace_and_send<packet::CHARACTER_INFO>(ci->pc,
+                                                                  last_map_name,
+                                                                  delete_timeout,
+                                                                  1,  // TODO: Change slot enabled
+                                                                  1  // TODO: Rename enabled
+                                                                  );
+              } else {
+                log()->error("Make char failed: last map id {} was not found in id to map name index", ci->pc.location_last.map_id);
+                session_.close_gracefuly();
+              }
+            } else {
+              log()->error("Failed to get character info for newly created cid {} ", *cid);
+              session_.close_gracefuly();
+            }
           } else {
-            log()->error("Failed to get character info for newly created cid {} ", *cid);
+            log()->error("Failed to make character for AID {}", c.aid);
             session_.close_gracefuly();
           }
         } else {
-          log()->error("Failed to make character for AID {}", c.aid);
+          log()->error("Failed to make character, map '{}' is not configured", starting_map);
           session_.close_gracefuly();
         }
       } else {

@@ -14,13 +14,13 @@ include(${ARES_DIR}/projects/CMake/shared.cmake)
 
 set(NETWORK "${ARES_DIR}/network")
 set(COMMON "${ARES_DIR}/common")
+set(MODEL "${ARES_DIR}/model")
 set(PACKETS "${ARES_DIR}/packets")
 set(DATABASE "${ARES_DIR}/database")
 set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-#  ${SRC}/world/world.cpp
   ${SRC}/mono/state.cpp  
   ${SRC}/mono/CZ_ENTER.cpp
   ${SRC}/character_server/state.cpp
@@ -29,6 +29,7 @@ set(SOURCES
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
   ${SRC}/character_server/ATHENA_HZ_CID_AUTH_FAILED.cpp
+  ${SRC}/character_server/ARES_HZ_CID_AUTH_OK.cpp
   ${SRC}/client/state.cpp
   ${SRC}/main.cpp
   ${SRC}/server.cpp
@@ -49,6 +50,7 @@ set(INCLUDE_DIRS
   ${NETWORK}/include
   ${CONFIG}/include
   ${COMMON}/include
+  ${MODEL}/include
   ${PACKETS}/include
   ${DATABASE}/include
   ${CONTRIB}/asio/asio/include

@@ -10,27 +10,21 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
     auto ci = server_.db.character_info_for_slot(c.aid, p_->CharNum());
     if (ci) {
       std::lock_guard lock(server_.mutex());
-      SPDLOG_TRACE(log(), "Searching for map {} in {} zone server session(s)", ci->location.map_name, server_.zone_servers().size());
-      auto found_zs = std::find_if(server_.zone_servers().begin(), server_.zone_servers().end(),
-                                   [this, &ci] (const session_ptr& s) {
-                                     auto state = s->as_zone_server();
-                                     if (state.map_names.find(ci->location.map_name) != state.map_names.end()) return true;
-                                     SPDLOG_TRACE(log(), "searching for map name in zone server's map_names (total {})", state.map_names.size());
-                                     return false;
-                                   });
-      if (found_zs != server_.zone_servers().end()) {
+      auto found_zs = server_.zone_server_by_map_id(ci->pc.location_last.map_id);
+      if (found_zs != nullptr) {
         // Store selected char_info
-        SPDLOG_TRACE(log(), "map server found, user selected cid {}", ci->main.cid);
+        SPDLOG_TRACE(log(), "map server found, user selected cid {}", ci->pc.cid);
         if (!state_.char_info) {
           state_.char_info = std::move(ci);
         }
         SPDLOG_TRACE(log(), "sending NOTIFY_ZONESVR to client");
-        session_.emplace_and_send<packet::current<packet::HC_NOTIFY_ZONESVR>>(state_.char_info->main.cid,
-                                                                              state_.char_info->location.map_name + ".gat",
-                                                                              htonl((*found_zs)->as_zone_server().ip_v4.to_ulong()),
-                                                                              (*found_zs)->as_zone_server().port);
+        const auto& map_name = server_.map_name_by_map_id(ci->pc.location_last.map_id);
+        session_.emplace_and_send<packet::current<packet::HC_NOTIFY_ZONESVR>>(state_.char_info->pc.cid,
+                                                                              map_name,
+                                                                              htonl(found_zs->as_zone_server().ip_v4.to_ulong()),
+                                                                              found_zs->as_zone_server().port);
       } else {
-        log()->warn("AID {} requested map {} which is not found in any active zone servers", c.aid, ci->location.map_name);
+        log()->warn("AID {} requested map {} which is not found in any active zone servers", c.aid, ci->pc.location_last.map_id);
         session_.close_gracefuly();
       }
     } else {

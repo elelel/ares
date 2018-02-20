@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <ares/model>
+
 namespace ares {
   namespace character {
     namespace db {
@@ -30,6 +32,11 @@ namespace ares {
         struct account_storage {
           uint32_t bank_vault;
           uint32_t max_storage;
+        };
+
+        struct character_info {
+          model::pc_info pc;
+          std::optional<std::chrono::system_clock::time_point> delete_date;
         };
 
       }

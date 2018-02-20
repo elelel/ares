@@ -14,6 +14,7 @@ include(${ARES_DIR}/projects/CMake/shared.cmake)
 
 set(NETWORK "${ARES_DIR}/network")
 set(COMMON "${ARES_DIR}/common")
+set(MODEL "${ARES_DIR}/model")
 set(PACKETS "${ARES_DIR}/packets")
 set(DATABASE "${ARES_DIR}/database")
 set(CONTRIB "${ARES_DIR}/contrib")
@@ -56,6 +57,7 @@ set(INCLUDE_DIRS
   ${NETWORK}/include
   ${CONFIG}/include
   ${COMMON}/include
+  ${MODEL}/include
   ${PACKETS}/include
   ${DATABASE}/include
   ${CONTRIB}/asio/asio/include

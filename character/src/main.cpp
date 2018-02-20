@@ -6,6 +6,7 @@ int main() {
   // TODO: command line options: log destination, log level, config filename, foreground/background
   try {
     auto log = spdlog::stdout_color_mt("character");
+    log->set_level(spdlog::level::trace);
     auto io_context = std::make_shared<asio::io_context>();
 
     auto conf = std::make_shared<ares::character::config>(log, io_context, std::optional<std::string>{});

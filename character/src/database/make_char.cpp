@@ -12,7 +12,7 @@ namespace ares {
                   const ares::JOB& job,
                   const uint8_t& sex,
                   const uint64_t& zeny,
-                  const std::string& map,
+                  const uint32_t& map_id,
                   const uint16_t& map_x,
                   const uint16_t& map_y,
                   std::optional<uint32_t>& rslt) :
@@ -24,7 +24,7 @@ namespace ares {
           job_(job),
           sex_(sex),
           zeny_(zeny),
-          map_(map),
+          map_id_(map_id),
           map_x_(map_x),
           map_y_(map_y),
           rslt_(rslt) {
@@ -57,9 +57,12 @@ namespace ares {
             trans.prepared("make_char_create_appearance")
               (cid)(head_)(head_palette_).exec();
 
-            trans.prepared("make_char_create_location_by_map_name")
-              (cid)(map_)(map_x_)(map_y_).exec();
+            trans.prepared("make_char_create_last_location")
+              (cid)(map_id_)(map_x_)(map_y_).exec();
 
+            trans.prepared("make_char_create_save_location")
+              (cid)(map_id_)(map_x_)(map_y_).exec();
+            
             // TODO: Add items (weapon/armour)
 
             rslt_.emplace(cid);
@@ -77,7 +80,7 @@ namespace ares {
         const ares::JOB& job_;
         const uint8_t& sex_;
         const uint64_t& zeny_;
-        const std::string& map_;
+        const uint32_t& map_id_;
         const uint16_t& map_x_;
         const uint16_t& map_y_;
 
@@ -96,12 +99,13 @@ auto ares::character::database::make_char(const uint32_t aid,
                                           const ares::JOB job,
                                           const uint8_t sex,
                                           const uint64_t zeny,
-                                          const std::string& map,
+                                          const uint32_t map_id,
                                           const uint16_t map_x,
                                           const uint16_t map_y) -> std::optional<uint32_t> {
+  SPDLOG_TRACE(log_, "database::make_char name: '{}'", name);
   std::optional<uint32_t> rslt;
-  with_wait_lock([this, &aid, &name, &slot, &head_palette, &head, &job, &sex, &zeny, &map, &map_x, &map_y, &rslt] () {
-      db::make_char t(aid, name, slot, head_palette, head, job, sex, zeny, map, map_x, map_y, rslt);
+  with_wait_lock([this, &aid, &name, &slot, &head_palette, &head, &job, &sex, &zeny, &map_id, &map_x, &map_y, &rslt] () {
+      db::make_char t(aid, name, slot, head_palette, head, job, sex, zeny, map_id, map_x, map_y, rslt);
       pqxx_conn_->perform(t);
     });
 

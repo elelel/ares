@@ -38,11 +38,11 @@ namespace ares {
 
       std::optional<size_t> num_chars_for_aid(const uint32_t aid, const size_t max_chars);
       
-      std::vector<ares::character_info> character_info_for_aid(const uint32_t aid, const size_t max_chars);
+      std::vector<db::record::character_info> character_info_for_aid(const uint32_t aid, const size_t max_chars);
 
-      std::optional<ares::character_info> character_info(const uint32_t cid);
+      std::optional<db::record::character_info> character_info(const uint32_t cid);
 
-      std::optional<ares::character_info> character_info_for_slot(const uint32_t aid, const uint16_t slot);
+      std::optional<db::record::character_info> character_info_for_slot(const uint32_t aid, const uint16_t slot);
       
       std::optional<uint32_t> make_char(const uint32_t aid,
                                         const std::string& name,
@@ -52,7 +52,7 @@ namespace ares {
                                         const ares::JOB job,
                                         const uint8_t sex,
                                         const uint64_t zeny,
-                                        const std::string& map,
+                                        const uint32_t map_id,
                                         const uint16_t map_x,
                                         const uint16_t map_y);
 

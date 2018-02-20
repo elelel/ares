@@ -1,29 +1,35 @@
 template <typename PacketSet>
-struct type<PacketSet, ATHENA_HZ_CID_AUTH_OK> {
+struct type<PacketSet, ARES_HZ_CID_AUTH_OK> {
   using packet_set = PacketSet;
-  using packet_name = ATHENA_HZ_CID_AUTH_OK;
+  using packet_name = ARES_HZ_CID_AUTH_OK;
 
   inline void emplace(const uint32_t aid,
-                      const uint32_t cid,
                       const int32_t auth_code1,
-                      const uint8_t sex,
-                      const uint32_t ip) {
+                      const int32_t auth_code2,
+                      const uint32_t expiration_time,
+                      const uint32_t group_id,
+                      const uint8_t changing_zoneservers,
+                      const model::pc_info& pc) {
     PacketType = packet_sets::id_of<packet_set, packet_name>::value;
+    PacketLength = sizeof(*this);
     aid_ = aid;
-    cid_ = cid;
     auth_code1_ = auth_code1;
-    sex_ = sex;
-    ip_ = ip;
+    auth_code2_ = auth_code2;
+    expiration_time_ = expiration_time;
+    group_id_ = group_id;
+    changing_zoneservers_ = changing_zoneservers;
+    pc_ = pc;
   }
 
   inline explicit type(const uint32_t aid,
-                       const uint32_t cid,
                        const int32_t auth_code1,
-                       const uint8_t sex,
-                       const uint32_t ip) {
-    emplace(aid, cid, auth_code1, sex, ip);
+                       const int32_t auth_code2,
+                       const uint32_t expiration_time,
+                       const uint32_t group_id,
+                       const uint8_t changing_zoneservers,
+                       const model::pc_info& pc) {
+    emplace(aid, auth_code1, auth_code2, expiration_time, group_id, changing_zoneservers, pc);
   }
-    
   
   inline uint32_t aid() const {
     return aid_;
@@ -49,8 +55,8 @@ struct type<PacketSet, ATHENA_HZ_CID_AUTH_OK> {
     return changing_zoneservers_;
   }
 
-  inline const& character_info char_info() const {
-    return char_info();
+  inline const model::pc_info& pc() const {
+    return pc();
   }
   
   uint16_t PacketType;
@@ -62,5 +68,5 @@ private:
   uint32_t expiration_time_;
   uint32_t group_id_;
   uint8_t changing_zoneservers_;
-  character_info char_info_;
+  model::pc_info pc_;
 };

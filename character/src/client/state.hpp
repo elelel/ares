@@ -51,12 +51,12 @@ namespace ares {
         size_t playable_slots{0};
         size_t creatable_slots{0};
         /*! Character info for char select */
-        std::vector<ares::character_info> char_select_character_info;
+        std::vector<db::record::character_info> char_select_character_info;
         bool char_select_all_sent{false};
         size_t char_page_reqs{0};
 
         /*! Character info for active session */
-        std::optional<ares::character_info> char_info;
+        std::optional<db::record::character_info> char_info;
         
       private:
         server& server_;

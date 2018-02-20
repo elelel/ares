@@ -14,6 +14,7 @@ include(${ARES_DIR}/projects/CMake/shared.cmake)
 
 set(NETWORK "${ARES_DIR}/network")
 set(COMMON "${ARES_DIR}/common")
+set(MODEL "${ARES_DIR}/model")
 set(PACKETS "${ARES_DIR}/packets")
 set(DATABASE "${ARES_DIR}/database")
 set(CONTRIB "${ARES_DIR}/contrib")
@@ -64,6 +65,7 @@ add_subdirectory(${CONTRIB}/memory memory)
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}
   ${NETWORK}/include
+  ${MODEL}/include
   ${CONFIG}/include
   ${COMMON}/include
   ${PACKETS}/include
@@ -83,6 +85,7 @@ set_target_properties(ares_character PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
   )
+
 target_link_libraries(ares_character foonathan_memory config common ${ARES_LINK_LIBRARIES})
 target_include_directories(ares_character PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_character PRIVATE ${ARES_COMPILE_DEFINITIONS})

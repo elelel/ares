@@ -1,9 +1,9 @@
 #include <string>
 #include <set>
 
-#pragma pack(push, 1)
+#include <ares/model>
 
-#include "ARES/character_info.hpp"
+#pragma pack(push, 1)
 
 namespace ares {
   namespace packet {
@@ -66,6 +66,7 @@ namespace ares {
 #include "ATHENA/ATHENA_ZH_MAP_NAMES.hpp"
 #include "ATHENA/ATHENA_ZH_CID_AUTH_REQ.hpp"
 #include "ATHENA/ATHENA_HZ_CID_AUTH_FAILED.hpp"
+#include "ARES/ARES_HZ_CID_AUTH_OK.hpp"
 #include "ARES/ARES_ZH_MAP_NAMES_REQ.hpp"
 #include "ARES/ARES_HZ_MAP_NAMES.hpp"
 
