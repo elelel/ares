@@ -38,10 +38,11 @@ inline uint32_t ares::network::auth_request_manager<Derived, Server, Session>::n
 template <typename Derived, typename Server, typename Session>
 inline auto ares::network::auth_request_manager<Derived, Server, Session>::responded(const uint32_t request_id) -> std::shared_ptr<Session> {
   auto found = pending_.find(request_id);
+  std::shared_ptr<Session> s;
   if (found != pending_.end()) {
     found->second.timer->cancel();
+    s = found->second.session;
     pending_.erase(found);
-    return found->second.session;
   };
-  return nullptr;
+  return s;
 }
