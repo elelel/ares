@@ -32,11 +32,11 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           SPDLOG_TRACE(log(), "Sending character {} in response to char page req", ci.cid);
 
           session_.emplace_and_send<packet::CHARACTER_INFO>(ci,
-                                                          last_map_name,
-                                                          delete_timeout,
-                                                          (ci.slot < c.playable_slots) ? 1 : 0,
-                                                          (ci.rename > 0) && (ci.slot < c.playable_slots) ? 1 : 0
-                                                          );
+                                                            last_map_name,
+                                                            delete_timeout,
+                                                            (ci.slot < c.playable_slots) ? 1 : 0,
+                                                            (ci.rename > 0) && (ci.slot < c.playable_slots) ? 1 : 0
+                                                            );
 
         } else {
           log()->error("Character {} has unknown map id {} in last location, not sending to client", ci.cid, ci.location_last.map_id);

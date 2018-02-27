@@ -35,13 +35,13 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
       auto& conf = server_.conf();
       // Does not exist or other error, try to create default account data i
       server_.db.account_create(p_->aid(),
-                                      conf.normal_slots,
-                                      conf.premium_slots,
-                                      conf.billing_slots,
-                                      conf.playable_slots,
-                                      conf.creatable_slots,
-                                      conf.bank_vault,
-                                      conf.max_storage);
+                                conf.normal_slots,
+                                conf.premium_slots,
+                                conf.billing_slots,
+                                conf.playable_slots,
+                                conf.creatable_slots,
+                                conf.bank_vault,
+                                conf.max_storage);
 
       // Read account data again
       ad = server_.db.account_slots_for_aid(p_->aid());
@@ -49,6 +49,15 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
     if (ad) {
       c.creatable_slots = ad->creatable_slots;
       c.playable_slots = ad->playable_slots;
+      c.char_select_character_info = server_.db.character_info_for_aid(p_->aid(), ad->normal_slots +
+                                                                             ad->premium_slots +
+                                                                             ad->billing_slots
+                                                                       );
+      const uint32_t npages = c.char_select_character_info.size() > 3 ? c.char_select_character_info.size() / 3 : 1;
+      
+      SPDLOG_TRACE(log(), "Loaded {} characters for aid {}, Sending pages num: npages = {}, nslots = {}",
+                   c.char_select_character_info.size(), p_->aid(), npages, c.creatable_slots);
+      
       // Confirm account acceptance and send slots info
       SPDLOG_TRACE(log(), "sending HC_ACCEPT_ENTER");
       s->emplace_and_send<packet::current<packet::HC_ACCEPT_ENTER>>(ad->normal_slots,
@@ -60,15 +69,6 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
 
       SPDLOG_TRACE(log(), "sending HC_ACCEPT_ENTER done");
       // Send existing characters information
-      c.char_select_character_info = server_.db.character_info_for_aid(p_->aid(), ad->normal_slots +
-                                                                             ad->premium_slots +
-                                                                             ad->billing_slots
-                                                                             );
-      const uint32_t nchars = 50;
-      const uint32_t npages = (nchars / 3) + ((nchars % 3) != 0 ? 1 : 0);
-      
-      SPDLOG_TRACE(log(), "Loaded {} characters for aid {}, Sending pages num: npages = {}, nslots = {}",
-                   c.char_select_character_info.size(), p_->aid(), npages, c.creatable_slots);
       char_pages_num::send<packet_sets::current>(*s, npages, c.creatable_slots);
       s->emplace_and_send<packet::current<packet::HC_BLOCK_CHARACTER>>();
     } else {
