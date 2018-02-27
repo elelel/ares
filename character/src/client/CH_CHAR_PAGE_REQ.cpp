@@ -18,8 +18,9 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
       for (size_t k = 0; k < num_to_send; ++k) {
         const auto& ci = chars[chars.size() - 1];
         long delete_timeout{0};
-        if (ci.delete_date) {
-          auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*ci.delete_date - std::chrono::system_clock::now());
+        auto delete_date = server_.db.char_delete_date(ci.cid);
+        if (delete_date) {
+          auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*delete_date - std::chrono::system_clock::now());
           delete_timeout = diff.count();
           if (delete_timeout < 0) {
             log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci.cid, ci.aid, (delete_timeout / 1000) * -1);
