@@ -25,7 +25,7 @@ ares::database::db::db(std::shared_ptr<spdlog::logger> log,
   if (pqxx_conn_) {
     // Prepare statements
     pqxx_conn_->prepare("create_user", R"(
-INSERT INTO "users" (login, password) VALUES ($1, crypt($2, gen_salt('bf')));
+INSERT INTO "users" (login, password, email, level) VALUES ($1, crypt($2, gen_salt('bf')));
 )");
 
     pqxx_conn_->prepare("password_matches", R"(
@@ -34,11 +34,11 @@ SELECT "id" FROM "users"
 )");
 
     pqxx_conn_->prepare("user_data_for_login", R"(
-SELECT "id", "login", "email", "level", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
+SELECT "id", "login", "email", "level", "expiration_time", "birthdate", "pin"  FROM "users"
     WHERE ("login" = $1) LIMIT 1;
 )");
     pqxx_conn_->prepare("user_data_for_aid", R"(
-SELECT "id", "login", "level", "email", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
+SELECT "id", "login", "level", "email", "expiration_time", "birthdate", "pin"  FROM "users"
   WHERE ("id" = $1) LIMIT 1;
 )");
 
@@ -78,6 +78,7 @@ SELECT "characters"."id" AS id, "slot", "characters"."name" AS name, "sex", "job
 FROM "characters"
 JOIN "char_appearance" ON ("char_appearance"."cid" = "characters"."id")
 JOIN "char_stats" ON ("char_stats"."cid" = "characters"."id")
+JOIN "char_zeny" ON ("char_zeny"."cid" = "characters"."id")
 JOIN "char_save_location" ON ("char_save_location"."cid" = "characters"."id")
 JOIN "char_last_location" ON ("char_last_location"."cid" = "characters"."id")
 WHERE ("aid" = $1) AND ("slot" < $2)
@@ -94,6 +95,7 @@ SELECT "characters"."id" AS id, "slot", "characters"."name" AS name, "sex", "job
 FROM "characters"
 JOIN "char_appearance" ON ("char_appearance"."cid" = "characters"."id")
 JOIN "char_stats" ON ("char_stats"."cid" = "characters"."id")
+JOIN "char_zeny" ON ("char_zeny"."cid" = "characters"."id")
 JOIN "char_save_location" ON ("char_save_location"."cid" = "characters"."id")
 JOIN "char_last_location" ON ("char_last_location"."cid" = "characters"."id")
 WHERE ("characters"."id" = $1)
@@ -110,9 +112,14 @@ SELECT "characters"."id" AS id, "slot", "characters"."name" AS "name", "sex", "j
 FROM "characters"
 JOIN "char_appearance" ON ("char_appearance"."cid" = "characters"."id")
 JOIN "char_stats" ON ("char_stats"."cid" = "characters"."id")
+JOIN "char_zeny" ON ("char_zeny"."cid" = "characters"."id")
 JOIN "char_save_location" ON ("char_save_location"."cid" = "characters"."id")
 JOIN "char_last_location" ON ("char_last_location"."cid" = "characters"."id")
 WHERE ("aid" = $1) AND ("slot" = $2)
+)");
+
+    pqxx_conn_->prepare("char_delete_date", R"(
+SELECT "delete_date" FROM "characters" WHERE ("charaters"."id" = $1)
 )");
 
     pqxx_conn_->prepare("make_char_create_cid", R"(
@@ -124,10 +131,14 @@ SELECT "id" FROM "characters" WHERE "name" = $1
 )");
 
     pqxx_conn_->prepare("make_char_create_stats", R"(
-INSERT INTO "char_stats" ("cid", "base_level", "job_level", "base_exp", "job_exp", "zeny",
+INSERT INTO "char_stats" ("cid", "base_level", "job_level", "base_exp", "job_exp",
  "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp",
  "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor")
-VALUES ($1, 1, 1, 0, 0, $2, 1, 1, 1, 1, 1, 1, $3, $3, $4, $4, 48, 0, 0, 0, 0, 0, 0)
+VALUES ($1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, $2, $2, $3, $3, 48, 0, 0, 0, 0, 0, 0)
+)");
+
+    pqxx_conn_->prepare("make_char_create_zeny", R"(
+INSERT INTO "char_zeny" ("cid", "zeny") VALUES ($1, $2)
 )");
 
     pqxx_conn_->prepare("make_char_create_appearance", R"(

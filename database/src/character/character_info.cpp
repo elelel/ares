@@ -60,8 +60,6 @@ namespace ares {
         sql["last_x"].to(pc.location_last.coords.x);
         sql["last_y"].to(pc.location_last.coords.y);
 
-        sql["delete_date"].to(pc.delete_date);
-         
         // weapon can't be != 0 if the option is 'riding'
         if (pc.effect_state & 0x7e80020) { pc.weapon = 0; }
       }
@@ -97,7 +95,7 @@ namespace ares {
         void operator()(argument_type& trans) {
           rslt_.reset();
           auto qr = trans.prepared("character_info")(cid_).exec();
-          if (qr.size() > 0) {
+          if (qr.size() == 1) {
             model::pc_info r;
             assign(r, qr[0]);
             rslt_.emplace(std::move(r));
@@ -119,7 +117,7 @@ namespace ares {
         void operator()(argument_type& trans) {
           rslt_.reset();
           auto qr = trans.prepared("character_info_for_slot")(aid_)(slot_).exec();
-          if (qr.size() > 0) {
+          if (qr.size() == 1) {
             model::pc_info r;
             assign(r, qr[0]);
             rslt_.emplace(std::move(r));

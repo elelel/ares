@@ -38,7 +38,7 @@ namespace ares {
         \param login account login
         \param password account password
       */
-      void create_user(const std::string& login, const std::string& password);
+      void create_user(const std::string& login, const std::string& password, const std::string& email, const uint8_t level);
       /*! Returns true if the password is correct for a login
         \param login account login
         \param password password to check
@@ -83,6 +83,8 @@ namespace ares {
       std::optional<model::pc_info> character_info(const uint32_t cid);
 
       std::optional<model::pc_info> character_info_for_slot(const uint32_t aid, const uint16_t slot);
+
+      std::optional<std::chrono::system_clock::time_point> char_delete_date(const uint32_t cid);
       
       std::optional<uint32_t> make_char(const uint32_t aid,
                                         const std::string& name,

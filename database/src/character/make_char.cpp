@@ -52,8 +52,11 @@ namespace ares {
             create_cid[0]["id"].to(cid);
             
             trans.prepared("make_char_create_stats")
-              (cid)(zeny_)(hp)(sp).exec();
+              (cid)(hp)(sp).exec();
 
+            trans.prepared("make_char_create_zeny")
+              (cid)(zeny_).exec();
+            
             trans.prepared("make_char_create_appearance")
               (cid)(head_)(head_palette_).exec();
 
@@ -89,7 +92,6 @@ namespace ares {
     }
   }
 }
-
 
 auto ares::database::db::make_char(const uint32_t aid,
                                        const std::string& name,

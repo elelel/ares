@@ -4,14 +4,13 @@ namespace ares {
   namespace database {
     namespace detail {
       template <typename QueryResult>
-      void assign_result(std::optional<record::user_data>& rslt, QueryResult& qr) {
+      inline void assign_result(std::optional<record::user_data>& rslt, QueryResult& qr) {
         if (qr.size() > 0) {
           record::user_data r;
           qr[0]["id"].to(r.aid);
           qr[0]["login"].to(r.login);
           qr[0]["email"].to(r.email);
           qr[0]["level"].to(r.level);
-          qr[0]["sex"].to(r.sex);
           if (!qr[0]["expiration_time"].to(r.expiration_time)) r.expiration_time.reset();
           if (!qr[0]["birthdate"].to(r.birthdate)) r.birthdate.reset();
           if (!qr[0]["pin"].is_null()) {

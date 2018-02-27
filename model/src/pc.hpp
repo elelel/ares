@@ -215,7 +215,6 @@ namespace ares {
       map_location location_last;
       map_location location_save;
 
-      std::optional<std::chrono::system_clock::time_point> delete_date;
     };
   }
 }

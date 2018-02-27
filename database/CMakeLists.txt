@@ -21,6 +21,7 @@ set(SOURCES
   ${SRC}/account/user_exists.cpp
   ${SRC}/character/character_info.cpp
   ${SRC}/character/make_char.cpp
+  ${SRC}/character/delete_date.cpp
   ${SRC}/zone/map_index.cpp
   )
 
