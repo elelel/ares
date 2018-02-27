@@ -1,10 +1,10 @@
 #pragma once
 
 #include <ares/network>
+#include <ares/database>
 
 #include "config.hpp"
 #include "session.hpp"
-#include "database/database.hpp"
 
 namespace ares {
   namespace account {
@@ -59,7 +59,7 @@ namespace ares {
       const config& conf_;
       
     public:
-      database db;
+      ares::database::db db;
 
     };
   }

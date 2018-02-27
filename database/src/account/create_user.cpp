@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace account {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct create_user : pqxx::transactor<> {
         create_user(const std::string& login, const std::string& password) :
           login_(login),
@@ -20,10 +20,10 @@ namespace ares {
   }
 }
 
-void ares::account::database::create_user(const std::string& login, const std::string& password) {
+void ares::database::db::create_user(const std::string& login, const std::string& password) {
   with_wait_lock([this, &login, &password] () {
-    db::create_user t(login, password);
-    pqxx_conn_->perform(t);
+      detail::create_user t(login, password);
+      pqxx_conn_->perform(t);
     });
 }
 

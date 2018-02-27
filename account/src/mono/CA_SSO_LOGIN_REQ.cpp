@@ -176,8 +176,8 @@ namespace ares {
 
 void ares::account::mono::packet_handler<ares::packet::current<ares::packet::CA_SSO_LOGIN_REQ::login_password>>::operator()() {
   SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password");
-  auto pck_username = std::string(p_->ID(), p_->ID_size());
-  auto pck_password = std::string(p_->Passwd(), p_->Passwd_size());
+  auto pck_username = std::string(p_->ID(), std::remove_reference<decltype(p_->ID())>::type::size::value);
+  auto pck_password = std::string(p_->Passwd(), std::remove_reference<decltype(p_->ID())>::type::size::value);
   auto zero_pos = pck_username.find(char(0));
   if (zero_pos != std::string::npos) pck_username.erase(zero_pos, std::string::npos);
   zero_pos = pck_password.find(char(0));
@@ -195,8 +195,8 @@ void ares::account::mono::packet_handler<ares::packet::current<ares::packet::CA_
 
 void ares::account::mono::packet_handler<ares::packet::current<ares::packet::CA_SSO_LOGIN_REQ::token_auth>>::operator()() {
   SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::token_auth");
-  auto pck_username = std::string(p_->ID(), p_->ID_size());
-  auto pck_password = std::string(p_->Passwd(), p_->Passwd_size());
+  auto pck_username = std::string(p_->ID(), std::remove_reference<decltype(p_->ID())>::type::size::value);
+  auto pck_password = std::string(p_->Passwd(), std::remove_reference<decltype(p_->Passwd())>::type::size::value);
   auto zero_pos = pck_username.find(char(0));
   if (zero_pos != std::string::npos) pck_username.erase(zero_pos, std::string::npos);
   zero_pos = pck_password.find(char(0));

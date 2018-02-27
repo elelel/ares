@@ -23,13 +23,13 @@ struct type<PacketSet, ATHENA_AH_ACCOUNT_DATA_RESULT> {
     if (birthdate) {
       birthdate_ = model::to_gmdate_string(*birthdate);
     } else {
-      birthdate_ = "";
+      birthdate_ = std::string();
     }
     
     if (pin) {
       pin_ = *pin;
     } else {
-      pin_ = "";
+      pin_ = std::string();
     }
   }
   

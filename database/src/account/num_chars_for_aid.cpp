@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace character {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct num_chars_for_aid : pqxx::transactor<> {
         num_chars_for_aid(const uint32_t& aid, const size_t& max_chars, std::optional<size_t>& rslt) :
           aid_(aid),
@@ -29,10 +29,10 @@ namespace ares {
   }
 }
 
-auto ares::character::database::num_chars_for_aid(const uint32_t aid, const size_t max_chars) -> std::optional<size_t> {
+auto ares::database::db::num_chars_for_aid(const uint32_t aid, const size_t max_chars) -> std::optional<size_t> {
   std::optional<size_t> rslt;
   with_wait_lock([this, &aid, &max_chars, &rslt] () {
-      db::num_chars_for_aid t(aid, max_chars, rslt);
+      detail::num_chars_for_aid t(aid, max_chars, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

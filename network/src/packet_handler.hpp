@@ -11,10 +11,6 @@ namespace ares {
       packet_handler(Server& serv, Session& sess, SessionState& session_state, std::shared_ptr<Packet>);
       ~packet_handler();
       
-      /*      size_t handle();
-      void pop_packet();
-      size_t packet_size() const; */
-      
       std::shared_ptr<spdlog::logger> log() const;
       const elelel::network_buffer& send_buf() const;
     protected:

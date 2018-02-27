@@ -1,15 +1,15 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace character {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct make_char : pqxx::transactor<> {
         make_char(const uint32_t& aid,
                   const std::string& name,
                   const uint8_t& slot,
                   const uint16_t& head_palette,
                   const uint16_t& head,
-                  const ares::JOB& job,
+                  const model::pc_job& job,
                   const uint8_t& sex,
                   const uint64_t& zeny,
                   const uint32_t& map_id,
@@ -37,7 +37,7 @@ namespace ares {
           const auto Int = 1;
           uint32_t hp = 40 * (100 + Vit) / 100;
           uint32_t sp = 11 * (100 + Int) / 100;
-          if (job_ == JOB::SUMMONER) {
+          if (job_ == model::pc_job::SUMMONER) {
             hp = 60 * (100 + Vit) / 100;
             sp = 8 * (100 + Int) / 100;
           }
@@ -77,7 +77,7 @@ namespace ares {
         const uint8_t& slot_;
         const uint16_t& head_palette_;
         const uint16_t& head_;
-        const ares::JOB& job_;
+        const model::pc_job& job_;
         const uint8_t& sex_;
         const uint64_t& zeny_;
         const uint32_t& map_id_;
@@ -91,21 +91,21 @@ namespace ares {
 }
 
 
-auto ares::character::database::make_char(const uint32_t aid,
-                                          const std::string& name,
-                                          const uint8_t slot,
-                                          const uint16_t head_palette,
-                                          const uint16_t head,
-                                          const ares::JOB job,
-                                          const uint8_t sex,
-                                          const uint64_t zeny,
-                                          const uint32_t map_id,
-                                          const uint16_t map_x,
-                                          const uint16_t map_y) -> std::optional<uint32_t> {
+auto ares::database::db::make_char(const uint32_t aid,
+                                       const std::string& name,
+                                       const uint8_t slot,
+                                       const uint16_t head_palette,
+                                       const uint16_t head,
+                                       const model::pc_job job,
+                                       const uint8_t sex,
+                                       const uint64_t zeny,
+                                       const uint32_t map_id,
+                                       const uint16_t map_x,
+                                       const uint16_t map_y) -> std::optional<uint32_t> {
   SPDLOG_TRACE(log_, "database::make_char name: '{}'", name);
   std::optional<uint32_t> rslt;
   with_wait_lock([this, &aid, &name, &slot, &head_palette, &head, &job, &sex, &zeny, &map_id, &map_x, &map_y, &rslt] () {
-      db::make_char t(aid, name, slot, head_palette, head, job, sex, zeny, map_id, map_x, map_y, rslt);
+      detail::make_char t(aid, name, slot, head_palette, head, job, sex, zeny, map_id, map_x, map_y, rslt);
       pqxx_conn_->perform(t);
     });
 

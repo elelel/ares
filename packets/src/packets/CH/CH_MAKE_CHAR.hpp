@@ -102,7 +102,7 @@ struct type<PacketSet, CH_MAKE_CHAR::no_stats> {
                       const uint8_t CharNum,
                       const uint16_t head_palette,
                       const uint16_t head,
-                      const uint16_t job,
+                      const model::pc_job job,
                       const uint8_t sex) {
     PacketType = PacketSet::template id_of<CH_MAKE_CHAR::no_stats>::value;
     name_ = name;
@@ -117,7 +117,7 @@ struct type<PacketSet, CH_MAKE_CHAR::no_stats> {
                        const uint8_t CharNum,
                        const uint16_t head_palette,
                        const uint16_t head,
-                       const uint16_t job,
+                       const model::pc_job job,
                        const uint8_t sex) {
     emplace(name, CharNum, head_palette, head, job, sex);
   }
@@ -138,7 +138,7 @@ struct type<PacketSet, CH_MAKE_CHAR::no_stats> {
     return head_;
   }
 
-  inline uint16_t job() const {
+  inline model::pc_job job() const {
     return job_;
   }
 
@@ -152,7 +152,7 @@ private:
   uint8_t CharNum_;
   uint16_t head_palette_;
   uint16_t head_;
-  uint16_t job_;
+  model::pc_job job_;
   uint16_t unknown_;
   uint8_t sex_;
 };

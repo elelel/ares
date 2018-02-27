@@ -1,4 +1,3 @@
 #pragma once
 
-#include "../src/database.hpp"
-#include "../src/definitions/database.hpp"
+#include "../../src/database.hpp"

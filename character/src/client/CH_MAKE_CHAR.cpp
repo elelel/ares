@@ -12,14 +12,14 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
     // TODO: Check if new char creation is allowed in server configuration
     if (p_->CharNum() < slots->creatable_slots) {
       // TODO: Check if slot is not used
-      const auto job = static_cast<ares::JOB>(p_->job());
-      if ((job == JOB::NOVICE) || (job == JOB::SUMMONER)) {
+      const auto job = p_->job();
+      if ((job == model::pc_job::NOVICE) || (job == model::pc_job::SUMMONER)) {
         // TODO: Starting zeny, locations from server config
         const uint32_t starting_zeny = 1000;
         std::string starting_map{"prt_fild00"};
         uint16_t starting_map_x{150};
         uint16_t starting_map_y{150};
-        if (job == JOB::SUMMONER) {
+        if (job == model::pc_job::SUMMONER) {
           starting_map = "lasa_fild01";
           starting_map_x = 48;
           starting_map_y = 297;
@@ -51,22 +51,22 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                 auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*ci->delete_date - std::chrono::system_clock::now());
                 delete_timeout = diff.count();
                 if (delete_timeout < 0) {
-                  log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci->pc.cid, ci->pc.aid, (delete_timeout / 1000) * -1);
+                  log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci->cid, ci->aid, (delete_timeout / 1000) * -1);
                 }
               }
 
               std::lock_guard<std::mutex> lock(server_.mutex());
-              const auto& last_map_name = server_.map_name_by_map_id(ci->pc.location_last.map_id);
+              const auto& last_map_name = server_.map_name_by_map_id(ci->location_last.map_id);
               if (last_map_name.size() > 0) {
                 session_.emplace_and_send<packet::current<packet::HC_ACCEPT_MAKECHAR>>();
-                session_.emplace_and_send<packet::CHARACTER_INFO>(ci->pc,
+                session_.emplace_and_send<packet::CHARACTER_INFO>(*ci,
                                                                   last_map_name,
                                                                   delete_timeout,
                                                                   1,  // TODO: Change slot enabled
                                                                   1  // TODO: Rename enabled
                                                                   );
               } else {
-                log()->error("Make char failed: last map id {} was not found in id to map name index", ci->pc.location_last.map_id);
+                log()->error("Make char failed: last map id {} was not found in id to map name index", ci->location_last.map_id);
                 session_.close_gracefuly();
               }
             } else {
@@ -82,7 +82,8 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           session_.close_gracefuly();
         }
       } else {
-        log()->error("Client with aid {} requested to create char with invalid job {}", c.aid, p_->job());
+        log()->error("Client with aid {} requested to create char with invalid job {}", c.aid,
+                     static_cast<std::underlying_type<decltype(p_->job())>::type>(p_->job()));
         session_.close_gracefuly();
       }
     } else {

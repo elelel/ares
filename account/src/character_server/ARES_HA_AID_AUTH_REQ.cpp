@@ -12,7 +12,7 @@ void ares::account::character_server::packet_handler<ares::packet::current<ares:
     const auto& data = found->as_client();
     if ((data.auth_code1 == p_->auth_code1()) &&
         (data.auth_code2 == p_->auth_code2())) {
-      session_.emplace_and_send<packet::current<packet::ARES_AH_AID_AUTH_RESULT>>(p_->request_id()
+      session_.emplace_and_send<packet::current<packet::ARES_AH_AID_AUTH_RESULT>>(p_->request_id(),
                                                                                   p_->aid(),
                                                                                   0);
     } else {
@@ -22,13 +22,13 @@ void ares::account::character_server::packet_handler<ares::packet::current<ares:
                    p_->auth_code1(),
                    data.auth_code2,
                    p_->auth_code2());
-      session_.emplace_and_send<packet::current<packet::ARES_AH_AID_AUTH_RESULT>>(p_->request_id()
+      session_.emplace_and_send<packet::current<packet::ARES_AH_AID_AUTH_RESULT>>(p_->request_id(),
                                                                                   p_->aid(),
                                                                                   1);
     }
   } else {
     log()->warn("Char server requested AID authentication for non-authenticated AID {}", p_->aid());
-    session_.emplace_and_send<packet::current<packet::ARES_AH_AID_AUTH_RESULT>>(p_->request_id()
+    session_.emplace_and_send<packet::current<packet::ARES_AH_AID_AUTH_RESULT>>(p_->request_id(),
                                                                                 p_->aid(),
                                                                                 1);
   }

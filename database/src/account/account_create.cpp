@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace character {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct account_create : pqxx::transactor<> {
         account_create(const uint32_t& aid,
                        const uint8_t& normal_slots,
@@ -43,17 +43,16 @@ namespace ares {
   }
 }
 
-void ares::character::database::account_create(const uint32_t aid,
-                                               const uint8_t normal_slots,
-                                               const uint8_t premium_slots,
-                                               const uint8_t billing_slots,
-                                               const uint8_t creatable_slots,
-                                               const uint8_t playable_slots,
-                                               const uint32_t bank_vault,
-                                               const uint32_t max_storage) {
+void ares::database::db::account_create(const uint32_t aid,
+                                        const uint8_t normal_slots,
+                                        const uint8_t premium_slots,
+                                        const uint8_t billing_slots,
+                                        const uint8_t creatable_slots,
+                                        const uint8_t playable_slots,
+                                        const uint32_t bank_vault,
+                                        const uint32_t max_storage) {
   with_wait_lock([this, &aid, &normal_slots, &premium_slots, &billing_slots, &creatable_slots, &playable_slots, &bank_vault, &max_storage] () {
-      db::account_create t(aid, normal_slots, premium_slots, billing_slots, creatable_slots, playable_slots, bank_vault, max_storage);
+      detail::account_create t(aid, normal_slots, premium_slots, billing_slots, creatable_slots, playable_slots, bank_vault, max_storage);
       pqxx_conn_->perform(t);
     });
 }
-

@@ -6,9 +6,9 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds{5})),
   conf_(conf),
-  db(log, *conf.postgres) {
+  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
 
-  std::vector<db::record::map_index> known_maps = db.whole_map_index();
+  auto known_maps = db.whole_map_index();
   for (const auto& m : known_maps) {
     map_name_to_id_[m.name] = m.id;
     map_id_to_name_[m.id] = m.name;
@@ -32,6 +32,8 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
     }
     log_->error("Configured map names that are not in SQL database and therefore will be ignored: {}", msg);
   }
+
+  // TODO: Maintain updated map list
 }
 
 void ares::character::server::start() {

@@ -76,7 +76,7 @@ private:
   int16_t sp_;
   int16_t maxsp_;
   int16_t speed_;
-  int16_t job_;
+  model::pc_job job_;
   int16_t head_;
   int16_t body_;
   int16_t weapon_;

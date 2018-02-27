@@ -39,15 +39,14 @@ set(SOURCES
   ${SRC}/mono/ATHENA_HA_PING_REQ.cpp
   ${SRC}/mono/ATHENA_HA_LOGIN_REQ.cpp
   ${SRC}/client/state.cpp
-  ${SRC}/database/database.cpp
-  ${SRC}/database/user_exists.cpp
-  ${SRC}/database/create_user.cpp
-  ${SRC}/database/password_matches.cpp
-  ${SRC}/database/user_data.cpp
   )
 
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)
+endif()
+
+if (NOT TARGET database) 
+  add_subdirectory(${DATABASE} database)
 endif()
 
 add_subdirectory(${CONTRIB}/memory memory)
@@ -75,6 +74,6 @@ set_target_properties(ares_account PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
   )
-target_link_libraries(ares_account foonathan_memory config common ${ARES_LINK_LIBRARIES})
+target_link_libraries(ares_account foonathan_memory config common database ${ARES_LINK_LIBRARIES})
 target_include_directories(ares_account PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_account PRIVATE ${ARES_COMPILE_DEFINITIONS})

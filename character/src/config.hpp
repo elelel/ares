@@ -25,7 +25,7 @@ namespace ares {
       };
       using account_server_config = std::optional<account_server_config_record>;
       std::optional<size_t> network_threads{std::optional<uint32_t>(2)}; // TODO: read from config
-      std::optional<postgres_config> postgres;
+      postgres_config postgres;
       endpoints_config listen_ipv4;
       std::optional<uint32_t> client_version;
       zone_server_config zone_servers;

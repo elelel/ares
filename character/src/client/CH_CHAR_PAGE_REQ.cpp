@@ -22,23 +22,23 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*ci.delete_date - std::chrono::system_clock::now());
           delete_timeout = diff.count();
           if (delete_timeout < 0) {
-            log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci.pc.cid, ci.pc.aid, (delete_timeout / 1000) * -1);
+            log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci.cid, ci.aid, (delete_timeout / 1000) * -1);
           }
         }
 
-        const auto& last_map_name = server_.map_name_by_map_id(ci.pc.location_last.map_id);
+        const auto& last_map_name = server_.map_name_by_map_id(ci.location_last.map_id);
         if (last_map_name.size() > 0) {
-          SPDLOG_TRACE(log(), "Sending character {} in response to char page req", ci.pc.cid);
+          SPDLOG_TRACE(log(), "Sending character {} in response to char page req", ci.cid);
 
-          session_.emplace_and_send<packet::CHARACTER_INFO>(ci.pc,
+          session_.emplace_and_send<packet::CHARACTER_INFO>(ci,
                                                           last_map_name,
                                                           delete_timeout,
-                                                          (ci.pc.slot < c.playable_slots) ? 1 : 0,
-                                                          (ci.pc.rename > 0) && (ci.pc.slot < c.playable_slots) ? 1 : 0
+                                                          (ci.slot < c.playable_slots) ? 1 : 0,
+                                                          (ci.rename > 0) && (ci.slot < c.playable_slots) ? 1 : 0
                                                           );
 
         } else {
-          log()->error("Character {} has unknown map id {} in last location, not sending to client", ci.pc.cid, ci.pc.location_last.map_id);
+          log()->error("Character {} has unknown map id {} in last location, not sending to client", ci.cid, ci.location_last.map_id);
           --k;
         }
         chars.pop_back();

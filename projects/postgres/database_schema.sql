@@ -1,3 +1,5 @@
+# CREATE EXTENSION pgcrypto;
+
 DROP TABLE IF EXISTS map_index;
 CREATE TABLE map_index(
   id serial PRIMARY KEY NOT NULL,
@@ -984,9 +986,22 @@ INSERT INTO map_index ("name", "external_id") VALUES ('1@pop1', 976);
 INSERT INTO map_index ("name", "external_id") VALUES ('1@pop2', 977);
 INSERT INTO map_index ("name", "external_id") VALUES ('1@pop3', 978);
 
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+  id serial PRIMARY KEY,
+  login varchar UNIQUE NOT NULL,
+  password varchar NOT NULL,
+  email varchar NOT NULL,
+  level int NOT NULL,
+  sex int NOT NULL,
+  expiration_time timestamp,
+  birthdate date,
+  pin varchar(4)
+);
+
 DROP TABLE IF EXISTS account_slots;
 CREATE TABLE account_slots (
-  aid int PRIMARY KEY NOT NULL,
+  aid int REFERENCES users(id) ON DELETE CASCADE,
   normal_slots smallint NOT NULL,
   premium_slots smallint NOT NULL,
   billing_slots smallint NOT NULL,
@@ -996,7 +1011,7 @@ CREATE TABLE account_slots (
 
 DROP TABLE IF EXISTS account_storage;
 CREATE TABLE account_storage (
-  aid int PRIMARY KEY NOT NULL UNIQUE,
+  aid int REFERENCES users(id) ON DELETE CASCADE,
   bank_vault bigint NOT NULL,
   max_storage bigint NOT NULL
 );
@@ -1037,7 +1052,6 @@ CREATE TABLE char_stats (
   job_level smallint NOT NULL,
   base_exp int NOT NULL,
   job_exp int NOT NULL,
-  zeny bigint NOT NULL,
 
   str smallint NOT NULL,
   agi smallint NOT NULL,
@@ -1058,6 +1072,12 @@ CREATE TABLE char_stats (
   virtue smallint NOT NULL,
   honor smallint NOT NULL
 );
+
+DROP TABLE IF EXISTS char_zeny;
+CREATE TABLE char_zeny (
+  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
+  zeny bigint NOT NULL
+);  
 
 DROP TABLE IF EXISTS char_last_location;
 CREATE TABLE char_last_location (

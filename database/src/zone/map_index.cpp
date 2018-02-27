@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace character {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct whole_map_index : pqxx::transactor<> {
         whole_map_index(std::vector<record::map_index>& rslt) :
           rslt_(rslt) {
@@ -27,10 +27,10 @@ namespace ares {
   }
 }
 
-auto ares::character::database::whole_map_index() -> std::vector<db::record::map_index> {
-  std::vector<db::record::map_index> rslt;
+auto ares::database::db::whole_map_index() -> std::vector<record::map_index> {
+  std::vector<record::map_index> rslt;
   with_wait_lock([this, &rslt] () {
-      db::whole_map_index t(rslt);
+      detail::whole_map_index t(rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

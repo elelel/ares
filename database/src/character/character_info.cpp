@@ -1,18 +1,18 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace character {
-    namespace db {
+  namespace database {
+    namespace detail {
       template <typename SqlRecord>
-      inline record::character_info& assign(record::character_info& ci, const SqlRecord& sql) {
-        auto& pc = ci.pc;
-
+      inline void assign(model::pc_info& pc, const SqlRecord& sql) {
         sql["id"].to(pc.cid);
-        std::string tmp;
-        sql["name"].to(tmp);
-        pc.name = tmp;
+        std::string tmp_str;
+        sql["name"].to(tmp_str);
+        pc.name = tmp_str;
         sql["sex"].to(pc.sex);
-        sql["job"].to(pc.job);
+        uint16_t tmp_uint16;
+        sql["job"].to(tmp_uint16);
+        pc.job = ares::model::pc_job{tmp_uint16};
 
         sql["slot"].to(pc.slot);
         sql["rename"].to(pc.rename);
@@ -60,16 +60,14 @@ namespace ares {
         sql["last_x"].to(pc.location_last.coords.x);
         sql["last_y"].to(pc.location_last.coords.y);
 
-        sql["delete_date"].to(ci.delete_date);
+        sql["delete_date"].to(pc.delete_date);
          
         // weapon can't be != 0 if the option is 'riding'
         if (pc.effect_state & 0x7e80020) { pc.weapon = 0; }
-        
-        return ci;
       }
       
       struct character_info_for_aid : pqxx::transactor<> {
-        character_info_for_aid(const uint32_t& aid, const size_t& max_chars, std::vector<record::character_info>& rslt) :
+        character_info_for_aid(const uint32_t& aid, const size_t& max_chars, std::vector<model::pc_info>& rslt) :
           aid_(aid),
           max_chars_(max_chars),
           rslt_(rslt) {
@@ -79,7 +77,7 @@ namespace ares {
           rslt_.clear();
           auto qr = trans.prepared("character_info_for_aid")(aid_)(max_chars_).exec();
           for (const auto& sql : qr) {
-            rslt_.push_back(record::character_info());
+            rslt_.push_back(model::pc_info());
             assign(rslt_[rslt_.size() - 1], sql);
           }
         }
@@ -87,11 +85,11 @@ namespace ares {
       private:
         uint32_t aid_;
         size_t max_chars_;
-        std::vector<record::character_info>& rslt_;
+        std::vector<model::pc_info>& rslt_;
       };
 
       struct character_info : pqxx::transactor<> {
-        character_info(const uint32_t& cid, std::optional<record::character_info>& rslt) :
+        character_info(const uint32_t& cid, std::optional<model::pc_info>& rslt) :
           cid_(cid),
           rslt_(rslt) {
         }
@@ -100,7 +98,7 @@ namespace ares {
           rslt_.reset();
           auto qr = trans.prepared("character_info")(cid_).exec();
           if (qr.size() > 0) {
-            record::character_info r;
+            model::pc_info r;
             assign(r, qr[0]);
             rslt_.emplace(std::move(r));
           }
@@ -108,11 +106,11 @@ namespace ares {
 
       private:
         uint32_t cid_;
-        std::optional<record::character_info>& rslt_;
+        std::optional<model::pc_info>& rslt_;
       };
       
       struct character_info_for_slot : pqxx::transactor<> {
-        character_info_for_slot(const uint32_t aid, const uint16_t slot, std::optional<record::character_info>& rslt) :
+        character_info_for_slot(const uint32_t aid, const uint16_t slot, std::optional<model::pc_info>& rslt) :
           aid_(aid),
           slot_(slot),
           rslt_(rslt) {
@@ -122,7 +120,7 @@ namespace ares {
           rslt_.reset();
           auto qr = trans.prepared("character_info_for_slot")(aid_)(slot_).exec();
           if (qr.size() > 0) {
-            record::character_info r;
+            model::pc_info r;
             assign(r, qr[0]);
             rslt_.emplace(std::move(r));
           }
@@ -131,36 +129,35 @@ namespace ares {
       private:
         uint32_t aid_;
         uint16_t slot_;
-        std::optional<record::character_info>& rslt_;
+        std::optional<model::pc_info>& rslt_;
       };
-        
       
     }
   }
 }
 
-auto ares::character::database::character_info_for_aid(const uint32_t aid, const size_t max_chars) -> std::vector<db::record::character_info> {
-  std::vector<db::record::character_info> rslt;
+auto ares::database::db::character_info_for_aid(const uint32_t aid, const size_t max_chars) -> std::vector<model::pc_info> {
+  std::vector<model::pc_info> rslt;
   with_wait_lock([this, aid, max_chars, &rslt] () {
-      db::character_info_for_aid t(aid, max_chars, rslt);
+      detail::character_info_for_aid t(aid, max_chars, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;
 }
 
-auto ares::character::database::character_info(const uint32_t cid) -> std::optional<db::record::character_info> {
-  std::optional<db::record::character_info> rslt;
+auto ares::database::db::character_info(const uint32_t cid) -> std::optional<model::pc_info> {
+  std::optional<model::pc_info> rslt;
   with_wait_lock([this, cid, &rslt] () {
-      db::character_info t(cid, rslt);
+      detail::character_info t(cid, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;
 }
 
-auto ares::character::database::character_info_for_slot(const uint32_t aid, const uint16_t slot) -> std::optional<db::record::character_info> {
-  std::optional<db::record::character_info> rslt;
+auto ares::database::db::character_info_for_slot(const uint32_t aid, const uint16_t slot) -> std::optional<model::pc_info> {
+  std::optional<model::pc_info> rslt;
   with_wait_lock([this, aid, slot, &rslt] () {
-      db::character_info_for_slot t(aid, slot, rslt);
+      detail::character_info_for_slot t(aid, slot, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

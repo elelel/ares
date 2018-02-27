@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace account {
-    namespace db {
+  namespace database {
+    namespace detail {
       template <typename QueryResult>
       void assign_result(std::optional<record::user_data>& rslt, QueryResult& qr) {
         if (qr.size() > 0) {
@@ -56,19 +56,19 @@ namespace ares {
   }
 }
 
-auto ares::account::database::user_data_for_login(const std::string& login) -> std::optional<db::record::user_data> {
-  std::optional<db::record::user_data> rslt;
+auto ares::database::db::user_data_for_login(const std::string& login) -> std::optional<record::user_data> {
+  std::optional<record::user_data> rslt;
   with_wait_lock([this, &login, &rslt] () {
-      db::user_data_for_login t(login, rslt);
+      detail::user_data_for_login t(login, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;
 }
 
-auto ares::account::database::user_data_for_aid(const uint32_t aid) -> std::optional<db::record::user_data> {
-  std::optional<db::record::user_data> rslt;
+auto ares::database::db::user_data_for_aid(const uint32_t aid) -> std::optional<record::user_data> {
+  std::optional<record::user_data> rslt;
   with_wait_lock([this, &aid, &rslt] () {
-      db::user_data_for_aid t(aid, rslt);
+      detail::user_data_for_aid t(aid, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

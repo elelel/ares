@@ -12,6 +12,12 @@ struct type<PacketSet, ARES_AH_AID_AUTH_RESULT> {
     result_ = result;
   }
 
+  explicit inline type(const uint32_t request_id,
+                       const uint32_t aid,
+                       const uint8_t result) {
+    emplace(request_id, aid, result);
+  }
+
   inline uint32_t aid() const {
     return aid_;
   }

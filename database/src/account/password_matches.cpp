@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace account {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct password_matches : pqxx::transactor<> {
         password_matches(const std::string& login, const std::string& password, bool& rslt) :
           login_(login),
@@ -23,10 +23,10 @@ namespace ares {
   }
 }
 
-bool ares::account::database::password_matches(const std::string& login, const std::string& password) {
+bool ares::database::db::password_matches(const std::string& login, const std::string& password) {
   bool rslt{false};
   with_wait_lock([this, &login, &password, &rslt] () {
-      db::password_matches t(login, password, rslt);
+      detail::password_matches t(login, password, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

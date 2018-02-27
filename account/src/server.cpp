@@ -7,7 +7,7 @@ ares::account::server::server(std::shared_ptr<spdlog::logger> log,
                               const ares::account::config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   conf_(conf),
-  db(log, *conf.postgres) {
+  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
   log_->set_level(spdlog::level::trace);
 }
 

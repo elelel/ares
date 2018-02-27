@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace account {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct user_exists : pqxx::transactor<> {
         user_exists(const std::string& login, bool& rslt) :
           transactor<>("user_exists"),
@@ -22,10 +22,10 @@ namespace ares {
   }
 }
 
-bool ares::account::database::user_exists(const std::string& login) {
+bool ares::database::db::user_exists(const std::string& login) {
   bool rslt{false};
   with_wait_lock([this, &login, &rslt]() {
-      db::user_exists t(login, rslt);
+      detail::user_exists t(login, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

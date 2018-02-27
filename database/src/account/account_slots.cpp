@@ -1,8 +1,8 @@
-#include "database.hpp"
+#include "../database.hpp"
 
 namespace ares {
-  namespace character {
-    namespace db {
+  namespace database {
+    namespace detail {
       struct account_slots_for_aid : pqxx::transactor<> {
         account_slots_for_aid(const uint32_t aid, std::optional<record::account_slots>& rslt) :
           aid_(aid),
@@ -33,10 +33,10 @@ namespace ares {
   }
 }
 
-auto ares::character::database::account_slots_for_aid(const uint32_t aid) -> std::optional<db::record::account_slots> {
-  std::optional<db::record::account_slots> rslt;
+auto ares::database::db::account_slots_for_aid(const uint32_t aid) -> std::optional<record::account_slots> {
+  std::optional<record::account_slots> rslt;
   with_wait_lock([this, &aid, &rslt] () {
-      db::account_slots_for_aid t(aid, rslt);
+      detail::account_slots_for_aid t(aid, rslt);
       pqxx_conn_->perform(t);
     });
   return rslt;

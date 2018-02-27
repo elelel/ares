@@ -1,11 +1,52 @@
 #include "database.hpp"
 
-ares::character::database::database(std::shared_ptr<spdlog::logger> log, const config::postgres_config& conf) :
-  ares::database<database>(log, conf->dbname, conf->host, conf->port, conf->user, conf->password) {
-  SPDLOG_TRACE(log, "ares::character::database::database");
+ares::database::db::db(std::shared_ptr<spdlog::logger> log,
+                                 const std::string& dbname,
+                                 const std::string& host,
+                                 const uint16_t port,
+                                 const std::string& user,
+                                 const std::string& password) :
+  log_(log) {
+  SPDLOG_TRACE(log, "ares::database::db::db");
+  std::string conn_str;
+  if (host != "") conn_str += " host=" + host;
+  if (port != 0) conn_str += " port=" + std::to_string(port);
+  if (dbname != "") conn_str += " dbname=" + dbname;
+  if (user != "") conn_str += " user=" + user;
+  if (password != "") conn_str += " password=" + password;
 
+  try {
+    pqxx_conn_ = std::unique_ptr<pqxx::connection>(new pqxx::connection(conn_str));
+  } catch (std::exception& e) {
+    log_->error("Could not open PostgreSQL database, " + std::string(e.what()));
+    throw e;
+  }
+  
   if (pqxx_conn_) {
     // Prepare statements
+    pqxx_conn_->prepare("create_user", R"(
+INSERT INTO "users" (login, password) VALUES ($1, crypt($2, gen_salt('bf')));
+)");
+
+    pqxx_conn_->prepare("password_matches", R"(
+SELECT "id" FROM "users"
+    WHERE ("login" = $1) AND (password = crypt($2, password)) LIMIT 1;
+)");
+
+    pqxx_conn_->prepare("user_data_for_login", R"(
+SELECT "id", "login", "email", "level", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
+    WHERE ("login" = $1) LIMIT 1;
+)");
+    pqxx_conn_->prepare("user_data_for_aid", R"(
+SELECT "id", "login", "level", "email", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
+  WHERE ("id" = $1) LIMIT 1;
+)");
+
+    pqxx_conn_->prepare("user_exists", R"(
+SELECT "id" FROM "users" WHERE (login = $1) LIMIT 1;
+)");
+  SPDLOG_TRACE(log, "ares::account::database::database done preparing statements");
+
     pqxx_conn_->prepare("account_create", R"(
 WITH s AS (
  INSERT INTO "account_slots" ("aid", "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots") VALUES ($1, $2, $3, $4, $5, $6)) 
@@ -106,7 +147,7 @@ VALUES ($1, $2, $3, $4)
 
     pqxx_conn_->prepare("whole_map_index", R"(SELECT id, external_id, name FROM map_index )");
     
-    SPDLOG_TRACE(log, "ares::character::database::database done preparing statements");
+    SPDLOG_TRACE(log, "done preparing statements");
   }
 }
 

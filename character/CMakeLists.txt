@@ -18,6 +18,7 @@ set(MODEL "${ARES_DIR}/model")
 set(PACKETS "${ARES_DIR}/packets")
 set(DATABASE "${ARES_DIR}/database")
 set(CONTRIB "${ARES_DIR}/contrib")
+set(DATABASE "${ARES_DIR}/database")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
@@ -48,18 +49,14 @@ set(SOURCES
   ${SRC}/zone_server/ATHENA_ZH_PING_REQ.cpp
   ${SRC}/zone_server/ARES_ZH_MAP_NAMES_REQ.cpp
   ${SRC}/zone_server/ARES_ZH_CID_AUTH_REQ.cpp
-  ${SRC}/database/database.cpp
-  ${SRC}/database/account_create.cpp
-  ${SRC}/database/account_storage.cpp
-  ${SRC}/database/account_slots.cpp
-  ${SRC}/database/num_chars_for_aid.cpp
-  ${SRC}/database/character_info.cpp
-  ${SRC}/database/make_char.cpp
-  ${SRC}/database/map_index.cpp
   )
 
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)
+endif()
+
+if (NOT TARGET database) 
+  add_subdirectory(${DATABASE} database)
 endif()
 
 add_subdirectory(${CONTRIB}/memory memory)
@@ -78,6 +75,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/network_buffer/include
   ${CONTRIB}/RxCpp/Rx/v2/src
   ${CONTRIB}/memory/include
+  ${DATABASE}/include
   ${ARES_DIR})
 
 message("Character server compile definitions: ${ARES_COMPILE_DEFINITIONS}")
@@ -88,6 +86,6 @@ set_target_properties(ares_character PROPERTIES
   LINK_FLAGS "${ARES_LINK_FLAGS}"
   )
 
-target_link_libraries(ares_character foonathan_memory config common ${ARES_LINK_LIBRARIES})
+target_link_libraries(ares_character foonathan_memory config common database ${ARES_LINK_LIBRARIES})
 target_include_directories(ares_character PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_character PRIVATE ${ARES_COMPILE_DEFINITIONS})

@@ -7,7 +7,6 @@
 
 #include "auth_request_manager.hpp"
 #include "session.hpp"
-#include "database/database.hpp"
 
 namespace ares {
   namespace character {
@@ -80,7 +79,7 @@ namespace ares {
       const config& conf_;
       
     public:
-      character::database db;
+      ares::database::db db;
 
     };
   }
