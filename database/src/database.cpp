@@ -34,11 +34,11 @@ SELECT "id" FROM "users"
 )");
 
     pqxx_conn_->prepare("user_data_for_login", R"(
-SELECT "id", "login", "email", "level", "expiration_time", "birthdate", "pin"  FROM "users"
+SELECT "id", "login", "email", "level", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
     WHERE ("login" = $1) LIMIT 1;
 )");
     pqxx_conn_->prepare("user_data_for_aid", R"(
-SELECT "id", "login", "level", "email", "expiration_time", "birthdate", "pin"  FROM "users"
+SELECT "id", "login",  "email", "level", "sex", "expiration_time", "birthdate", "pin"  FROM "users"
   WHERE ("id" = $1) LIMIT 1;
 )");
 

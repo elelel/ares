@@ -1,12 +1,13 @@
 # CREATE EXTENSION pgcrypto;
 
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
   id serial PRIMARY KEY,
   login varchar UNIQUE NOT NULL,
   password varchar NOT NULL,
   email varchar NOT NULL,
   level int NOT NULL,
+  sex int NOT NULL,
   expiration_time timestamp,
   birthdate date,
   pin varchar(4)
@@ -93,7 +94,7 @@ CREATE TABLE char_zeny (
 );  
 
 
-DROP TABLE IF EXISTS map_index;
+DROP TABLE IF EXISTS map_index CASCADE;
 CREATE TABLE map_index(
   id serial PRIMARY KEY NOT NULL,
   external_id int NOT NULL,

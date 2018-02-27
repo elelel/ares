@@ -54,6 +54,7 @@ namespace ares {
                   c.account_level = user_data->level;
                   c.clienttype = clienttype;
                   c.version = version;
+                  SPDLOG_TRACE(log(), "Sending sex {}", user_data->sex);
                   c.sex = user_data->sex;
                   c.auth_code1 = auth_code1;
                   c.auth_code2 = auth_code2;
