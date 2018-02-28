@@ -13,27 +13,51 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
     map_name_to_id_[m.name] = m.id;
     map_id_to_name_[m.id] = m.name;
   }
-  
+
+  std::set<std::string> used_maps;
   std::vector<std::string> unknown_maps;
+  std::vector<std::string> duplicate_maps;
   for (const auto& zs : conf.zone_servers) {
     for (const auto& m : zs.maps) {
-      if (map_name_to_id_.find(m) == map_name_to_id_.end()) {
+      auto found = map_name_to_id_.find(m);
+      if (found != map_name_to_id_.end()) {
+        if (used_maps.find(m) == used_maps.end()) {
+          zone_login_to_maps_[zs.login].push_back(found->second);
+          used_maps.insert(m);
+        } else {
+          duplicate_maps.push_back(m);
+        }
+      } else {
         unknown_maps.push_back(m);
       }
     }
   }
-  
+
+  std::string msg;
   if (unknown_maps.size() > 0) {
+    msg = "Unknown map names: ";
     bool need_comma = false;
-    std::string msg;
+    for (const auto& m : unknown_maps) {
+      if (need_comma) msg += ", ";
+      msg += m;
+      need_comma = true;
+    }
+    msg += ". ";
+  }
+  if (duplicate_maps.size() > 0) {
+    msg = msg + "Maps assigned to more than one zone server: ";
+    bool need_comma = false;
     for (const auto& m : unknown_maps) {
       if (need_comma) msg += ", ";
       msg += m;
     }
-    log_->error("Configured map names that are not in SQL database and therefore will be ignored: {}", msg);
+    msg += ".";
   }
 
-  // TODO: Maintain updated map list
+  if (msg.size() > 0) {
+    log_->error("Error in maps configuration. " + msg);
+    throw std::runtime_error("Error in maps configuration. " + msg);
+  }
 }
 
 void ares::character::server::start() {

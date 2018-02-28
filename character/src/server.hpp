@@ -75,6 +75,7 @@ namespace ares {
 
       std::unordered_map<std::string, uint32_t> map_name_to_id_;
       std::map<uint32_t, std::string> map_id_to_name_;
+      std::map<std::string, std::vector<uint32_t>> zone_login_to_maps_;
 
       const config& conf_;
       
