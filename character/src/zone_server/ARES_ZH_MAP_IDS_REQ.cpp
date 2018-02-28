@@ -5,10 +5,12 @@ void ares::character::zone_server::packet_handler<ares::packet::current<ares::pa
   SPDLOG_TRACE(log(), "ARES_ZH_MAP_IDS_REQ: begin");
   auto& maps_to_send = session_.as_zone_server().maps_to_send;
   if (maps_to_send.size() > 0) {
-    const size_t batch_sz =
+    size_t batch_sz =
       p_->buf_sz() * sizeof(uint32_t) > (session_.send_buf().unfragmented_free_size())
       ? session_.send_buf().unfragmented_free_size()
       : p_->buf_sz();
+    batch_sz = batch_sz > maps_to_send.size() ? maps_to_send.size() : batch_sz;
+
     if (batch_sz > 20) {
       const size_t data_sz = batch_sz * 4;
       SPDLOG_TRACE(log(), "Creating map ids batch of {} bytes", data_sz);
@@ -16,7 +18,7 @@ void ares::character::zone_server::packet_handler<ares::packet::current<ares::pa
       session_.copy_and_send(maps_to_send.data(), data_sz);
       std::copy(maps_to_send.begin(), maps_to_send.begin() + batch_sz,
                 std::inserter(session_.as_zone_server().map_ids, session_.as_zone_server().map_ids.begin()));
-      maps_to_send.erase(maps_to_send.begin(), maps_to_send.end() + batch_sz);
+      maps_to_send.erase(maps_to_send.begin(), maps_to_send.begin() + batch_sz);
     } else {
       log()->error("Can't send maps to zone server: buffer size limits are too low, closing session");
       session_.close_gracefuly();
