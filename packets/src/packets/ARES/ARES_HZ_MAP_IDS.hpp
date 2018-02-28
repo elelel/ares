@@ -1,7 +1,7 @@
 template <typename PacketSet>
-struct type<PacketSet, ARES_HZ_MAP_NAMES> {
+struct type<PacketSet, ARES_HZ_MAP_IDS> {
   using packet_set = PacketSet;
-  using packet_name = ARES_HZ_MAP_NAMES;
+  using packet_name = ARES_HZ_MAP_IDS;
   
   inline void emplace(const std::set<std::string>& maps) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
@@ -24,12 +24,12 @@ struct type<PacketSet, ARES_HZ_MAP_NAMES> {
     emplace(sz);
   }
 
-  const char* map_names() const {
-    return map_names_;
+  const uint32_t* map_ids() const {
+    return map_ids_;
   }
   
   uint16_t PacketType;
   uint16_t PacketLength;
 private:
-  char map_names_[];
+  uint32_t map_ids_[];
 };

@@ -18,6 +18,7 @@ set(MODEL "${ARES_DIR}/model")
 set(PACKETS "${ARES_DIR}/packets")
 set(DATABASE "${ARES_DIR}/database")
 set(CONTRIB "${ARES_DIR}/contrib")
+set(DATABASE "${ARES_DIR}/database")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
@@ -25,7 +26,7 @@ set(SOURCES
   ${SRC}/mono/state.cpp  
   ${SRC}/mono/CZ_ENTER.cpp
   ${SRC}/character_server/state.cpp
-  ${SRC}/character_server/ARES_HZ_MAP_NAMES.cpp
+  ${SRC}/character_server/ARES_HZ_MAP_IDS.cpp
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
@@ -35,12 +36,14 @@ set(SOURCES
   ${SRC}/server.cpp
   ${SRC}/session.cpp
   ${SRC}/config.cpp
-  ${SRC}/database/database.cpp
-  ${SRC}/database/map_index.cpp
   )
 
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)
+endif()
+
+if (NOT TARGET database) 
+  add_subdirectory(${DATABASE} database)
 endif()
 
 add_subdirectory(${CONTRIB}/memory memory)
@@ -68,6 +71,6 @@ set_target_properties(ares_zone PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
   )
-target_link_libraries(ares_zone foonathan_memory config common ${ARES_LINK_LIBRARIES})
+target_link_libraries(ares_zone foonathan_memory config common database ${ARES_LINK_LIBRARIES})
 target_include_directories(ares_zone PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_zone PRIVATE ${ARES_COMPILE_DEFINITIONS})

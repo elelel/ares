@@ -22,7 +22,7 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
       auto found = map_name_to_id_.find(m);
       if (found != map_name_to_id_.end()) {
         if (used_maps.find(m) == used_maps.end()) {
-          zone_login_to_maps_[zs.login].push_back(found->second);
+          zone_login_to_maps[zs.login].push_back(found->second);
           used_maps.insert(m);
         } else {
           duplicate_maps.push_back(m);

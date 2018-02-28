@@ -1,11 +1,11 @@
 #pragma once
 
 #include <ares/network>
+#include <ares/database>
 
 #include "auth_request_manager.hpp"
 #include "config.hpp"
 #include "session.hpp"
-#include "database/database.hpp"
 
 namespace ares {
   namespace zone {
@@ -29,9 +29,13 @@ namespace ares {
       const session_ptr& char_server() const;
       const config& conf() const;
 
-      std::set<std::string> map_names;
+      std::set<uint32_t> map_ids;
 
       std::shared_ptr<auth_request_manager> auth_requests;
+
+      std::unordered_map<std::string, uint32_t> map_name_to_id;
+      std::map<uint32_t, std::string> map_id_to_name;
+      
     protected:
       friend ares::network::server<server, session>;
       friend ares::network::acceptor<server>;
@@ -55,7 +59,7 @@ namespace ares {
       const config& conf_;
       
     public:
-      database db;
+      ares::database::db db;
 
     };
   }

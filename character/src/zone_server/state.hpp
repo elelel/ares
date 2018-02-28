@@ -37,8 +37,8 @@ namespace ares {
 
         // Data
         std::string login;
-        std::list<std::string> maps_to_send;
-        std::unordered_set<std::string> map_names;
+        std::vector<uint32_t> maps_to_send;
+        std::set<uint32_t> map_ids;
         
         asio::ip::address_v4 ip_v4;
         uint16_t port;
@@ -60,7 +60,7 @@ namespace ares {
       ARES_PACKET_HANDLER(ATHENA_ZH_USER_COUNT);
       ARES_PACKET_HANDLER(ATHENA_ZH_GAME_RATES);
       ARES_PACKET_HANDLER(ATHENA_ZH_PING_REQ);
-      ARES_PACKET_HANDLER(ARES_ZH_MAP_NAMES_REQ);
+      ARES_PACKET_HANDLER(ARES_ZH_MAP_IDS_REQ);
       ARES_PACKET_HANDLER(ARES_ZH_CID_AUTH_REQ);
     }
   }

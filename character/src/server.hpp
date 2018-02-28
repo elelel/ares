@@ -4,6 +4,7 @@
 #include <set>
 
 #include <ares/network>
+#inlcude <ares/database>
 
 #include "auth_request_manager.hpp"
 #include "session.hpp"
@@ -44,7 +45,8 @@ namespace ares {
       const std::set<session_ptr>& zone_servers() const;
 
       std::shared_ptr<auth_request_manager> auth_requests;
-      
+
+      std::map<std::string, std::vector<uint32_t>> zone_login_to_maps;
       // Data
       uint16_t state_num{0};
       uint16_t property{0};
@@ -75,7 +77,6 @@ namespace ares {
 
       std::unordered_map<std::string, uint32_t> map_name_to_id_;
       std::map<uint32_t, std::string> map_id_to_name_;
-      std::map<std::string, std::vector<uint32_t>> zone_login_to_maps_;
 
       const config& conf_;
       

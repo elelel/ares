@@ -101,8 +101,8 @@ namespace ares {
     struct ATHENA_HZ_CID_AUTH_FAILED {};
 
     // Ares
-    struct ARES_ZH_MAP_NAMES_REQ {};
-    struct ARES_HZ_MAP_NAMES {};
+    struct ARES_ZH_MAP_IDS_REQ {};
+    struct ARES_HZ_MAP_IDS {};
     struct ARES_HA_AID_AUTH_REQ {};
     struct ARES_AH_AID_AUTH_RESULT {};
     struct ARES_ZH_CID_AUTH_REQ {};

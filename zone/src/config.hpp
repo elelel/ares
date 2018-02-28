@@ -19,7 +19,7 @@ namespace ares {
       using character_server_config = std::optional<character_server_config_record>;
 
       std::optional<size_t> network_threads{std::optional<size_t>(2)};
-      std::optional<postgres_config> postgres;
+      postgres_config postgres;
       endpoints_config listen_ipv4;
       character_server_config character_server;
       std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> obfuscation_key;

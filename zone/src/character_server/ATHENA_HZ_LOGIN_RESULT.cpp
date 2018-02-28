@@ -7,7 +7,7 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
   // TODO: Check if char server isn't closed
   if (p_->ErrorCode() == 0) {
     log()->info("Connected to character server, sending map names");
-    session_.emplace_and_send<packet::current<packet::ARES_ZH_MAP_NAMES_REQ>>(32 * 1024);
+    session_.emplace_and_send<packet::current<packet::ARES_ZH_MAP_IDS_REQ>>(32 * 1024);
     state_.reset_ping_character_server_timer();
     // TODO: start timer with ATHENA_ZH_PING_REQ
   } else {

@@ -8,7 +8,13 @@ ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds(5))),
   conf_(conf),
-  db(log, *conf.postgres) {
+  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
+  
+  auto known_maps = db.whole_map_index();
+  for (const auto& m : known_maps) {
+    map_name_to_id[m.name] = m.id;
+    map_id_to_name[m.id] = m.name;
+  }
 }
 
 void ares::zone::server::start() {
