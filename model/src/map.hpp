@@ -4,8 +4,10 @@
 
 namespace ares {
   namespace model {
-    struct map {
-      std::map<uint32_t, model::pc_info> pcs;
+    struct map_info {
+      uint16_t x_size;
+      uint16_t y_size;
+      std::vector<uint8_t> cell_flags;
     };
   }
 }

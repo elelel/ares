@@ -100,7 +100,8 @@ namespace ares {
 
       std::vector<record::map_index> whole_map_index();
 
-
+      std::optional<model::map_info> map_info(const size_t map_id);
+      
     private:
       /*! Execute function under database mutex lock, that will ensure sequencing and thread safety
         \param f function to execute under the database mutex lock

@@ -12,6 +12,8 @@ ares::zone::config::config(std::shared_ptr<spdlog::logger> log,
   load_character_server();
   load_network_threads();
   load_obfuscation_key();
+  load_grfs();
+  load_grf_resnametable_idx();
   validate();
 }
 
@@ -21,6 +23,12 @@ void ares::zone::config::validate() {
   if (!character_server) {
     if (need_comma) msg += ", ";
     msg += "character server is missing";
+    need_comma = true;
+  }
+
+  if ((grfs.size() > 0) && (*grf_resnametable_idx >= grfs.size())) {
+    if (need_comma) msg += ", ";
+    msg += "grf resname table index is out of bounds";
     need_comma = true;
   }
 
@@ -76,20 +84,52 @@ void ares::zone::config::load_network_threads() {
 void ares::zone::config::load_obfuscation_key() {
   auto load_obfuscation_key = [this] () {
     auto j_key = json_.find("obfuscation_key");
-    if ((j_key != json_.end()) && (j_key->is_array()) && (j_key->size() == 3)) {
-      uint32_t k[3];
-      for (size_t i = 0; i < 3; ++i) {
-        std::stringstream ss;
-        ss << std::hex << std::string((*j_key)[i]);
-        ss >> k[i]; 
-      }
+    if (j_key != json_.end()) {
+      if ((j_key->is_array()) && (j_key->size() == 3)) {
+        uint32_t k[3];
+        for (size_t i = 0; i < 3; ++i) {
+          std::stringstream ss;
+          ss << std::hex << std::string((*j_key)[i]);
+          ss >> k[i]; 
+        }
 
-      obfuscation_key.emplace(std::make_tuple(k[0], k[1], k[2]));
-      log_->info("New sessions will be initialized with obfuscation key: {:x}, {:x}, {:x}",
-              std::get<0>(*obfuscation_key), std::get<1>(*obfuscation_key), std::get<2>(*obfuscation_key)); 
-    } else {
-      log_->warn("Packet header obfuscation key should be an array of 3 itegers");
+        obfuscation_key.emplace(std::make_tuple(k[0], k[1], k[2]));
+        log_->info("New sessions will be initialized with obfuscation key: {:x}, {:x}, {:x}",
+                   std::get<0>(*obfuscation_key), std::get<1>(*obfuscation_key), std::get<2>(*obfuscation_key)); 
+      } else {
+        log_->warn("Packet header obfuscation key should be an array of 3 itegers");
+      }
     }
   };
   with_catch("obfuscation_key", load_obfuscation_key);
+}
+
+void ares::zone::config::load_grfs() {
+  auto load_grfs = [this] () {
+    auto j_grfs = json_.find("grfs");
+    if (j_grfs != json_.end()) {
+      if (j_grfs->is_array()) {
+        for (const auto& grf : *j_grfs) {
+          grfs.push_back(grf);
+        }
+      } else {
+        log_->warn("List of grfs files in config should be an array");
+      }
+    }
+  };
+  with_catch("load_grfs", load_grfs);
+}
+
+void ares::zone::config::load_grf_resnametable_idx() {
+  auto load_grf_resnametable_idx = [this] () {
+    auto j_gri = json_.find("grf_resnametable_idx");
+    if (j_gri != json_.end()) {
+      if (j_gri->is_number()) {
+        grf_resnametable_idx = *j_gri;
+      } else {
+        log_->warn("Index of grf containing resnametable in config should be a number");
+      }
+    }
+  };
+  with_catch("load_grf_resnametable_idx", load_grf_resnametable_idx);
 }

@@ -157,6 +157,12 @@ VALUES ($1, $2, $3, $4)
 )");
 
     pqxx_conn_->prepare("whole_map_index", R"(SELECT id, external_id, name FROM map_index )");
+
+    pqxx_conn_->prepare("map_info", R"(SELECT x_size, y_size, cell_flags FROM map_info WHERE map_id = $1 )");
+
+    pqxx_conn_->prepare("delete_map_info", R"(DROP FROM map_info WHERE map_id = $1 )");
+
+    pqxx_conn_->prepare("insert_map_info", R"(INSERT INTO map_info (x_size, y_size, cell_flags) VALUES ($1, $2, $3) )");
     
     SPDLOG_TRACE(log, "done preparing statements");
   }

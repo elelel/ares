@@ -93,12 +93,19 @@ CREATE TABLE char_zeny (
   zeny bigint NOT NULL
 );  
 
-
 DROP TABLE IF EXISTS map_index CASCADE;
 CREATE TABLE map_index(
   id serial PRIMARY KEY NOT NULL,
   external_id int NOT NULL,
   name varchar(18) UNIQUE NOT NULL
+);
+
+DROP TABLE IF EXISTS map_info;
+CREATE TABLE map_info (
+  map_id int REFERENCES map_index(id),
+  x_size smallint,
+  y_size smallint,
+  cell_flags bytea
 );
 
 DROP TABLE IF EXISTS char_last_location;

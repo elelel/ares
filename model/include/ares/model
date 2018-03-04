@@ -5,6 +5,7 @@
 #include "../../src/account.hpp"
 #include "../../src/location.hpp"
 #include "../../src/pc.hpp"
+#include "../../src/map.hpp"
 
 #include "../../src/definition/utils.hpp"
 #include "../../src/definition/fixed_string.hpp"

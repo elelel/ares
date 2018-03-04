@@ -23,6 +23,7 @@ set(SOURCES
   ${SRC}/character/make_char.cpp
   ${SRC}/character/delete_date.cpp
   ${SRC}/zone/map_index.cpp
+  ${SRC}/zone/map_info.cpp
   )
 
 add_library(database STATIC ${SOURCES})

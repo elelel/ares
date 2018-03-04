@@ -1,4 +1,4 @@
-#include <ares/common>
+#include <ares/common/random>
 
 #include "state.hpp"
 #include "../server.hpp"
