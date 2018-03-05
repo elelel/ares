@@ -7,7 +7,7 @@
 
 namespace ares {
   struct des {
-    inline static void decrypt_block(uint64_t* block) {
+    inline static void decrypt_block(uint64_t& block) {
       initial_permutation(block);
       round(block);
       final_permutation(block);
@@ -15,7 +15,7 @@ namespace ares {
     
   private:
 
-    inline static void permutation(const std::array<uint8_t, 64>& p_table, uint64_t* src) {
+    inline static void permutation(const std::array<uint8_t, 64>& p_table, uint64_t& src) {
       static const std::array<uint8_t, 8> mask{0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
 
       uint64_t tmp{0};
@@ -25,11 +25,11 @@ namespace ares {
         const uint8_t j = p_table[i] - 1;
         if (s[(j >> 3) & 7] & mask[j & 7]) d[(i >> 3) & 7] |= mask[i & 7]; 
       }
-      *src = tmp;
+      src = tmp;
     }
     
     /// Initial permutation (IP).
-    inline static void initial_permutation(uint64_t* src) {
+    inline static void initial_permutation(uint64_t& src) {
       static const std::array<uint8_t, 64> ip_table{
         58, 50, 42, 34, 26, 18, 10, 2,
           60, 52, 44, 36, 28, 20, 12, 4,
@@ -43,7 +43,7 @@ namespace ares {
     }
 
     /// Final permutation (IP^-1).    
-    inline static void final_permutation(uint64_t* src) {
+    inline static void final_permutation(uint64_t& src) {
       static const std::array<uint8_t, 64> fp_table{
         40, 8, 48, 16, 56, 24, 64, 32,
           39, 7, 47, 15, 55, 23, 63, 31,
@@ -58,7 +58,7 @@ namespace ares {
 
     /// Expansion (E).
     /// Expands upper four 8-bits (32b) into eight 6-bits (48b).
-    inline static void expansion(uint64_t* src) {
+    inline static void expansion(uint64_t& src) {
       uint64_t tmp{0};
       auto s = (uint8_t*)&src;
       auto d = (uint8_t*)&tmp;
@@ -70,11 +70,11 @@ namespace ares {
       d[5] = ((s[6]<<1) | (s[7]>>7)) & 0x3f;
       d[6] = ((s[6]<<5) | (s[7]>>3)) & 0x3f;
       d[7] = ((s[7]<<1) | (s[4]>>7)) & 0x3f;
-      *src = tmp;
+      src = tmp;
     }
 
     /// Transposition (P-BOX).
-    inline static void transposition(uint64_t* src) {
+    inline static void transposition(uint64_t& src) {
       static const std::array<uint8_t, 64> tp_table{
         16, 7, 20, 21,
           29, 12, 28, 17,
@@ -94,12 +94,12 @@ namespace ares {
         const uint8_t j = tp_table[i] - 1;
         if (s[(j >> 3) + 0] & mask[j & 7]) d[(i >> 3) + 4] |= mask[i & 7]; 
       }
-      *src = tmp;
+      src = tmp;
     }
 
     /// Substitution boxes (S-boxes).
     /// NOTE: This implementation was optimized to process two nibbles in one step (twice as fast).
-    inline static void substitution(uint64_t* src) {
+    inline static void substitution(uint64_t& src) {
       static const std::array<uint8_t, 64> s_table[4] {
         {
           0xef, 0x03, 0x41, 0xfd, 0xd8, 0x74, 0x1e, 0x47,  0x26, 0xef, 0xfb, 0x22, 0xb3, 0xd8, 0x84, 0x1e,
@@ -131,19 +131,19 @@ namespace ares {
       for (size_t i = 0; i < 4; ++i) {
         d[i] = (s_table[i][s[i * 2 + 0]] & 0xf0) | (s_table[i][s[i * 2 + 1]] & 0x0f);
       }
-      *src = tmp;
+      src = tmp;
     }
     
     /// DES round function.
     /// XORs src[0..3] with TP(SBOX(E(src[4..7]))).
-    inline static void round(uint64_t* src) {
-      uint64_t tmp;
+    inline static void round(uint64_t& src) {
+      uint64_t tmp = src;
       auto s = (uint8_t*)&src;
       auto d = (uint8_t*)&tmp;
 
-      expansion(&tmp);
-      substitution(&tmp);
-      transposition(&tmp);
+      expansion(tmp);
+      substitution(tmp);
+      transposition(tmp);
 
       s[0] ^= d[4];
       s[1] ^= d[5];
