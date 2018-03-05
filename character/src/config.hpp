@@ -32,7 +32,9 @@ namespace ares {
       account_server_config account_server;
       std::optional<std::string> server_name;
       std::optional<std::string> priv_msg_server_name;
-
+      std::vector<std::string> grfs;
+      void load_grfs();
+      
       // Server level character parameters used in char creation
       // TODO: Check which slots limits are not needed, convert to optional
       uint8_t normal_slots;

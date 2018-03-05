@@ -23,15 +23,11 @@ namespace ares {
       endpoints_config listen_ipv4;
       character_server_config character_server;
       std::optional<std::tuple<uint32_t, uint32_t, uint32_t>> obfuscation_key;
-
-      std::vector<std::string> grfs;
-      
     private:
       void validate();
       void load_character_server();
       void load_network_threads();
       void load_obfuscation_key();
-      void load_grfs();
     };
     
   }

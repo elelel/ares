@@ -12,7 +12,6 @@ ares::zone::config::config(std::shared_ptr<spdlog::logger> log,
   load_character_server();
   load_network_threads();
   load_obfuscation_key();
-  load_grfs();
   validate();
 }
 
@@ -96,20 +95,3 @@ void ares::zone::config::load_obfuscation_key() {
   };
   with_catch("obfuscation_key", load_obfuscation_key);
 }
-
-void ares::zone::config::load_grfs() {
-  auto load_grfs = [this] () {
-    auto j_grfs = json_.find("grfs");
-    if (j_grfs != json_.end()) {
-      if (j_grfs->is_array()) {
-        for (const auto& grf : *j_grfs) {
-          grfs.push_back(grf);
-        }
-      } else {
-        log_->warn("List of grfs files in config should be an array");
-      }
-    }
-  };
-  with_catch("load_grfs", load_grfs);
-}
-

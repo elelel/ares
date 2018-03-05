@@ -1,5 +1,7 @@
 #include "server.hpp"
 
+#include <ares/common/grf>
+
 ares::character::server::server(std::shared_ptr<spdlog::logger> log,
                                 std::shared_ptr<asio::io_context> io_context,
                                 const config& conf) :
@@ -14,21 +16,49 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
     map_id_to_name_[m.id] = m.name;
   }
 
+  std::shared_ptr<ares::grf::resource_set> resources;
   std::set<std::string> used_maps;
   std::vector<std::string> unknown_maps;
   std::vector<std::string> duplicate_maps;
   for (const auto& zs : conf.zone_servers) {
-    for (const auto& m : zs.maps) {
-      auto found = map_name_to_id_.find(m);
+    for (const auto& map_name : zs.maps) {
+      auto found = map_name_to_id_.find(map_name);
       if (found != map_name_to_id_.end()) {
-        if (used_maps.find(m) == used_maps.end()) {
-          zone_login_to_maps[zs.login].push_back(found->second);
-          used_maps.insert(m);
+        auto map_id = found->second;
+        if (used_maps.find(map_name) == used_maps.end()) {
+          zone_login_to_maps[zs.login].push_back(map_id);
+          used_maps.insert(map_name);
+
+          auto map_info = db.map_info(map_id);
+          if (!map_info || (uint32_t(map_info->x_size * map_info->y_size) != map_info->cell_flags.size())) {
+            log_->warn("Information for map with name '{}' (id {}) does not exist in database cache or corrupt, loading from resources", map_name, map_id);
+            if (resources == nullptr) {
+              try {
+                log_->info("Reinitializing resources...");
+                resources = std::make_shared<ares::grf::resource_set>(conf.grfs);
+              } catch (std::runtime_error e) {
+                log_->error("Failed to initialize dir/grf resources - {}", e.what());
+                throw std::runtime_error(std::string("Failed to initialize dir/grf resources - ") + e.what());
+              }
+            }
+            auto gat_fn = resources->find_resource_file(map_name + ".gat");
+            if (!gat_fn) { gat_fn = "data\\" + map_name + ".gat"; };
+            auto rsw_fn = resources->find_resource_file(map_name + ".rsw");
+            if (!rsw_fn) { rsw_fn = "data\\" + map_name + ".rsw"; };
+            auto gat = resources->read_file(*gat_fn);
+            auto rsw = resources->read_file(*rsw_fn);
+            if (gat && rsw && (gat->size() > 0) && (rsw->size() > 0)) {
+              // ... Make data and save to sql
+            } else {
+              log_->error("Could not load gat/rsw for map id {} ({})", map_id, map_name);
+              throw std::runtime_error("Could not load gat/rsw for map id " + std::to_string(map_id) + " (" + map_name +")");
+            }
+          } 
         } else {
-          duplicate_maps.push_back(m);
+          duplicate_maps.push_back(map_name);
         }
       } else {
-        unknown_maps.push_back(m);
+        unknown_maps.push_back(map_name);
       }
     }
   }
