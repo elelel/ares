@@ -4,7 +4,7 @@
  A rewrite of Athena's grfio library for Ares
  */
 
-#include <zlib.h>
+
 
 #include <vector>
 #include <unordered_map>
@@ -40,20 +40,20 @@ namespace ares {
     };
 
     struct resource_set {
-      resource_set(const std::vector<std::string>& filenames,
-                   const size_t resnametable_idx = 0);
+      resource_set(const std::vector<std::string>& filenames);
+      std::optional<std::string> find_resource_file(const std::string& src);
+      std::optional<std::vector<uint8_t>> read_file(const std::string& pathfn);
+
     private:
       std::vector<std::shared_ptr<std::string>> sources;
       std::unordered_map<std::string, std::string> resnametable;
-      std::unordered_map<std::string, resource> resources;
+      std::unordered_map<std::string, std::vector<resource>> resources;
       size_t last_source_id{0};
-      size_t resnametable_idx_{0};
 
       std::shared_ptr<std::string> get_source(const std::string& source);      
-      void add_local_dir(const std::string& dir_path, const size_t source_idx);
-      void add_grf(const std::string& grf_path, const size_t source_idx);
+      void add_local_dir(const std::string& dir_path);
+      void add_grf(const std::string& grf_path);
       void parse_resnametable(const std::string& buf);
-      std::optional<std::vector<uint8_t>> read_file(const std::string& pathfn);
       std::optional<std::vector<uint8_t>> read_file_local_dir(const resource& r);
       std::optional<std::vector<uint8_t>> read_file_grf(const resource& r);
       void decode_grf(std::vector<uint8_t>& compressed, FILELIST_TYPE type, uint32_t compressed_sz) const;

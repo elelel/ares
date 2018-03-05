@@ -13,7 +13,6 @@ ares::zone::config::config(std::shared_ptr<spdlog::logger> log,
   load_network_threads();
   load_obfuscation_key();
   load_grfs();
-  load_grf_resnametable_idx();
   validate();
 }
 
@@ -23,12 +22,6 @@ void ares::zone::config::validate() {
   if (!character_server) {
     if (need_comma) msg += ", ";
     msg += "character server is missing";
-    need_comma = true;
-  }
-
-  if ((grfs.size() > 0) && (*grf_resnametable_idx >= grfs.size())) {
-    if (need_comma) msg += ", ";
-    msg += "grf resname table index is out of bounds";
     need_comma = true;
   }
 
@@ -120,16 +113,3 @@ void ares::zone::config::load_grfs() {
   with_catch("load_grfs", load_grfs);
 }
 
-void ares::zone::config::load_grf_resnametable_idx() {
-  auto load_grf_resnametable_idx = [this] () {
-    auto j_gri = json_.find("grf_resnametable_idx");
-    if (j_gri != json_.end()) {
-      if (j_gri->is_number()) {
-        grf_resnametable_idx = *j_gri;
-      } else {
-        log_->warn("Index of grf containing resnametable in config should be a number");
-      }
-    }
-  };
-  with_catch("load_grf_resnametable_idx", load_grf_resnametable_idx);
-}

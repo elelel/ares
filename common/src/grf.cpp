@@ -9,26 +9,26 @@
 #include <iostream>
 #include <type_traits>
 
+#include <zlib.h>
+#include <LzmaDec.h>
+
 #include "des.hpp"
 #include "grf_structs.hpp"
 
-ares::grf::resource_set::resource_set(const std::vector<std::string>& filenames, const size_t resnametable_idx) :
-  resnametable_idx_(resnametable_idx) {
-  size_t i{0};
+ares::grf::resource_set::resource_set(const std::vector<std::string>& filenames) {
   for (const auto& filename : filenames) {
     std::error_code ec;
     namespace fs = std::experimental::filesystem;
     auto filepath = fs::path(filename);
     if (fs::exists(filepath, ec) && (ec.value() == 0)) {
       if (fs::is_directory(filepath)) {
-        add_local_dir(filepath, i);
+        add_local_dir(filepath);
       } else if (fs::is_regular_file(filepath) && (filepath.extension() == ".grf")) {
-        add_grf(filepath, i);
+        add_grf(filepath);
       }
     } else {
       throw std::runtime_error("ares::grf path " + filename + " does not exist or error determining file existence");
     }
-    ++i;
   }
 }
 
@@ -45,7 +45,7 @@ std::shared_ptr<std::string> ares::grf::resource_set::get_source(const std::stri
   }
 }
 
-void ares::grf::resource_set::add_local_dir(const std::string& dir_path, const size_t source_idx) {
+void ares::grf::resource_set::add_local_dir(const std::string& dir_path) {
   namespace fs = std::experimental::filesystem;
   for (const auto& p : fs::recursive_directory_iterator(dir_path)) {
     if (fs::is_regular_file(p)) {
@@ -56,19 +56,19 @@ void ares::grf::resource_set::add_local_dir(const std::string& dir_path, const s
       f.name = path;
       f.uncompressed_sz = fs::file_size(p.path());
 
-      if ((source_idx == resnametable_idx_ ) && (f.name == "resnametable.txt")) {
+      if (f.name == "data\\resnametable.txt") {
         std::ifstream file(path, std::ios::binary | std::ios::ate);
         std::streamsize sz = file.tellg();
         std::string text(sz, '\0');
         file.read(text.data(), sz);
         parse_resnametable(text);
       }
-      resources[path] = std::move(f);
+      resources[path].push_back(std::move(f));
     }
   }
 }
 
-void ares::grf::resource_set::add_grf(const std::string& grf_path, const size_t source_idx) {
+void ares::grf::resource_set::add_grf(const std::string& grf_path) {
   namespace fs = std::experimental::filesystem;
   auto grf_sz = fs::file_size(grf_path);
   std::ifstream f(grf_path);
@@ -85,8 +85,8 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path, const size_t 
           std::vector<uint8_t> uncompressed(filetable_header.uncompressed_sz);
           f.read((char*)compressed.data(), compressed.size());
           uLongf actual_sz = uncompressed.size();
-          uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), compressed.size());
-          if (actual_sz == uncompressed.size()) {
+          auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), compressed.size());
+          if ((zlib_rc == Z_OK) && (actual_sz == uncompressed.size())) {
             size_t ofs = 0;
             while (ofs < uncompressed.size()) {
               resource r;
@@ -101,14 +101,14 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path, const size_t 
               r.type = info->type;
               ofs += r.name.size() + 1 + sizeof(structs::filetable_entry_info);
               auto fname = r.name;
-              resources[fname] = std::move(r);
-              if ((source_idx == resnametable_idx_ ) && (fname == "data\\resnametable.txt")) {
+              resources[fname].push_back(std::move(r));
+              if (fname == "data\\resnametable.txt") {
                 auto buf = read_file(fname);
                 if (buf) {
                   std::string text(buf->begin(), buf->end());
                   parse_resnametable(text);
                 } else {
-                  throw std::runtime_error("ares::grf resnametable was not found in " + grf_path);
+                  throw std::runtime_error("ares::grf resnametable could not be read from " + grf_path);
                 }
               }
             }
@@ -128,15 +128,30 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path, const size_t 
 }
 
 std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file(const std::string& pathfn) {
+  std::optional<std::vector<uint8_t>> rslt;
   auto found = resources.find(pathfn);
   if (found != resources.end()) {
-    if (found->second.storage == STORAGE::LOCAL_DIR) {
-      return read_file_local_dir(found->second);
-    } else {
-      return read_file_grf(found->second);
+    auto rs = found->second;
+    // Cycle through sources until we get the file, starting from the last source loaded
+    while ((rs.size() > 0) && (!rslt || (rslt->size() == 0))) {
+      auto &r = rs[rs.size() - 1];
+      if (r.storage == STORAGE::LOCAL_DIR) {
+        rslt = read_file_local_dir(r);
+      } else {
+        rslt = read_file_grf(r);
+      }
+      rs.pop_back();
     }
+  }
+  return rslt;
+}
+
+std::optional<std::string> ares::grf::resource_set::find_resource_file(const std::string& src) {
+  auto found = resnametable.find(src);
+  if (found != resnametable.end()) {
+    return std::optional<std::string>("data\\" + found->second);
   } else {
-    return std::optional<std::vector<uint8_t>>();
+    return std::optional<std::string>();
   }
 }
 
@@ -147,6 +162,10 @@ std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file_local_dir
   f.read((char*)rslt->data(), rslt->size());
   return rslt;
 }
+
+static void * AllocForLzma(ISzAllocPtr, size_t size) { return malloc(size); }
+static void FreeForLzma(ISzAllocPtr, void *address) { free(address); }
+static ISzAlloc SzAllocForLzma = { &AllocForLzma, &FreeForLzma };
 
 std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file_grf(const resource& r) {
   std::optional<std::vector<uint8_t>> rslt;
@@ -159,9 +178,25 @@ std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file_grf(const
   f.read((char*)compressed.data(), compressed.size());
   decode_grf(compressed, FILELIST_TYPE(r.type), r.compressed_sz);
   uLongf actual_sz = uncompressed.size();
-  uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), compressed.size());
+  auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), compressed.size());
+  if (((zlib_rc != Z_OK) || (actual_sz == 0)) && (compressed[0] == 0)) {
+    actual_sz = uncompressed.size();
+    ELzmaStatus lzma_status;
+    auto data_sz = compressed.size() - LZMA_PROPS_SIZE - 1;
+    auto lzma_res = LzmaDecode(uncompressed.data(), &actual_sz,
+                               &compressed[1 + LZMA_PROPS_SIZE], &data_sz,
+                               &compressed[1], LZMA_PROPS_SIZE,
+                               LZMA_FINISH_ANY, &lzma_status, &SzAllocForLzma);
+    if (lzma_res != SZ_OK) {
+      throw std::runtime_error("ares::grf could not uncompress resource '" + r.name + "' from source '" + *r.source
+                               + "' with any known methods");
+    }
+  }
+
   if (actual_sz != r.uncompressed_sz) {
-    throw std::runtime_error("ares::grf uncompressed resource size mismatch");
+    throw std::runtime_error("ares::grf uncompressed resource '" + r.name + "' size mismatch in source '" + *r.source + "': "
+                             + "compressed size " + std::to_string(compressed.size()) + ", uncompressed size expected "
+                             + std::to_string(r.uncompressed_sz) + ", actual " + std::to_string(actual_sz));
   }
   rslt.emplace(std::move(uncompressed));
   return rslt;
@@ -233,8 +268,6 @@ void ares::grf::resource_set::decrypt_grf_shuffle(uint64_t& src) const {
 
 void ares::grf::resource_set::parse_resnametable(const std::string& buf) {
   namespace fs = std::experimental::filesystem;
-  resnametable.clear();
-
   const char* b = buf.c_str();
   size_t start = 0;
   size_t end = buf.find("\r\n");
@@ -254,8 +287,6 @@ void ares::grf::resource_set::parse_resnametable(const std::string& buf) {
     }
     start = end;
     end = buf.find("\r\n", end);
-    if (end == std::string::npos) end = buf.size() - start; else end += 2;
+    if (end == std::string::npos) { end = buf.size(); } else end += 2;
   }
-
 }
-

@@ -28,6 +28,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/json/include
   ${CONTRIB}/asio/asio/include
   ${CONTRIB}/spdlog/include
+  ${CONTRIB}/lzma
   )
 
 target_include_directories(common PRIVATE ${INCLUDE_DIRS})

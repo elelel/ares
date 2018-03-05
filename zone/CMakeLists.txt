@@ -38,6 +38,8 @@ set(SOURCES
   ${SRC}/config.cpp
   )
 
+add_subdirectory(${CONTRIB}/lzma lzma)
+
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)
 endif()
@@ -73,6 +75,6 @@ set_target_properties(ares_zone PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
   )
-target_link_libraries(ares_zone foonathan_memory config common database ${ZLIB_LIBRARIES} stdc++fs ${ARES_LINK_LIBRARIES})
+target_link_libraries(ares_zone foonathan_memory config common database ${ZLIB_LIBRARIES} stdc++fs lzma ${ARES_LINK_LIBRARIES})
 target_include_directories(ares_zone PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_zone PRIVATE ${ARES_COMPILE_DEFINITIONS})

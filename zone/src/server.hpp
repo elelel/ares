@@ -2,6 +2,7 @@
 
 #include <ares/network>
 #include <ares/database>
+#include <ares/common/grf>
 
 #include "auth_request_manager.hpp"
 #include "config.hpp"
@@ -35,7 +36,8 @@ namespace ares {
 
       std::unordered_map<std::string, uint32_t> map_name_to_id;
       std::map<uint32_t, std::string> map_id_to_name;
-      
+
+      std::shared_ptr<ares::grf::resource_set> grf_resources;
     protected:
       friend ares::network::server<server, session>;
       friend ares::network::acceptor<server>;
