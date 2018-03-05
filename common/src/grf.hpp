@@ -52,7 +52,6 @@ namespace ares {
       std::shared_ptr<std::string> get_source(const std::string& source);      
       void add_local_dir(const std::string& dir_path, const size_t source_idx);
       void add_grf(const std::string& grf_path, const size_t source_idx);
-      void load_resnametable(const std::string& from_path);
       void parse_resnametable(const std::string& buf);
       std::optional<std::vector<uint8_t>> read_file(const std::string& pathfn);
       std::optional<std::vector<uint8_t>> read_file_local_dir(const resource& r);

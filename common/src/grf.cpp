@@ -88,7 +88,6 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path, const size_t 
           uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), compressed.size());
           if (actual_sz == uncompressed.size()) {
             size_t ofs = 0;
-            std::cout << " grf index " << source_idx << " " << resnametable_idx_ << std::endl;
             while (ofs < uncompressed.size()) {
               resource r;
               r.storage = STORAGE::GRF;
@@ -103,7 +102,6 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path, const size_t 
               ofs += r.name.size() + 1 + sizeof(structs::filetable_entry_info);
               auto fname = r.name;
               resources[fname] = std::move(r);
-              //              std::cout << fname << std::endl;
               if ((source_idx == resnametable_idx_ ) && (fname == "data\\resnametable.txt")) {
                 auto buf = read_file(fname);
                 if (buf) {
@@ -138,7 +136,6 @@ std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file(const std
       return read_file_grf(found->second);
     }
   } else {
-    std::cout << "File not found " << pathfn << std::endl;
     return std::optional<std::vector<uint8_t>>();
   }
 }
@@ -234,26 +231,6 @@ void ares::grf::resource_set::decrypt_grf_shuffle(uint64_t& src) const {
   src = tmp;
 }
 
-void ares::grf::resource_set::load_resnametable(const std::string& from_path) {
-  namespace fs = std::experimental::filesystem;
-  std::error_code ec;
-  if (fs::exists(from_path, ec) && (ec.value() == 0)) {
-    if (fs::is_directory(from_path)) {
-    } else if (fs::is_regular_file(from_path) && (fs::path(from_path).extension() == ".grf")) {
-      auto buf = read_file(from_path);
-      if (buf) {
-        std::cout << "Read resname table " << std::endl;
-      } else {
-        throw std::runtime_error("ares::grf " + from_path + " could not be read from the specified grf");
-      }
-    } else {
-      throw std::runtime_error("ares::grf " + from_path + " is invalid location for resnametable (neither a directory, nor a regular file with 'grf' extension");
-    }
-  } else {
-    throw std::runtime_error("ares::grf resnametable path " + from_path + " does not exist or error determining file existence");
-  }
-}
-
 void ares::grf::resource_set::parse_resnametable(const std::string& buf) {
   namespace fs = std::experimental::filesystem;
   resnametable.clear();
@@ -262,7 +239,6 @@ void ares::grf::resource_set::parse_resnametable(const std::string& buf) {
   size_t start = 0;
   size_t end = buf.find("\r\n");
   if (end == std::string::npos) end = buf.size(); else end += 2;
-  std::cout << "1111" << std::endl;
   while ((end - start > 0) && (start != std::string::npos)) {
     if (!((buf[start] == '/') && (buf[start+1] == '/'))) {
       std::string_view row(&b[start], end - start);
@@ -272,7 +248,6 @@ void ares::grf::resource_set::parse_resnametable(const std::string& buf) {
         std::string src(std::string_view(&row[0], split1));
         std::string dst(std::string_view(&row[split1 + 1], split2 - split1 - 1));
         if ((fs::path(dst).extension() == ".gat") || (fs::path(dst).extension() == ".rsw")) {
-          std::cout << "got '" << src << "' and '" << dst << "'" << std::endl;
           resnametable[src] = dst;
         }
       }
