@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <experimental/filesystem>
+#include <string_view>
 #include <system_error>
 #include <sstream>
 #include <fstream>
@@ -256,20 +257,30 @@ void ares::grf::resource_set::load_resnametable(const std::string& from_path) {
 void ares::grf::resource_set::parse_resnametable(const std::string& buf) {
   namespace fs = std::experimental::filesystem;
   resnametable.clear();
-  std::stringstream s(buf);
-  while (s.good() && !s.eof()) {
-    char line[1024];
-    s.getline(line, 1024);
-    char w1[256];
-    char w2[256];
-    // TODO: Fix line parsing
-    if (sscanf(line, "%255[^#\r\n]#%255[^#\r\n]#", w1, w2) == 2 ) {
-      auto src = fs::path(w1);
-      auto dst = fs::path(w2);
-      if ((dst.extension() == "gat") || (dst.extension() == "rsw")) {
-        resnametable[src] = dst;
+
+  const char* b = buf.c_str();
+  size_t start = 0;
+  size_t end = buf.find("\r\n");
+  if (end == std::string::npos) end = buf.size(); else end += 2;
+  std::cout << "1111" << std::endl;
+  while ((end - start > 0) && (start != std::string::npos)) {
+    if (!((buf[start] == '/') && (buf[start+1] == '/'))) {
+      std::string_view row(&b[start], end - start);
+      auto split1 = row.find('#');
+      auto split2 = row.find('#', split1 + 1);
+      if ((split1 != std::string::npos) && (split2 != std::string::npos)) {
+        std::string src(std::string_view(&row[0], split1));
+        std::string dst(std::string_view(&row[split1 + 1], split2 - split1 - 1));
+        if ((fs::path(dst).extension() == ".gat") || (fs::path(dst).extension() == ".rsw")) {
+          std::cout << "got '" << src << "' and '" << dst << "'" << std::endl;
+          resnametable[src] = dst;
+        }
       }
     }
+    start = end;
+    end = buf.find("\r\n", end);
+    if (end == std::string::npos) end = buf.size() - start; else end += 2;
   }
+
 }
 
