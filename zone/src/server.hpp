@@ -53,8 +53,6 @@ namespace ares {
       std::map<uint32_t, session_ptr> clients_;
       session_ptr char_server_;
       std::set<session_ptr> mono_;
-
-      std::map<uint32_t, std::pair<session_ptr, std::chrono::time_point<std::chrono::steady_clock>>> auth_cid_requests_;
       
       const config& conf_;
       

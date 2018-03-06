@@ -24,12 +24,13 @@ set(DATABASE "${ARES_DIR}/database")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/auth_request_manager.cpp
+  ${SRC}/maps_manager.cpp
   ${SRC}/main.cpp
   ${SRC}/server.cpp
   ${SRC}/session.cpp
   ${SRC}/config.cpp
   ${SRC}/mono/CH_ENTER.cpp
-  ${SRC}/auth_request_manager.cpp
   ${SRC}/account_server/state.cpp  
   ${SRC}/account_server/ATHENA_AH_LOGIN_RESULT.cpp
   ${SRC}/account_server/ATHENA_AH_PING_ACK.cpp

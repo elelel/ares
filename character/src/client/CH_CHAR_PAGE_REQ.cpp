@@ -25,7 +25,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           }
         }
 
-        const auto& last_map_name = server_.map_name_by_map_id(ci.location_last.map_id);
+        const auto& last_map_name = server_.maps->name_by_id(ci.location_last.map_id);
         if (last_map_name.size() > 0) {
           SPDLOG_TRACE(log(), "Sending character {} in response to char page req", ci.cid);
 

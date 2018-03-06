@@ -156,13 +156,15 @@ INSERT INTO "char_save_location" ("cid", "map_id", "x", "y")
 VALUES ($1, $2, $3, $4)
 )");
 
-    pqxx_conn_->prepare("whole_map_index", R"(SELECT id, external_id, name FROM map_index )");
+    pqxx_conn_->prepare("map_name_index", R"(SELECT id, external_id, "name" FROM maps )");
 
-    pqxx_conn_->prepare("map_info", R"(SELECT x_size, y_size, cell_flags FROM map_info WHERE map_id = $1 )");
+    pqxx_conn_->prepare("delete_map_info_by_name", R"(DELETE FROM maps WHERE name = $1 )");
 
-    pqxx_conn_->prepare("delete_map_info", R"(DELETE FROM map_info WHERE map_id = $1 )");
+    pqxx_conn_->prepare("insert_map_info", R"(INSERT INTO maps ("name", x_size, y_size, cell_flags) VALUES ($1, $2, $3, $4) )");
 
-    pqxx_conn_->prepare("insert_map_info", R"(INSERT INTO map_info (map_id, x_size, y_size, cell_flags) VALUES ($1, $2, $3, $4) )");
+    pqxx_conn_->prepare("map_id_by_name", R"(SELECT id FROM maps WHERE "name" = $1 )");
+    
+    pqxx_conn_->prepare("map_info", R"(SELECT x_size, y_size, cell_flags FROM maps WHERE id = $1 )");
     
     SPDLOG_TRACE(log, "done preparing statements");
   }

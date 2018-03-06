@@ -13,6 +13,7 @@ namespace ares {
       void defuse_asio();
       uint32_t new_request(std::shared_ptr<Session> s);
       std::shared_ptr<Session> responded(const uint32_t request_id);
+      void cancel(std::shared_ptr<Session> s);
       
     protected:
       Server& server_;

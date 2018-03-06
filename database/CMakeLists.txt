@@ -24,6 +24,7 @@ set(SOURCES
   ${SRC}/character/delete_date.cpp
   ${SRC}/zone/map_index.cpp
   ${SRC}/zone/map_info.cpp
+  ${SRC}/zone/create_map.cpp
   )
 
 add_library(database STATIC ${SOURCES})

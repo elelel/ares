@@ -4,38 +4,16 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
                                 std::shared_ptr<asio::io_context> io_context,
                                 const config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
-  auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds{5})),
   conf_(conf),
-  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
+  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password),
+  auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds{5})),
+  maps(std::make_shared<maps_manager>(*this)) {
 
-  log_->info("Loading maps configuration");
-  auto known_maps = db.whole_map_index();
-  for (const auto& m : known_maps) {
-    map_name_to_id_[m.name] = m.id;
-    map_id_to_name_[m.id] = m.name;
-  }
 
   std::shared_ptr<ares::grf::resource_set> resources;
   std::set<std::string> used_maps;
   std::vector<std::string> unknown_maps;
   std::vector<std::string> duplicate_maps;
-  for (const auto& zs : conf.zone_servers) {
-    for (const auto& map_name : zs.maps) {
-      auto found = map_name_to_id_.find(map_name);
-      if (found != map_name_to_id_.end()) {
-        auto map_id = found->second;
-        if (used_maps.find(map_name) == used_maps.end()) {
-          zone_login_to_maps[zs.login].push_back(map_id);
-          used_maps.insert(map_name);
-          verify_db_map_info(map_id, map_name, resources);
-        } else {
-          duplicate_maps.push_back(map_name);
-        }
-      } else {
-        unknown_maps.push_back(map_name);
-      }
-    }
-  }
 
   std::string msg;
   if (unknown_maps.size() > 0) {
@@ -61,65 +39,6 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
   if (msg.size() > 0) {
     log_->error("Error in maps configuration. " + msg);
     throw std::runtime_error("Error in maps configuration. " + msg);
-  }
-}
-
-void ares::character::server::verify_db_map_info(const uint32_t map_id, const std::string& map_name, std::shared_ptr<ares::grf::resource_set>& resources) {
-  bool map_ok{true};
-  auto map_info = db.map_info(map_id);
-  if (!map_info || (uint32_t(map_info->x_size * map_info->y_size) != map_info->cell_flags.size())) {
-    map_ok = false;
-  } else {
-    for (const auto& f : map_info->cell_flags) {
-      if ((f.data() & ~(model::map_cell_flags::walkable | model::map_cell_flags::shootable | model::map_cell_flags::water)) != 0) {
-        SPDLOG_TRACE(log_, "Unknown map_cell_flags {}", f.data());
-        map_ok = false;
-        break;
-      }
-    }
-  }
-  if (!map_ok) {
-    log_->warn("Information for map with name '{}' (id {}) does not exist in database cache or is corrupt, loading from dir/grf resources", map_name, map_id);
-    if (map_info)
-      std::cout << map_info->x_size * map_info->y_size << " " << map_info->cell_flags.size() << std::endl;
-    if (resources == nullptr) {
-      try {
-        log_->info("Reinitializing dir/grf resources...");
-        resources = std::make_shared<ares::grf::resource_set>(conf().grfs);
-      } catch (std::runtime_error e) {
-        log_->error("Failed to initialize dir/grf resources - {}", e.what());
-        throw std::runtime_error(std::string("Failed to initialize dir/grf resources - ") + e.what());
-      }
-    }
-    auto gat_fn = resources->find_resource_file(map_name + ".gat");
-    if (!gat_fn) { gat_fn = "data\\" + map_name + ".gat"; };
-    auto rsw_fn = resources->find_resource_file(map_name + ".rsw");
-    if (!rsw_fn) { rsw_fn = "data\\" + map_name + ".rsw"; };
-    auto gat = resources->read_file(*gat_fn);
-    auto rsw = resources->read_file(*rsw_fn);
-    model::map_info mi;
-    if (gat && rsw && (gat->size() > 0) && (rsw->size() > 0)) {
-      const auto& g = *gat;
-      const auto& r = *rsw;
-      mi.x_size = *(int32_t*)(&(g[6]));
-      mi.y_size = *(int32_t*)(&(g[10]));
-      const auto water_height = *(float*)(&(r[166]));
-      const size_t xy_size = mi.x_size * mi.y_size;
-      size_t off{14};
-      for (size_t xy = 0; xy < xy_size; ++xy) {
-        auto height = *(float*)(&(g[off]));
-        auto type = *(uint32_t*)(&(g[off + 16]));
-        if ((type == 0) && (height > water_height)) type = 3;
-        mi.cell_flags.push_back(model::map_cell_flags(model::map_cell_gat_type::from_gat_uint32(type)));
-        off += 20;
-      }
-      db.save_map_info(map_id, mi);
-    } else {
-      log_->error("Could not load gat/rsw for map id {} ('{}')", map_id, map_name);
-      throw std::runtime_error("Could not load gat/rsw for map id " + std::to_string(map_id) + " ('" + map_name +"')");
-    }
-  } else {
-    log_->info("Verified map '{}' id {} - dimensions {}x{}", map_name, map_id, map_info->x_size, map_info->y_size);
   }
 }
 
@@ -193,12 +112,8 @@ void ares::character::server::remove(session_ptr s) {
       serv(serv), s(s) {};
 
     void operator()(const mono::state&) {
-      decltype(auth_aid_requests_)::iterator found;
-      while ((found =
-              std::find_if(serv.auth_aid_requests_.begin(), serv.auth_aid_requests_.end(), [this] (auto p) {
-                  return p.second.first == s;
-                })) != serv.auth_aid_requests_.end()) {
-        serv.auth_aid_requests_.erase(found);
+      if (serv.auth_requests) {
+        serv.auth_requests->cancel(s);
       }
       serv.mono_.erase(s);
     }
@@ -214,6 +129,7 @@ void ares::character::server::remove(session_ptr s) {
           ++it;
         }
       }
+      serv.maps->remove_zone_session(s);
       serv.zone_servers_.erase(s);
     }
 
@@ -274,50 +190,4 @@ void ares::character::server::unlink_aid_from_zone_server(const uint32_t aid, se
       log_->warn("unlink_aid_from_zone_server aid is linked to another zone server session, not unlinking");
     }
   }
-}
- 
-void ares::character::server::add_auth_aid_request(const int32_t request_id, session_ptr s) {
-  prune_auth_aid_requests();
-  auto now = std::chrono::steady_clock::now();
-  auth_aid_requests_.insert({request_id, {s, now}});
-}
-
-auto ares::character::server::session_by_auth_request_id(const int32_t request_id) -> session_ptr {
-  prune_auth_aid_requests();
-  auto found = auth_aid_requests_.find(request_id);
-  if (found != auth_aid_requests_.end()) return found->second.first;
-  return nullptr;
-}
-
-void ares::character::server::remove_auth_aid_request(const int32_t request_id) {
-  auth_aid_requests_.erase(request_id);
-}
-
-void ares::character::server::prune_auth_aid_requests() {
-  auto now = std::chrono::steady_clock::now();
-  std::vector<session_ptr> timed_out;
-  for (const auto& p : auth_aid_requests_) {
-    if (now - p.second.second > std::chrono::seconds{60}) {
-      timed_out.push_back(p.second.first);
-    }
-  }
-  for (auto s : timed_out) remove(s);
-}
-
-const std::string& ares::character::server::map_name_by_map_id(const uint32_t map_id) const {
-  static std::string empty_string;
-  auto found = map_id_to_name_.find(map_id);
-  if (found != map_id_to_name_.end()) {
-    return found->second;
-  }
-  return empty_string;
-}
-
-uint32_t ares::character::server::map_id_by_map_name(const std::string& name) const {
-  static std::string empty_string;
-  auto found = map_name_to_id_.find(name);
-  if (found != map_name_to_id_.end()) {
-    return found->second;
-  }
-  return 0;
 }

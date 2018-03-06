@@ -27,26 +27,9 @@ namespace ares {
         std::optional<model::map_info>& rslt_;
       };
 
-      struct save_map_info : pqxx::transactor<> {
-        save_map_info(const uint32_t id, const model::map_info& info) :
-          id_(id),
-          info_(info) {
-        }
-
-        void operator()(argument_type& trans) {
-          trans.prepared("delete_map_info")(id_).exec();
-          pqxx::binarystring blob(info_.cell_flags.data(), info_.cell_flags.size());
-          trans.prepared("insert_map_info")(id_)(info_.x_size)(info_.y_size)(blob).exec();
-        }
-
-      private:
-        uint32_t id_;
-        const model::map_info& info_;
-      };
     }
   }
 }
-
 
 auto ares::database::db::map_info(const size_t map_id) -> std::optional<model::map_info> {
   std::optional<model::map_info> rslt;
@@ -55,11 +38,4 @@ auto ares::database::db::map_info(const size_t map_id) -> std::optional<model::m
       pqxx_conn_->perform(t);
     });
   return rslt;
-}
-
-void ares::database::db::save_map_info(const size_t map_id, const model::map_info& map_info) {
-  with_wait_lock([this, &map_id, &map_info] () {
-      detail::save_map_info t(map_id, map_info);
-      pqxx_conn_->perform(t);
-    });
 }

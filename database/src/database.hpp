@@ -98,10 +98,12 @@ namespace ares {
                                         const uint16_t map_x,
                                         const uint16_t map_y);
 
-      std::vector<record::map_index> whole_map_index();
+      std::vector<record::map_index> map_name_index();
+      std::optional<uint32_t> map_id_by_name(const std::string& name);
 
       std::optional<model::map_info> map_info(const size_t map_id);
-      void save_map_info(const size_t map_id, const model::map_info& map_info);
+      
+      std::optional<uint32_t> recreate_map(const std::string& map_name, const model::map_info& map_info);
       
     private:
       /*! Execute function under database mutex lock, that will ensure sequencing and thread safety

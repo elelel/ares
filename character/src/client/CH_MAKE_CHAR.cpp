@@ -26,7 +26,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
         uint32_t starting_map_id{0};
         {
           std::lock_guard<std::mutex> lock(server_.mutex());
-          starting_map_id = server_.map_id_by_map_name(starting_map);
+          starting_map_id = server_.maps->id_by_name(starting_map);
         }
         if (starting_map_id != 0) {
           auto cid = db.make_char(c.aid,
@@ -55,7 +55,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
               }
 
               std::lock_guard<std::mutex> lock(server_.mutex());
-              const auto& last_map_name = server_.map_name_by_map_id(ci->location_last.map_id);
+              const auto& last_map_name = server_.maps->name_by_id(ci->location_last.map_id);
               if (last_map_name.size() > 0) {
                 session_.emplace_and_send<packet::current<packet::HC_ACCEPT_MAKECHAR>>();
                 session_.emplace_and_send<packet::CHARACTER_INFO>(*ci,

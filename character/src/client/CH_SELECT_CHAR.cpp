@@ -16,7 +16,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           state_.char_info = std::move(ci);
         }
         SPDLOG_TRACE(log(), "sending NOTIFY_ZONESVR to client");
-        const auto& map_name = server_.map_name_by_map_id(ci->location_last.map_id);
+        const auto& map_name = server_.maps->name_by_id(ci->location_last.map_id);
         session_.emplace_and_send<packet::current<packet::HC_NOTIFY_ZONESVR>>(state_.char_info->cid,
                                                                               map_name,
                                                                               htonl(found_zs->as_zone_server().ip_v4.to_ulong()),

@@ -38,7 +38,6 @@ namespace ares {
 
       map_cell_flags(const uint8_t& flags);
     };
-
     
     struct map_info {
       uint16_t x_size;

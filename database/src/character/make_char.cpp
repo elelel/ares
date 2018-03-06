@@ -110,7 +110,6 @@ auto ares::database::db::make_char(const uint32_t aid,
       detail::make_char t(aid, name, slot, head_palette, head, job, sex, zeny, map_id, map_x, map_y, rslt);
       pqxx_conn_->perform(t);
     });
-
   return rslt;
 }
 

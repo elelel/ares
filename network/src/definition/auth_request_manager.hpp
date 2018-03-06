@@ -46,3 +46,14 @@ inline auto ares::network::auth_request_manager<Derived, Server, Session>::respo
   };
   return s;
 }
+
+template <typename Derived, typename Server, typename Session>
+inline void ares::network::auth_request_manager<Derived, Server, Session>::cancel(std::shared_ptr<Session> s) {
+  auto found = std::find_if(pending_.begin(), pending_.end(), [s] (const auto& r) {
+      return r.second.session == s;
+    });
+  if (found != pending_.end()) {
+    found->second.timer->cancel();
+    pending_.erase(found);
+  };
+}

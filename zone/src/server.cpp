@@ -10,7 +10,7 @@ ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
   conf_(conf),
   db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
   
-  auto known_maps = db.whole_map_index();
+  auto known_maps = db.map_name_index();
   for (const auto& m : known_maps) {
     map_name_to_id[m.name] = m.id;
     map_id_to_name[m.id] = m.name;
@@ -57,10 +57,16 @@ void ares::zone::server::add(session_ptr s) {
       serv(serv), s(s) {};
 
     void operator()(const mono::state&) {
+      if (serv.auth_requests) {
+        serv.auth_requests->cancel(s);
+      }
       serv.mono_.insert(s);
     }
 
     void operator()(const client::state&) {
+      if (serv.auth_requests) {
+        serv.auth_requests->cancel(s);
+      }
       serv.clients_.insert({s->as_client().aid, s});
       serv.mono_.erase(s);
     }
