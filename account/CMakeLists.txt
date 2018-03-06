@@ -50,6 +50,7 @@ if (NOT TARGET database)
 endif()
 
 add_subdirectory(${CONTRIB}/memory memory)
+add_subdirectory(${CONTRIB}/lzma lzma)
 
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}
@@ -74,6 +75,6 @@ set_target_properties(ares_account PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
   )
-target_link_libraries(ares_account foonathan_memory config common database ${ARES_LINK_LIBRARIES})
+target_link_libraries(ares_account foonathan_memory config common database lzma ${ARES_LINK_LIBRARIES})
 target_include_directories(ares_account PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_account PRIVATE ${ARES_COMPILE_DEFINITIONS})

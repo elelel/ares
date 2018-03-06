@@ -2,8 +2,6 @@
 
 #include <LzmaEnc.h>
 
-#include <iostream>
-
 static void * AllocForLzma(ISzAllocPtr, size_t size) { return malloc(size); }
 static void FreeForLzma(ISzAllocPtr, void *address) { free(address); }
 static ISzAlloc SzAllocForLzma = { &AllocForLzma, &FreeForLzma };
@@ -43,7 +41,6 @@ namespace ares {
               rslt_.emplace(map_id);
             }
           } else {
-            std::cout << "lazma res " << lzma_res << " props_sz " << props_sz << std::endl;
             trans.abort();
           }
         }
