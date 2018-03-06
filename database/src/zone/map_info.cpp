@@ -56,3 +56,10 @@ auto ares::database::db::map_info(const size_t map_id) -> std::optional<model::m
     });
   return rslt;
 }
+
+void ares::database::db::save_map_info(const size_t map_id, const model::map_info& map_info) {
+  with_wait_lock([this, &map_id, &map_info] () {
+      detail::save_map_info t(map_id, map_info);
+      pqxx_conn_->perform(t);
+    });
+}

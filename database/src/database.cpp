@@ -160,9 +160,9 @@ VALUES ($1, $2, $3, $4)
 
     pqxx_conn_->prepare("map_info", R"(SELECT x_size, y_size, cell_flags FROM map_info WHERE map_id = $1 )");
 
-    pqxx_conn_->prepare("delete_map_info", R"(DROP FROM map_info WHERE map_id = $1 )");
+    pqxx_conn_->prepare("delete_map_info", R"(DELETE FROM map_info WHERE map_id = $1 )");
 
-    pqxx_conn_->prepare("insert_map_info", R"(INSERT INTO map_info (x_size, y_size, cell_flags) VALUES ($1, $2, $3) )");
+    pqxx_conn_->prepare("insert_map_info", R"(INSERT INTO map_info (map_id, x_size, y_size, cell_flags) VALUES ($1, $2, $3, $4) )");
     
     SPDLOG_TRACE(log, "done preparing statements");
   }

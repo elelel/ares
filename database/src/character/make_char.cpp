@@ -94,16 +94,16 @@ namespace ares {
 }
 
 auto ares::database::db::make_char(const uint32_t aid,
-                                       const std::string& name,
-                                       const uint8_t slot,
-                                       const uint16_t head_palette,
-                                       const uint16_t head,
-                                       const model::pc_job job,
-                                       const uint8_t sex,
-                                       const uint64_t zeny,
-                                       const uint32_t map_id,
-                                       const uint16_t map_x,
-                                       const uint16_t map_y) -> std::optional<uint32_t> {
+                                   const std::string& name,
+                                   const uint8_t slot,
+                                   const uint16_t head_palette,
+                                   const uint16_t head,
+                                   const model::pc_job job,
+                                   const uint8_t sex,
+                                   const uint64_t zeny,
+                                   const uint32_t map_id,
+                                   const uint16_t map_x,
+                                   const uint16_t map_y) -> std::optional<uint32_t> {
   SPDLOG_TRACE(log_, "database::make_char name: '{}'", name);
   std::optional<uint32_t> rslt;
   with_wait_lock([this, &aid, &name, &slot, &head_palette, &head, &job, &sex, &zeny, &map_id, &map_x, &map_y, &rslt] () {

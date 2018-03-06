@@ -82,8 +82,23 @@ void ares::character::server::verify_db_map_info(const uint32_t map_id, const st
     if (!rsw_fn) { rsw_fn = "data\\" + map_name + ".rsw"; };
     auto gat = resources->read_file(*gat_fn);
     auto rsw = resources->read_file(*rsw_fn);
+    model::map_info mi;
     if (gat && rsw && (gat->size() > 0) && (rsw->size() > 0)) {
-      // ... Make data and save to sql
+      const auto& g = *gat;
+      const auto& r = *rsw;
+      mi.x_size = *(int32_t*)(&(g[6]));
+      mi.y_size = *(int32_t*)(&(g[10]));
+      const auto water_height = *(float*)(&(r[166]));
+      const size_t xy_size = mi.x_size * mi.y_size;
+      size_t off{14};
+      for (size_t xy = 0; xy < xy_size; ++xy) {
+        auto height = *(float*)(&(g[off]));
+        auto type = *(uint32_t*)(&(g[off + 16]));
+        if ((type == 0) && (height > water_height)) type = 3;
+        mi.cell_flags.push_back(model::map_cell_flags(model::map_cell_gat_type::from_gat_uint32(type)));
+        off += 20;
+      }
+      db.save_map_info(map_id, mi);
     } else {
       log_->error("Could not load gat/rsw for map id {} ({})", map_id, map_name);
       throw std::runtime_error("Could not load gat/rsw for map id " + std::to_string(map_id) + " (" + map_name +")");
