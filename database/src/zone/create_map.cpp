@@ -28,6 +28,7 @@ namespace ares {
           size_t props_sz = LZMA_PROPS_SIZE;
           CLzmaEncProps props;
           LzmaEncProps_Init(&props);
+          props.writeEndMark = 1;
           auto lzma_res = LzmaEncode(&compressed[LZMA_PROPS_SIZE], &compressed_sz,
                                      (const Byte*)info_.cell_flags.data(), info_.cell_flags.size(),
                                      &props, compressed.data(), &props_sz, props.writeEndMark,

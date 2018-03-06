@@ -29,7 +29,7 @@ namespace ares {
             auto lzma_res = LzmaDecode(uncompressed.data(), &actual_sz,
                                        &blob[LZMA_PROPS_SIZE], &data_sz,
                                        &blob[0], LZMA_PROPS_SIZE,
-                                       LZMA_FINISH_ANY, &lzma_status, &SzAllocForLzma);
+                                       LZMA_FINISH_END, &lzma_status, &SzAllocForLzma);
             if ((lzma_res == SZ_OK) && (actual_sz == size_t(r.x_size * r.y_size))) {
               for (const auto& f : uncompressed)
                 r.cell_flags.push_back(model::map_cell_flags::from_uint8(f));
