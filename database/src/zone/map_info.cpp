@@ -19,12 +19,12 @@ namespace ares {
             for (const auto& f : blob) {
               r.cell_flags.push_back(model::map_cell_flags::from_uint8(f));
             }
-            rslt_ = std::move(r);
+            rslt_.emplace(std::move(r));
           }
         }
       private:
         uint32_t id_;
-        std::optional<model::map_info> rslt_;
+        std::optional<model::map_info>& rslt_;
       };
 
       struct save_map_info : pqxx::transactor<> {

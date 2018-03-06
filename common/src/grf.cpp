@@ -92,7 +92,10 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path) {
               resource r;
               r.storage = STORAGE::GRF;
               r.source = get_source(grf_path);
-              r.name = (char*)&uncompressed[ofs];
+              std::string fname((char*)&uncompressed[ofs]);
+              // GRF is case-ignorant
+              std::transform(fname.begin(), fname.end(), fname.begin(), ::tolower);
+              r.name = fname;
               auto info = (structs::filetable_entry_info*)&uncompressed[ofs + r.name.size() + 1];
               r.compressed_sz = info->compressed_sz;
               r.compressed_sz_aligned = info->compressed_sz_aligned;
@@ -100,7 +103,6 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path) {
               r.offset = info->offset + sizeof(grf_header);
               r.type = info->type;
               ofs += r.name.size() + 1 + sizeof(structs::filetable_entry_info);
-              auto fname = r.name;
               resources[fname].push_back(std::move(r));
               if (fname == "data\\resnametable.txt") {
                 auto buf = read_file(fname);

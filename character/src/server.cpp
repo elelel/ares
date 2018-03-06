@@ -8,6 +8,7 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
   conf_(conf),
   db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
 
+  log_->info("Loading maps configuration");
   auto known_maps = db.whole_map_index();
   for (const auto& m : known_maps) {
     map_name_to_id_[m.name] = m.id;
@@ -64,12 +65,26 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
 }
 
 void ares::character::server::verify_db_map_info(const uint32_t map_id, const std::string& map_name, std::shared_ptr<ares::grf::resource_set>& resources) {
+  bool map_ok{true};
   auto map_info = db.map_info(map_id);
   if (!map_info || (uint32_t(map_info->x_size * map_info->y_size) != map_info->cell_flags.size())) {
-    log_->warn("Information for map with name '{}' (id {}) does not exist in database cache or corrupt, loading from resources", map_name, map_id);
+    map_ok = false;
+  } else {
+    for (const auto& f : map_info->cell_flags) {
+      if ((f.data() & ~(model::map_cell_flags::walkable | model::map_cell_flags::shootable | model::map_cell_flags::water)) != 0) {
+        SPDLOG_TRACE(log_, "Unknown map_cell_flags {}", f.data());
+        map_ok = false;
+        break;
+      }
+    }
+  }
+  if (!map_ok) {
+    log_->warn("Information for map with name '{}' (id {}) does not exist in database cache or is corrupt, loading from dir/grf resources", map_name, map_id);
+    if (map_info)
+      std::cout << map_info->x_size * map_info->y_size << " " << map_info->cell_flags.size() << std::endl;
     if (resources == nullptr) {
       try {
-        log_->info("Reinitializing resources...");
+        log_->info("Reinitializing dir/grf resources...");
         resources = std::make_shared<ares::grf::resource_set>(conf().grfs);
       } catch (std::runtime_error e) {
         log_->error("Failed to initialize dir/grf resources - {}", e.what());
@@ -100,10 +115,12 @@ void ares::character::server::verify_db_map_info(const uint32_t map_id, const st
       }
       db.save_map_info(map_id, mi);
     } else {
-      log_->error("Could not load gat/rsw for map id {} ({})", map_id, map_name);
-      throw std::runtime_error("Could not load gat/rsw for map id " + std::to_string(map_id) + " (" + map_name +")");
+      log_->error("Could not load gat/rsw for map id {} ('{}')", map_id, map_name);
+      throw std::runtime_error("Could not load gat/rsw for map id " + std::to_string(map_id) + " ('" + map_name +"')");
     }
-  } 
+  } else {
+    log_->info("Verified map '{}' id {} - dimensions {}x{}", map_name, map_id, map_info->x_size, map_info->y_size);
+  }
 }
 
 void ares::character::server::start() {
