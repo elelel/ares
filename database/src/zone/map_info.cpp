@@ -16,7 +16,9 @@ namespace ares {
             qr[0]["x_size"].to(r.x_size);
             qr[0]["y_size"].to(r.y_size);
             pqxx::binarystring blob(qr[0]["cell_flags"]);
-            std::copy(blob.data(), blob.data() + blob.size(), std::back_inserter(r.cell_flags));
+            for (const auto& f : blob) {
+              r.cell_flags.push_back(model::map_cell_flags::from_uint8(f));
+            }
             rslt_ = std::move(r);
           }
         }

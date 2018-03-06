@@ -3,8 +3,9 @@
 #include <map>
 #include <set>
 
-#include <ares/network>
+#include <ares/common/grf>
 #include <ares/database>
+#include <ares/network>
 
 #include "auth_request_manager.hpp"
 #include "session.hpp"
@@ -83,6 +84,8 @@ namespace ares {
     public:
       ares::database::db db;
 
+    private:
+      void verify_db_map_info(const uint32_t map_id, const std::string& map_name, std::shared_ptr<ares::grf::resource_set>& resources);
     };
   }
 }

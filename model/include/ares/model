@@ -10,4 +10,5 @@
 #include "../../src/definition/utils.hpp"
 #include "../../src/definition/fixed_string.hpp"
 #include "../../src/definition/location.hpp"
+#include "../../src/definition/map.hpp"
 
