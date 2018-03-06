@@ -38,6 +38,7 @@ namespace ares {
       uint32_t create_map(const std::string& map_name);
       std::shared_ptr<ares::grf::resource_set> resources();
 
+      std::mutex mutex_;
     };
   }
 }

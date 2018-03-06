@@ -2,16 +2,27 @@
 
 #include "server.hpp"
 
+#include <thread>
+
 ares::character::maps_manager::maps_manager(ares::character::server& serv) :
   server_(serv) {
   server_.log()->info("Loading maps configuration");
 
   auto& conf = server_.conf();
 
+  const auto cores = std::thread::hardware_concurrency();
   for (const auto& zs : conf.zone_servers) {
-    for (const auto& map_name : zs.maps) {
-      load_map_for_zone(map_name, zs.login);
+    std::vector<std::string> maps(zs.maps.begin(), zs.maps.end());
+    auto batch_sz = (maps.size() / cores) + ((maps.size() % cores) / cores) + 1;
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < cores; ++i) {
+      size_t start = i * batch_sz;
+      size_t end = ((i + 1) * batch_sz) > maps.size() ? maps.size() : (i + 1) * batch_sz;
+      threads.push_back(std::thread([this, &zs, &maps, start, end] () {
+          for (size_t i = start; i < end; ++i) load_map_for_zone(maps[i], zs.login);          
+          }));
     }
+    for (size_t i = 0; i < cores; ++i) threads[i].join();
   }
 
   server_.log()->info("Loading maps index");
@@ -44,7 +55,8 @@ void ares::character::maps_manager::load_map_for_zone(const std::string& map_nam
   } else {
     server_.log()->info("Verified map '{}' id {}", map_name, *map_id);    
   }
-  
+
+  std::lock_guard<std::mutex> lock(mutex_);
   if (assigned_ids_.find(*map_id) == assigned_ids_.end()) {
     zone_login_to_id_[zone_login].push_back(*map_id);
     assigned_ids_.insert(*map_id);
@@ -109,6 +121,7 @@ uint32_t ares::character::maps_manager::create_map(const std::string& map_name) 
 }
 
 auto ares::character::maps_manager::resources() -> std::shared_ptr<ares::grf::resource_set> {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (resources_ == nullptr) {
     try {
       server_.log()->info("Reinitializing dir/grf resources...");
