@@ -1,5 +1,15 @@
 #include "../database.hpp"
 
+#include <LzmaEnc.h>
+
+#include <iostream>
+
+static void * AllocForLzma(ISzAllocPtr, size_t size) { return malloc(size); }
+static void FreeForLzma(ISzAllocPtr, void *address) { free(address); }
+static ISzAlloc SzAllocForLzma = { &AllocForLzma, &FreeForLzma };
+SRes OnProgress(const ICompressProgress*, UInt64, UInt64) { return SZ_OK; }
+static ICompressProgress g_ProgressCallback = { &OnProgress };
+
 namespace ares {
   namespace database {
     namespace detail {
@@ -12,13 +22,28 @@ namespace ares {
 
         void operator()(argument_type& trans) {
           trans.prepared("delete_map_info_by_name")(name_).exec();
-          pqxx::binarystring blob(info_.cell_flags.data(), info_.cell_flags.size());
-          trans.prepared("insert_map_info")(name_)(info_.x_size)(info_.y_size)(blob).exec();
-          auto qr = trans.prepared("map_id_by_name")(name_).exec();
-          if (qr.size() == 1) {
-            uint32_t map_id;
-            qr[0]["id"].to(map_id);
-            rslt_.emplace(map_id);
+
+          std::vector<uint8_t> compressed(info_.x_size * info_.y_size);
+          size_t compressed_sz(compressed.size() - LZMA_PROPS_SIZE);
+          size_t props_sz = LZMA_PROPS_SIZE;
+          CLzmaEncProps props;
+          LzmaEncProps_Init(&props);
+          auto lzma_res = LzmaEncode(&compressed[LZMA_PROPS_SIZE], &compressed_sz,
+                                     (const Byte*)info_.cell_flags.data(), info_.cell_flags.size(),
+                                     &props, compressed.data(), &props_sz, props.writeEndMark,
+                                     &g_ProgressCallback, &SzAllocForLzma, &SzAllocForLzma);
+          if ((lzma_res == SZ_OK) && (props_sz == LZMA_PROPS_SIZE)) {
+            pqxx::binarystring blob(compressed.data(), props_sz + compressed_sz);
+            trans.prepared("insert_map_info")(name_)(info_.x_size)(info_.y_size)(blob).exec();
+            auto qr = trans.prepared("map_id_by_name")(name_).exec();
+            if (qr.size() == 1) {
+              uint32_t map_id;
+              qr[0]["id"].to(map_id);
+              rslt_.emplace(map_id);
+            }
+          } else {
+            std::cout << "lazma res " << lzma_res << " props_sz " << props_sz << std::endl;
+            trans.abort();
           }
         }
 
