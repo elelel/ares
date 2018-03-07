@@ -25,7 +25,7 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
           if (map_info) {
           // ... Use the data
           } else {
-            log()->error("No map information cached in database formap is {}. Recache maps with character server.", map_id);
+            log()->error("No map information cached in database formap is {}. Reload maps database with character server.", map_id);
             session_.close_gracefuly();
           }
         } else {

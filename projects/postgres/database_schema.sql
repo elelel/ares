@@ -93,6 +93,8 @@ CREATE TABLE char_zeny (
   zeny bigint NOT NULL
 );  
 
+DROP TABLE IF EXISTS char_last_location;
+DROP TABLE IF EXISTS char_save_location;
 DROP TABLE IF EXISTS maps;
 CREATE TABLE maps (
   id serial PRIMARY KEY NOT NULL,
@@ -104,7 +106,6 @@ CREATE TABLE maps (
   external_id int
 );
 
-DROP TABLE IF EXISTS char_last_location;
 CREATE TABLE char_last_location (
   cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
   map_id int REFERENCES maps(id),
@@ -112,7 +113,7 @@ CREATE TABLE char_last_location (
   y smallint NOT NULL
 );
 
-DROP TABLE IF EXISTS char_save_location;
+
 CREATE TABLE char_save_location (
   cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
   map_id int REFERENCES maps(id),
