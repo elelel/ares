@@ -17,6 +17,8 @@ namespace ares {
              std::shared_ptr<asio::io_context> io_context,
              const config& conf);
 
+      void init_thread_local();
+      
       void start();
 
       const config& conf() const;
@@ -69,7 +71,7 @@ namespace ares {
 
       const config& conf_;
     public:
-      ares::database::db db;
+      static thread_local std::shared_ptr<ares::database::db> db;
 
       std::shared_ptr<auth_request_manager> auth_requests;
       std::shared_ptr<maps_manager> maps;

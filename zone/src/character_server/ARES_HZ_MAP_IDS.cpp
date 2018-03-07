@@ -21,7 +21,7 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
         }
         
         if (map_name != "") {
-          auto map_info = server_.db.map_info(map_id);
+          auto map_info = server_.db->query<database::maps::info>(map_id);
           if (map_info) {
           // ... Use the data
           } else {

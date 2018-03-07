@@ -24,10 +24,11 @@ set(DATABASE "${ARES_DIR}/database")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/server.cpp
   ${SRC}/auth_request_manager.cpp
   ${SRC}/maps_manager.cpp
   ${SRC}/main.cpp
-  ${SRC}/server.cpp
+
   ${SRC}/session.cpp
   ${SRC}/config.cpp
   ${SRC}/mono/CH_ENTER.cpp

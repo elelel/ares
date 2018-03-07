@@ -36,6 +36,7 @@ inline void ares::network::server<Derived, Session>::run() {
   auto work = asio::make_work_guard(io_context_);
   for (size_t i = 0; i < num_threads_; ++i) {
     auto th = std::unique_ptr<std::thread>(new std::thread([this] () {
+          static_cast<Derived*>(this)->init_thread_local();
           io_context_->run();
           SPDLOG_TRACE(this->log(), "Asio worker thread terminating");
         }));

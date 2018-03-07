@@ -30,29 +30,29 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
     c.pin = p_->pin();
     // TODO: birthdate conversion
 
-    auto ad = server_.db.account_slots_for_aid(p_->aid());
+    auto ad = server_.db->query<database::accounts::slots>(p_->aid());
     if (!ad) {
       auto& conf = server_.conf();
       // Does not exist or other error, try to create default account data i
-      server_.db.account_create(p_->aid(),
-                                conf.normal_slots,
-                                conf.premium_slots,
-                                conf.billing_slots,
-                                conf.playable_slots,
-                                conf.creatable_slots,
-                                conf.bank_vault,
-                                conf.max_storage);
+      server_.db->exec<database::accounts::create_data>(p_->aid(),
+                                                        conf.normal_slots,
+                                                        conf.premium_slots,
+                                                        conf.billing_slots,
+                                                        conf.playable_slots,
+                                                        conf.creatable_slots,
+                                                        conf.bank_vault,
+                                                        conf.max_storage);
 
       // Read account data again
-      ad = server_.db.account_slots_for_aid(p_->aid());
+      ad = server_.db->query<database::accounts::slots>(p_->aid());
     }
     if (ad) {
       c.creatable_slots = ad->creatable_slots;
       c.playable_slots = ad->playable_slots;
-      c.char_select_character_info = server_.db.character_info_for_aid(p_->aid(), ad->normal_slots +
-                                                                             ad->premium_slots +
-                                                                             ad->billing_slots
-                                                                       );
+      c.char_select_character_info = server_.db->query<database::characters::infos_for_aid>(p_->aid(), ad->normal_slots +
+                                                                                            ad->premium_slots +
+                                                                                            ad->billing_slots
+                                                                                            );
       const uint32_t npages = c.char_select_character_info.size() > 3 ? c.char_select_character_info.size() / 3 : 1;
       
       SPDLOG_TRACE(log(), "Loaded {} characters for aid {}, Sending pages num: npages = {}, nslots = {}",

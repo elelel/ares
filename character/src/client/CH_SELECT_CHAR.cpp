@@ -5,7 +5,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
   SPDLOG_TRACE(log(), "CH_SELECT_CHAR begin");
   auto& c = session_.as_client();
   if (p_->CharNum() < c.playable_slots) {
-    auto ci = server_.db.character_info_for_slot(c.aid, p_->CharNum());
+    auto ci = server_.db->query<database::characters::info_for_slot>(c.aid, p_->CharNum());
     if (ci) {
       std::lock_guard lock(server_.mutex());
       auto found_zs = server_.zone_server_by_map_id(ci->location_last.map_id);

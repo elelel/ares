@@ -2,13 +2,18 @@
 
 #include "session.hpp"
 
+thread_local std::shared_ptr<ares::database::db> ares::account::server::db = nullptr;
+
 ares::account::server::server(std::shared_ptr<spdlog::logger> log,
                               std::shared_ptr<asio::io_context> io_context,
                               const ares::account::config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
-  conf_(conf),
-  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
+  conf_(conf) {
   log_->set_level(spdlog::level::trace);
+}
+
+void ares::account::server::init_thread_local() {
+  db = std::make_shared<ares::database::db>(log_, conf_.postgres->dbname, conf_.postgres->host, conf_.postgres->port, conf_.postgres->user, conf_.postgres->password);
 }
 
 void ares::account::server::start() {

@@ -2,19 +2,24 @@
 
 #include "session.hpp"
 
+thread_local std::shared_ptr<ares::database::db> ares::zone::server::db = nullptr;
+
 ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
                            std::shared_ptr<asio::io_context> io_context,
                            const ares::zone::config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds(5))),
-  conf_(conf),
-  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password) {
-  
-  auto known_maps = db.map_name_index();
+  conf_(conf) {
+  ares::database::db db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password);
+  auto known_maps = db.query<database::maps::ids_and_names>();
   for (const auto& m : known_maps) {
-    map_name_to_id[m.name] = m.id;
-    map_id_to_name[m.id] = m.name;
+    map_name_to_id[std::get<1>(m)] = std::get<0>(m);
+    map_id_to_name[std::get<0>(m)] = std::get<1>(m);
   }
+}
+
+void ares::zone::server::init_thread_local() {
+  db = std::make_shared<ares::database::db>(log_, conf_.postgres->dbname, conf_.postgres->host, conf_.postgres->port, conf_.postgres->user, conf_.postgres->password);
 }
 
 void ares::zone::server::start() {

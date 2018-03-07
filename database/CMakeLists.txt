@@ -11,20 +11,21 @@ set(MODEL "${ARES_DIR}/model")
 
 set(SOURCES
   ${SRC}/database.cpp
-  ${SRC}/account/account_create.cpp
-  ${SRC}/account/account_storage.cpp
-  ${SRC}/account/account_slots.cpp
-  ${SRC}/account/num_chars_for_aid.cpp
-  ${SRC}/account/create_user.cpp
-  ${SRC}/account/password_matches.cpp
-  ${SRC}/account/user_data.cpp
-  ${SRC}/account/user_exists.cpp
-  ${SRC}/character/character_info.cpp
-  ${SRC}/character/make_char.cpp
-  ${SRC}/character/delete_date.cpp
-  ${SRC}/zone/map_index.cpp
-  ${SRC}/zone/map_info.cpp
-  ${SRC}/zone/create_map.cpp
+  ${SRC}/accounts/exists.cpp
+  ${SRC}/accounts/create.cpp
+  ${SRC}/accounts/create_data.cpp
+  ${SRC}/accounts/password_matches.cpp
+  ${SRC}/accounts/storage.cpp
+  ${SRC}/accounts/slots.cpp
+  ${SRC}/accounts/num_chars.cpp
+  ${SRC}/accounts/user_data.cpp
+  ${SRC}/characters/info.cpp
+  ${SRC}/characters/create.cpp
+  ${SRC}/characters/delete_date.cpp
+  ${SRC}/maps/update.cpp
+  ${SRC}/maps/ids_and_names.cpp
+  ${SRC}/maps/id_by_name.cpp
+  ${SRC}/maps/info.cpp
   )
 
 add_library(database STATIC ${SOURCES})

@@ -24,13 +24,25 @@ ares::database::db::db(std::shared_ptr<spdlog::logger> log,
   
   if (pqxx_conn_) {
     // Prepare statements
-    pqxx_conn_->prepare("create_user", R"(
+    pqxx_conn_->prepare("account_create", R"(
 INSERT INTO "users" (login, password, email, level) VALUES ($1, crypt($2, gen_salt('bf')));
 )");
 
-    pqxx_conn_->prepare("password_matches", R"(
+    pqxx_conn_->prepare("account_create_data", R"(
+WITH s AS (
+ INSERT INTO "account_slots" ("aid", "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots") VALUES ($1, $2, $3, $4, $5, $6)) 
+INSERT INTO "account_storage" ("aid", "bank_vault", "max_storage") VALUES ($1, $7, $8);
+
+)");
+    
+    pqxx_conn_->prepare("account_password_matches", R"(
 SELECT "id" FROM "users"
     WHERE ("login" = $1) AND (password = crypt($2, password)) LIMIT 1;
+)");
+
+    pqxx_conn_->prepare("account_slots_for_id", R"(
+SELECT "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots"
+FROM "account_slots" WHERE ("aid" = $1) 
 )");
 
     pqxx_conn_->prepare("user_data_for_login", R"(
@@ -42,23 +54,10 @@ SELECT "id", "login",  "email", "level", "sex", "expiration_time", "birthdate", 
   WHERE ("id" = $1) LIMIT 1;
 )");
 
-    pqxx_conn_->prepare("user_exists", R"(
+    pqxx_conn_->prepare("account_exists", R"(
 SELECT "id" FROM "users" WHERE (login = $1) LIMIT 1;
 )");
-  SPDLOG_TRACE(log, "ares::account::database::database done preparing statements");
-
-    pqxx_conn_->prepare("account_create", R"(
-WITH s AS (
- INSERT INTO "account_slots" ("aid", "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots") VALUES ($1, $2, $3, $4, $5, $6)) 
-INSERT INTO "account_storage" ("aid", "bank_vault", "max_storage") VALUES ($1, $7, $8);
-
-)");
-    
-    pqxx_conn_->prepare("account_slots_for_aid", R"(
-SELECT "normal_slots", "premium_slots", "billing_slots", "creatable_slots", "playable_slots"
-FROM "account_slots" WHERE ("aid" = $1) 
-)");
-
+  
     pqxx_conn_->prepare("account_storage_for_aid", R"(
 SELECT "bank_vault", "max_storage" FROM "account_storage" WHERE ("aid" = $1)
 )");
@@ -67,7 +66,7 @@ SELECT "bank_vault", "max_storage" FROM "account_storage" WHERE ("aid" = $1)
 SELECT count(*) AS cnt FROM "characters" WHERE ("aid" = $1) AND ("slot" < $2)
 )");
 
-    pqxx_conn_->prepare("character_info_for_aid", R"(
+    pqxx_conn_->prepare("character_infos_for_aid", R"(
 SELECT "characters"."id" AS id, "slot", "characters"."name" AS name, "sex", "job", "base_level", "job_level", "base_exp", "job_exp", "zeny",
   "str", "agi", "vit", "int", "dex", "luk",
   "max_hp", "hp", "max_sp", "sp", "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor",
@@ -118,55 +117,55 @@ JOIN "char_last_location" ON ("char_last_location"."cid" = "characters"."id")
 WHERE ("aid" = $1) AND ("slot" = $2)
 )");
 
-    pqxx_conn_->prepare("char_delete_date", R"(
+    pqxx_conn_->prepare("character_delete_date", R"(
 SELECT "delete_date" FROM "characters" WHERE ("charaters"."id" = $1)
 )");
 
-    pqxx_conn_->prepare("make_char_create_cid", R"(
+    pqxx_conn_->prepare("character_create", R"(
 INSERT INTO "characters" ("aid", "slot", "name", "sex", "job", "rename") VALUES ($1, $2, $3, $4, $5, 0)
 )");
     
-    pqxx_conn_->prepare("cid_by_name", R"(
+    pqxx_conn_->prepare("character_id_by_name", R"(
 SELECT "id" FROM "characters" WHERE "name" = $1
 )");
 
-    pqxx_conn_->prepare("make_char_create_stats", R"(
+    pqxx_conn_->prepare("character_create_stats", R"(
 INSERT INTO "char_stats" ("cid", "base_level", "job_level", "base_exp", "job_exp",
  "str", "agi", "vit", "int", "dex", "luk", "max_hp", "hp", "max_sp", "sp",
  "job_point", "skill_point", "effect_state", "body_state", "health_state", "virtue", "honor")
 VALUES ($1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, $2, $2, $3, $3, 48, 0, 0, 0, 0, 0, 0)
 )");
 
-    pqxx_conn_->prepare("make_char_create_zeny", R"(
+    pqxx_conn_->prepare("character_create_zeny", R"(
 INSERT INTO "char_zeny" ("cid", "zeny") VALUES ($1, $2)
 )");
 
-    pqxx_conn_->prepare("make_char_create_appearance", R"(
+    pqxx_conn_->prepare("character_create_appearance", R"(
 INSERT INTO "char_appearance" ("cid", "head", "body", "weapon", "shield", "robe", "head_top", "head_mid", "head_bottom", "head_palette", "body_palette")
 VALUES ($1, $2, 0, 0, 0, 0, 0, 0, 0, $3, 0)
 )");
 
-    pqxx_conn_->prepare("make_char_create_last_location", R"(
+    pqxx_conn_->prepare("character_create_last_location", R"(
 INSERT INTO "char_last_location" ("cid", "map_id", "x", "y")
 VALUES ($1, $2, $3, $4)
 )");
 
-    pqxx_conn_->prepare("make_char_create_save_location", R"(
+    pqxx_conn_->prepare("character_create_save_location", R"(
 INSERT INTO "char_save_location" ("cid", "map_id", "x", "y")
 VALUES ($1, $2, $3, $4)
 )");
 
-    pqxx_conn_->prepare("map_name_index", R"(SELECT id, external_id, "name" FROM maps )");
+    pqxx_conn_->prepare("map_ids_and_names", R"(SELECT id, "name" FROM maps )");
 
-    pqxx_conn_->prepare("delete_map_info_by_name", R"(DELETE FROM maps WHERE name = $1 )");
+    pqxx_conn_->prepare("map_delete_by_name", R"(DELETE FROM maps WHERE name = $1 )");
 
-    pqxx_conn_->prepare("insert_map_info", R"(INSERT INTO maps ("name", x_size, y_size, cell_flags) VALUES ($1, $2, $3, $4) )");
+    pqxx_conn_->prepare("map_insert", R"(INSERT INTO maps ("name", x_size, y_size, cell_flags) VALUES ($1, $2, $3, $4) )");
 
     pqxx_conn_->prepare("map_id_by_name", R"(SELECT id FROM maps WHERE "name" = $1 )");
     
-    pqxx_conn_->prepare("map_info", R"(SELECT x_size, y_size, cell_flags FROM maps WHERE id = $1 )");
+    pqxx_conn_->prepare("map_by_id", R"(SELECT x_size, y_size, cell_flags FROM maps WHERE id = $1 )");
 
-    pqxx_conn_->prepare("update_map_info", R"(UPDATE maps SET x_size = $2, y_size = $3, cell_flags = $4 WHERE id = $1 )");
+    pqxx_conn_->prepare("map_update", R"(UPDATE maps SET x_size = $2, y_size = $3, cell_flags = $4 WHERE id = $1 )");
     
     SPDLOG_TRACE(log, "done preparing statements");
   }

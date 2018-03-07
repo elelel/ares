@@ -4,32 +4,42 @@
 
 #include <thread>
 
-ares::character::maps_manager::maps_manager(ares::character::server& serv) :
-  server_(serv) {
-  server_.log()->info("Loading maps configuration");
+#include <ares/database>
 
-  auto& conf = server_.conf();
+thread_local std::shared_ptr<ares::database::db> db = nullptr;
+
+ares::character::maps_manager::maps_manager(std::shared_ptr<spdlog::logger> log,
+                                            const config::postgres_config& pg_conf,
+                                            const config::zone_server_config& zs_conf,
+                                            const std::vector<std::string>& grfs) :
+  log_(log),
+  grfs_(grfs) {
+  log_->info("Loading maps configuration");
 
   const auto cores = std::thread::hardware_concurrency();
-  for (const auto& zs : conf.zone_servers) {
+  for (const auto& zs : zs_conf) {
     std::vector<std::string> maps(zs.maps.begin(), zs.maps.end());
     auto batch_sz = (maps.size() / cores) + ((maps.size() % cores) / cores) + 1;
     std::vector<std::thread> threads;
     for (size_t i = 0; i < cores; ++i) {
       size_t start = i * batch_sz;
       size_t end = ((i + 1) * batch_sz) > maps.size() ? maps.size() : (i + 1) * batch_sz;
-      threads.push_back(std::thread([this, &zs, &maps, start, end] () {
-          for (size_t i = start; i < end; ++i) load_map_for_zone(maps[i], zs.login);          
+      threads.push_back
+        (std::thread([this, &pg_conf, &zs, &maps, start, end] () {
+            db = std::make_shared<ares::database::db>(log_, pg_conf->dbname, pg_conf->host, pg_conf->port, pg_conf->user, pg_conf->password);
+            for (size_t i = start; i < end; ++i) load_map_for_zone(maps[i], zs.login);
+            db.reset();
           }));
     }
     for (size_t i = 0; i < cores; ++i) threads[i].join();
   }
 
-  server_.log()->info("Loading maps index");
-  auto known_maps = server_.db.map_name_index();
+  log_->info("Loading maps index");
+  db = std::make_shared<ares::database::db>(log_, pg_conf->dbname, pg_conf->host, pg_conf->port, pg_conf->user, pg_conf->password);
+  auto known_maps = db->query<database::maps::ids_and_names>();
   for (const auto& m : known_maps) {
-    map_name_to_id_[m.name] = m.id;
-    map_id_to_name_[m.id] = m.name;
+    map_name_to_id_[std::get<1>(m)] = std::get<0>(m);
+    map_id_to_name_[std::get<0>(m)] = std::get<1>(m);
   }
 
   resources_ = nullptr;
@@ -50,10 +60,10 @@ void ares::character::maps_manager::remove_zone_session(session_ptr s) {
 void ares::character::maps_manager::load_map_for_zone(const std::string& map_name, const std::string& zone_login) {
   auto map_id = load_and_verify(map_name);
   if (!map_id) {
-    server_.log()->warn("Information for map '{}' is corrupt or doesn't exist in database, loading from dir/grf resources", map_name);
+    log_->warn("Data for map '{}' is corrupt or missing, loading from dir/grf resources", map_name);
     map_id.emplace(create_map(map_name));
   } else {
-    server_.log()->info("Verified map '{}' id {}", map_name, *map_id);    
+    log_->info("Verified map '{}' id {}", map_name, *map_id);    
   }
 
   std::lock_guard<std::mutex> lock(mutex_);
@@ -62,21 +72,21 @@ void ares::character::maps_manager::load_map_for_zone(const std::string& map_nam
     assigned_ids_.insert(*map_id);
   } else {
     auto msg = std::string("Can't assign map '") + map_name + "' to zone server '" + zone_login + "' because it has already been assigned";
-    server_.log()->error(msg);
+    log_->error(msg);
     throw std::runtime_error(msg);
   }
 }
 
 std::optional<uint32_t> ares::character::maps_manager::load_and_verify(const std::string& map_name) {
-  auto map_id = server_.db.map_id_by_name(map_name);
+  auto map_id = db->query<database::maps::id_by_name>(map_name);
   if (map_id) {
-    auto map_info = server_.db.map_info(*map_id);
+    auto map_info = db->query<database::maps::info>(*map_id);
     if (!map_info || (uint32_t(map_info->x_size * map_info->y_size) != map_info->cell_flags.size())) {
       map_id.reset();
     } else {
       for (const auto& f : map_info->cell_flags) {
         if ((f.data() & ~(model::map_cell_flags::walkable | model::map_cell_flags::shootable | model::map_cell_flags::water)) != 0) {
-          SPDLOG_TRACE(server_.log(), "Unknown map_cell_flags {}", f.data());
+          SPDLOG_TRACE(log_, "Unknown map_cell_flags {}", f.data());
           map_id.reset();
           break;
         }
@@ -109,13 +119,13 @@ uint32_t ares::character::maps_manager::create_map(const std::string& map_name) 
       mi.cell_flags.push_back(model::map_cell_flags(model::map_cell_gat_type::from_gat_uint32(type)));
       off += 20;
     }
-    auto rslt = server_.db.recreate_map(map_name, mi);
+    auto rslt = db->query<database::maps::update>(map_name, mi);
     if (rslt) return *rslt; else {
-      server_.log()->error("Failed to recreate map '" + map_name + "' in database");
+      log_->error("Failed to recreate map '" + map_name + "' in database");
       throw std::runtime_error("Failed to recreate map '" + map_name + "' in database");
     }
   } else {
-    server_.log()->error("Could not load gat/rsw for map '{}'", map_name);
+    log_->error("Could not load gat/rsw for map '{}'", map_name);
     throw std::runtime_error("Could not load gat/rsw for '" + map_name +"'");
   }
 }
@@ -124,11 +134,11 @@ auto ares::character::maps_manager::resources() -> std::shared_ptr<ares::grf::re
   std::lock_guard<std::mutex> lock(mutex_);
   if (resources_ == nullptr) {
     try {
-      server_.log()->info("Reinitializing dir/grf resources...");
-      resources_ = std::make_shared<ares::grf::resource_set>(server_.conf().grfs);
+      log_->info("Reinitializing dir/grf resources...");
+      resources_ = std::make_shared<ares::grf::resource_set>(grfs_);
       return resources_;
     } catch (std::runtime_error e) {
-      server_.log()->error("Failed to initialize dir/grf resources - {}", e.what());
+      log_->error("Failed to initialize dir/grf resources - {}", e.what());
       throw std::runtime_error(std::string("Failed to initialize dir/grf resources - ") + e.what());
     }
   } else {

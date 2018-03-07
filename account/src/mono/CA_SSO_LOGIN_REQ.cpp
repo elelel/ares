@@ -35,7 +35,7 @@ namespace ares {
           }
           
           void accept(const std::string& login) {
-            auto user_data = server_.db.user_data_for_login(login);
+            auto user_data = server_.db->query<database::accounts::user_data_for_login>(login);
             if (user_data) {
               SPDLOG_TRACE(log(), "login responder running accept procedure");
               std::unique_lock<std::mutex> l(server_.mutex());
@@ -116,7 +116,7 @@ namespace ares {
                 return;
               }
             }
-            if (server_.db.password_matches(login, password)) {
+            if (server_.db->query<database::accounts::password_matches>(login, password)) {
               accept(login);
             } else {
               log()->info("Login attempt failed for login {}, incorrect password (login/password auth)", login);

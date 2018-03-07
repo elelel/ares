@@ -14,6 +14,8 @@ namespace ares {
              std::shared_ptr<asio::io_context> io_context,
              const config& conf);
 
+      void init_thread_local();
+      
       /*! Starts the zone server */
       void start();
 
@@ -57,7 +59,7 @@ namespace ares {
       const config& conf_;
       
     public:
-      ares::database::db db;
+      static thread_local std::shared_ptr<ares::database::db> db;
 
     };
   }

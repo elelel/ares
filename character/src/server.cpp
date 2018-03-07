@@ -1,15 +1,14 @@
 #include "server.hpp"
 
+thread_local std::shared_ptr<ares::database::db> ares::character::server::db = nullptr;
+
 ares::character::server::server(std::shared_ptr<spdlog::logger> log,
                                 std::shared_ptr<asio::io_context> io_context,
                                 const config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   conf_(conf),
-  db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password),
   auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds{5})),
-  maps(std::make_shared<maps_manager>(*this)) {
-
-
+  maps(std::make_shared<maps_manager>(log_, conf_.postgres, conf_.zone_servers, conf_.grfs)) {
   std::shared_ptr<ares::grf::resource_set> resources;
   std::set<std::string> used_maps;
   std::vector<std::string> unknown_maps;
@@ -40,6 +39,10 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
     log_->error("Error in maps configuration. " + msg);
     throw std::runtime_error("Error in maps configuration. " + msg);
   }
+}
+
+void ares::character::server::init_thread_local() {
+  db = std::make_shared<ares::database::db>(log_, conf_.postgres->dbname, conf_.postgres->host, conf_.postgres->port, conf_.postgres->user, conf_.postgres->password);
 }
 
 void ares::character::server::start() {

@@ -5,7 +5,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR begin");
   auto& c = session_.as_client();
   auto& db = server_.db;
-  auto slots = db.account_slots_for_aid(c.aid);
+  auto slots = db->query<database::accounts::slots>(c.aid);
   if (slots) {
     // TODO: Check if new char creation is allowed in server configuration
     if (p_->CharNum() < slots->creatable_slots) {
@@ -29,21 +29,21 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           starting_map_id = server_.maps->id_by_name(starting_map);
         }
         if (starting_map_id != 0) {
-          auto cid = db.make_char(c.aid,
-                                  std::string(p_->name()),
-                                  p_->CharNum(),
-                                  p_->head_palette(),
-                                  p_->head(),
-                                  job,
-                                  p_->sex(),
-                                  starting_zeny,
-                                  starting_map_id,
-                                  starting_map_x,
-                                  starting_map_y);
+          auto cid = db->query<database::characters::create>(c.aid,
+                                                             std::string(p_->name()),
+                                                             p_->CharNum(),
+                                                             p_->head_palette(),
+                                                             p_->head(),
+                                                             job,
+                                                             p_->sex(),
+                                                             starting_zeny,
+                                                             starting_map_id,
+                                                             starting_map_x,
+                                                             starting_map_y);
           if (cid) {
-            state_.char_info = db.character_info(*cid);
+            state_.char_info = db->query<database::characters::info>(*cid);
             auto &ci = state_.char_info;
-            auto delete_date = db.char_delete_date(*cid);
+            auto delete_date = db->query<database::characters::delete_date>(*cid);
             if (ci) {
               long delete_timeout{0};
               if (delete_date) {
