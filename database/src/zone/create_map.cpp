@@ -19,8 +19,6 @@ namespace ares {
         }
 
         void operator()(argument_type& trans) {
-          trans.prepared("delete_map_info_by_name")(name_).exec();
-
           std::vector<uint8_t> compressed(info_.x_size * info_.y_size);
           size_t compressed_sz(compressed.size() - LZMA_PROPS_SIZE);
           size_t props_sz = LZMA_PROPS_SIZE;
@@ -33,16 +31,26 @@ namespace ares {
                                      &g_ProgressCallback, &SzAllocForLzma, &SzAllocForLzma);
           if ((lzma_res == SZ_OK) && (props_sz == LZMA_PROPS_SIZE)) {
             pqxx::binarystring blob(compressed.data(), props_sz + compressed_sz);
-            trans.prepared("insert_map_info")(name_)(info_.x_size)(info_.y_size)(blob).exec();
-            auto qr = trans.prepared("map_id_by_name")(name_).exec();
-            if (qr.size() == 1) {
+
+            auto get_id = trans.prepared("map_id_by_name")(name_).exec();
+            if (get_id.size() == 1) {
               uint32_t map_id;
-              qr[0]["id"].to(map_id);
+              get_id[0]["id"].to(map_id);
+              trans.prepared("update_map_info")(map_id)(info_.x_size)(info_.y_size)(blob).exec();
               rslt_.emplace(map_id);
+              return;
+            } else if (get_id.size() == 0) {
+              trans.prepared("insert_map_info")(name_)(info_.x_size)(info_.y_size)(blob).exec();
+              auto qr = trans.prepared("map_id_by_name")(name_).exec();
+              if (qr.size() == 1) {
+                uint32_t map_id;
+                qr[0]["id"].to(map_id);
+                rslt_.emplace(map_id);
+                return;
+              }
             }
-          } else {
-            trans.abort();
           }
+          trans.abort();
         }
 
       private:

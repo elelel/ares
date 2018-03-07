@@ -165,6 +165,8 @@ VALUES ($1, $2, $3, $4)
     pqxx_conn_->prepare("map_id_by_name", R"(SELECT id FROM maps WHERE "name" = $1 )");
     
     pqxx_conn_->prepare("map_info", R"(SELECT x_size, y_size, cell_flags FROM maps WHERE id = $1 )");
+
+    pqxx_conn_->prepare("update_map_info", R"(UPDATE maps SET x_size = $2, y_size = $3, cell_flags = $4 WHERE id = $1 )");
     
     SPDLOG_TRACE(log, "done preparing statements");
   }
