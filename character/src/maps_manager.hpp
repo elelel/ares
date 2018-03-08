@@ -13,16 +13,20 @@ namespace ares {
                    const config::postgres_config& pg_conf,
                    const config::zone_server_config& zs_conf,
                    const std::vector<std::string>& grfs);
-      void remove_zone_session(session_ptr s);
 
-      uint32_t id_by_name(const std::string& map_name);
-      const std::string& name_by_id(const uint32_t map_id);
-      
+      bool link_id_to_zone_session(const uint32_t map_id, std::shared_ptr<session> s);
+      std::shared_ptr<session> zone_session_by_id(const uint32_t map_id) const;
+      void remove_zone_session(std::shared_ptr<session> s);
+      const std::vector<uint32_t>& assigned_to_zone_login(const std::string& login) const;
+
+      uint32_t id_by_name(const std::string& map_name) const;
+      const std::string& name_by_id(const uint32_t map_id) const;
+            
     private:
       // Map name index
       std::map<uint32_t, std::string> map_id_to_name_;
       std::unordered_map<std::string, uint32_t> map_name_to_id_;
-      std::map<uint32_t, session_ptr> id_to_zone_session_;
+      std::map<uint32_t, std::weak_ptr<session>> id_to_zone_session_;
 
       /*! Configuration for zones - map id assignment
        */

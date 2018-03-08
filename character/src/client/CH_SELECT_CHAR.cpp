@@ -8,7 +8,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
     auto ci = server_.db->query<database::characters::info_for_slot>(c.aid, p_->CharNum());
     if (ci) {
       std::lock_guard lock(server_.mutex());
-      auto found_zs = server_.zone_server_by_map_id(ci->location_last.map_id);
+      auto found_zs = server_.maps->zone_session_by_id(ci->location_last.map_id);
       if (found_zs != nullptr) {
         // Store selected char_info
         SPDLOG_TRACE(log(), "map server found, user selected cid {}", ci->cid);

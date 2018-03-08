@@ -7,6 +7,6 @@ ares::database::accounts::password_matches::password_matches(result_type& rslt, 
   }
 
 void ares::database::accounts::password_matches::operator()(argument_type& trans) {
-  auto qr = trans.prepared("password_matches")(login_)(password_).exec();
+  auto qr = trans.prepared("account_password_matches")(login_)(password_).exec();
   if (qr.size() > 0) rslt = true; else rslt = false;
 }

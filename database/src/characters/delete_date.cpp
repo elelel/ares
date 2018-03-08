@@ -6,7 +6,7 @@ ares::database::characters::delete_date::delete_date(result_type& rslt, const ui
 }
 
 void ares::database::characters::delete_date::operator()(argument_type& trans) {
-  auto qr = trans.prepared("char_delete_date")(id_).exec();
+  auto qr = trans.prepared("character_delete_date")(id_).exec();
   if (qr.size() == 1) {
     qr[0]["delete_date"].to(rslt);
   }

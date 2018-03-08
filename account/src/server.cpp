@@ -38,77 +38,72 @@ auto ares::account::server::conf() const -> const config& {
   return conf_;
 }
 
-void ares::account::server::add(session_ptr s) {
+void ares::account::server::add(std::shared_ptr<session> s) {
   struct visitor {
-    visitor(server& serv, const session_ptr& s) :
-      serv(serv), s(s) {};
+    visitor(server& serv, const std::shared_ptr<session>& s) :
+      serv_(serv), s_(s) {};
 
     void operator()(const mono::state&) {
-      serv.mono_.insert(s);
+      serv_.mono_.insert(s_);
     }
 
     void operator()(const client::state&) {
-      SPDLOG_TRACE(s->log(), "Adding session as client, AID {}", s->as_client().aid);
-      serv.clients_.insert({s->as_client().aid, s});
-      SPDLOG_TRACE(s->log(), "Clients list has now {} elements", serv.clients_.size());
-      serv.mono_.erase(s);
+      serv_.clients_.insert({s_->as_client().aid, s_});
+      serv_.mono_.erase(s_);
     }
 
     void operator()(const character_server::state&) {
-      serv.char_servers_.insert(s);
-      serv.mono_.erase(s);
+      serv_.char_servers_.insert(s_);
+      serv_.mono_.erase(s_);
     }
     
   private:
-    server& serv;
-    session_ptr s;
+    server& serv_;
+    std::shared_ptr<session> s_;
   };
   std::visit(visitor(*this, s), s->variant());
 }
 
-void ares::account::server::remove(session_ptr s) {
+void ares::account::server::remove(std::shared_ptr<session> s) {
   struct visitor {
-    visitor(server& serv, const session_ptr& s) :
-      serv(serv), s(s) {};
+    visitor(server& serv, const std::shared_ptr<session>& s) :
+      serv_(serv), s_(s) {};
 
     void operator()(const mono::state&) {
-      serv.mono_.erase(s);
+      serv_.mono_.erase(s_);
     }
 
     void operator()(const client::state&) {
-      SPDLOG_TRACE(s->log(), "Removing client session, AID {}", s->as_client().aid);
-      serv.clients_.erase(s->as_client().aid);
+      serv_.clients_.erase(s_->as_client().aid);
     }
 
     void operator()(const character_server::state&) {
-      serv.char_servers_.erase(s);
+      serv_.char_servers_.erase(s_);
     }
   private:
-    server& serv;
-    session_ptr s;
+    server& serv_;
+    std::shared_ptr<session> s_;
   };
   std::visit(visitor(*this, s), s->variant());
 }
 
-auto ares::account::server::client_by_aid(const uint32_t aid) -> session_ptr {
+auto ares::account::server::client_by_aid(const uint32_t aid) const -> std::shared_ptr<session> {
   SPDLOG_TRACE(log(), "Searching in client list of size {} aid {}", clients_.size(), aid);
   auto found = clients_.find(aid);
   if (found != clients_.end()) {
-    return found->second;
-  } else {
-    return nullptr;
+    if (auto s = found->second.lock()) return s;
   }
+  return nullptr;
 }
 
-
-void ares::account::server::link_aid_to_char_server(const uint32_t aid, session_ptr s) {
+void ares::account::server::link_aid_to_char_server(const uint32_t aid, std::shared_ptr<session> s) {
   aid_to_char_server_[aid] = s;
 }
 
-void ares::account::server::unlink_aid_from_char_server(const uint32_t aid, session_ptr s) {
+void ares::account::server::unlink_aid_from_char_server(const uint32_t aid, std::shared_ptr<session> s) {
   auto found = aid_to_char_server_.find(aid);
   if (found != aid_to_char_server_.end()) {
-    if (found->second == s) {
+    if (found->second.lock() == s) {
       aid_to_char_server_.erase(aid);
     } else {
       log_->warn("unlink_aid_from_char_server aid is linked to another char server session, not unlinking");
@@ -116,7 +111,21 @@ void ares::account::server::unlink_aid_from_char_server(const uint32_t aid, sess
   }
 }
 
-auto ares::account::server::char_servers() const -> const std::set<session_ptr>& {
+size_t ares::account::server::num_char_servers_open() const {
+  // For now just return the total number of character servers connected
+  return char_servers_.size();
+}
+
+auto ares::account::server::char_servers() const -> const std::set<std::weak_ptr<session>>& {
   return char_servers_;
 }
 
+auto ares::account::server::char_server_by_login(const std::string& login) const -> std::shared_ptr<session> {
+  auto found = std::find_if(char_servers_.begin(), char_servers_.end(), [&login] (const std::weak_ptr<session>& s) {
+      return s.lock()->as_char_server().login == login;
+    });
+  if (found != char_servers_.end()) {
+    if (auto s = found->lock()) return s;
+  }
+  return nullptr;
+}

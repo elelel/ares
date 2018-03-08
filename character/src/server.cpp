@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-thread_local std::shared_ptr<ares::database::db> ares::character::server::db = nullptr;
+thread_local std::unique_ptr<ares::database::db> ares::character::server::db = nullptr;
 
 ares::character::server::server(std::shared_ptr<spdlog::logger> log,
                                 std::shared_ptr<asio::io_context> io_context,
@@ -8,7 +8,7 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   conf_(conf),
   auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds{5})),
-  maps(std::make_shared<maps_manager>(log_, conf_.postgres, conf_.zone_servers, conf_.grfs)) {
+  maps(std::make_unique<maps_manager>(log_, conf_.postgres, conf_.zone_servers, conf_.grfs)) {
   std::shared_ptr<ares::grf::resource_set> resources;
   std::set<std::string> used_maps;
   std::vector<std::string> unknown_maps;
@@ -42,7 +42,7 @@ ares::character::server::server(std::shared_ptr<spdlog::logger> log,
 }
 
 void ares::character::server::init_thread_local() {
-  db = std::make_shared<ares::database::db>(log_, conf_.postgres->dbname, conf_.postgres->host, conf_.postgres->port, conf_.postgres->user, conf_.postgres->password);
+  db = std::make_unique<ares::database::db>(log_, conf_.postgres->dbname, conf_.postgres->host, conf_.postgres->port, conf_.postgres->user, conf_.postgres->password);
 }
 
 void ares::character::server::start() {
@@ -55,13 +55,13 @@ void ares::character::server::start() {
     }
 
     auto& ep = conf_.account_server->connect;
-    account_server_ = std::make_shared<session>(*this,
-                                                ep,
-                                                nullptr,
-                                                std::chrono::seconds{30});
-    account_server_->variant().emplace<account_server::state>(*this, *account_server_);
-    account_server_->set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
-
+    auto account_server = std::make_shared<session>(*this,
+                                                    ep,
+                                                    nullptr,
+                                                    std::chrono::seconds{30});
+    account_server->variant().emplace<account_server::state>(*this, *account_server);
+    account_server->set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
+    account_server_ = account_server;
   } else {
     log_->error("Can't start: listen ipv4 configuration is empty");
   }
@@ -75,119 +75,124 @@ void ares::character::server::create_session(std::shared_ptr<asio::ip::tcp::sock
   s->reset_idle_timer();
 }
 
-
 auto ares::character::server::conf() const -> const config& {
   return conf_;
 }
 
-void ares::character::server::add(session_ptr s) {
+void ares::character::server::add(std::shared_ptr<session> s) {
   struct visitor {
-    visitor(server& serv, const session_ptr& s) :
-      serv(serv), s(s) {};
+    visitor(server& serv, std::shared_ptr<session> s) :
+      serv_(serv), s_(s) {};
     
     void operator()(const mono::state&) {
-      serv.mono_.insert(s);
+      serv_.mono_.insert(s_);
     }
 
     void operator()(const zone_server::state&) {
-      serv.zone_servers_.insert(s);
-      serv.mono_.erase(s);
+      serv_.zone_servers_.insert(s_);
+      serv_.mono_.erase(s_);
     }
 
     void operator()(const client::state&) {
-      serv.clients_.insert({s->as_client().aid, s});
-      serv.mono_.erase(s);
+      std::shared_ptr s(s_);
+      serv_.clients_.insert({s->as_client().aid, s_});
+      serv_.mono_.erase(s_);
     }
 
     void operator()(const account_server::state&) {
-      serv.account_server_ = s;
+      serv_.account_server_ = s_;
     }
   private:
-    server& serv;
-    session_ptr s;
+    server& serv_;
+    std::shared_ptr<session> s_;
   };
+
   std::visit(visitor(*this, s), s->variant());
 }
 
-void ares::character::server::remove(session_ptr s) {
+void ares::character::server::remove(std::shared_ptr<session> s) {
   struct visitor {
-    visitor(server& serv, const session_ptr& s) :
-      serv(serv), s(s) {};
+    
+    visitor(server& serv, const std::weak_ptr<session>& s) :
+      serv_(serv), s_(s) {};
 
     void operator()(const mono::state&) {
-      if (serv.auth_requests) {
-        serv.auth_requests->cancel(s);
+      if (serv_.auth_requests) {
+        serv_.auth_requests->cancel(s_);
       }
-      serv.mono_.erase(s);
+      serv_.mono_.erase(s_);
     }
 
     void operator()(const zone_server::state&) {
-      for (auto it = serv.aid_to_zone_server_.begin(); it != serv.aid_to_zone_server_.end();) {
+      for (auto it = serv_.aid_to_zone_server_.begin(); it != serv_.aid_to_zone_server_.end();) {
         const auto& r = *it;
-        if ((r.second == s) || (r.second == nullptr)) {
+        auto sp = r.second.lock();
+        if (!sp || (sp == s_)) {
           // Kill client if zone_server disconnects?
           // clients.erase(r.first);
-          it = serv.aid_to_zone_server_.erase(it);
+          it = serv_.aid_to_zone_server_.erase(it);
         } else {
           ++it;
         }
       }
-      serv.maps->remove_zone_session(s);
-      serv.zone_servers_.erase(s);
+      serv_.maps->remove_zone_session(s_);
+      serv_.zone_servers_.erase(s_);
     }
 
     void operator()(const client::state&) {
-      serv.aid_to_zone_server_.erase(s->as_client().aid);
-      serv.clients_.erase(s->as_client().aid);
+      serv_.aid_to_zone_server_.erase(s_->as_client().aid);
+      serv_.clients_.erase(s_->as_client().aid);
     }
 
     void operator()(const account_server::state&) {
-      if (s == serv.account_server_) serv.account_server_ == nullptr;
+      // weak_ptr will get deleted anyway
     }
   private:
-    server& serv;
-    session_ptr s;
+    server& serv_;
+    std::shared_ptr<session> s_;
   };
-  
+
   std::visit(visitor(*this, s), s->variant());
 }
 
-auto ares::character::server::zone_servers() const -> const std::set<session_ptr>& {
-  return zone_servers_;
+auto ares::character::server::account_server() const -> std::shared_ptr<session> {
+  auto s = account_server_.lock();
+  if (!s) log_->error("Requested access to account server which is currently null");
+  return s;
 }
 
-auto ares::character::server::zone_server_by_map_id(const uint32_t map_id) const -> session_ptr {
-  auto found = map_id_to_zone_server_.find(map_id);
-  if (found != map_id_to_zone_server_.end()) {
-    return found->second;
+auto ares::character::server::zone_server_by_login(const std::string& login) const -> std::shared_ptr<session> {
+  auto found = std::find_if(zone_servers_.begin(), zone_servers_.end(), [&login] (const std::weak_ptr<session>& s) {
+      return s.lock()->as_zone_server().login == login;
+    });
+  if (found != zone_servers_.end()) {
+    if (auto s = found->lock()) return s;
   }
   return nullptr;
 }
 
-auto ares::character::server::account_server() const -> const session_ptr& {
-  return account_server_;
-}
-
-auto ares::character::server::client_by_aid(const uint32_t aid) -> session_ptr {
+auto ares::character::server::client_by_aid(const uint32_t aid) -> std::shared_ptr<session> {
   auto found = clients_.find(aid);
   if (found != clients_.end()) {
-    return found->second;
+    return found->second.lock();
   }
   return nullptr;
 }
 
+/*
 auto ares::character::server::clients() const -> const std::map<uint32_t, session_ptr>& {
   return clients_;
-}
+  }*/
 
-void ares::character::server::link_aid_to_zone_server(const uint32_t aid, session_ptr s) {
+void ares::character::server::link_aid_to_zone_server(const uint32_t aid, std::shared_ptr<session> s) {
   aid_to_zone_server_[aid] = s;
 }
 
-void ares::character::server::unlink_aid_from_zone_server(const uint32_t aid, session_ptr s) {
+void ares::character::server::unlink_aid_from_zone_server(const uint32_t aid, std::shared_ptr<session> s) {
   auto found = aid_to_zone_server_.find(aid);
   if (found != aid_to_zone_server_.end()) {
-    if (found->second == s) {
+    auto ptr = found->second.lock();
+    if (!ptr || (ptr == s)) {
       aid_to_zone_server_.erase(aid);
     } else {
       log_->warn("unlink_aid_from_zone_server aid is linked to another zone server session, not unlinking");

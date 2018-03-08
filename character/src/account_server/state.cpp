@@ -9,7 +9,7 @@ namespace ares {
   namespace character {
     namespace account_server {
       struct ping_account_server_handler {
-        ping_account_server_handler(session_ptr sess, const bool pinged) :
+        ping_account_server_handler(std::shared_ptr<session> sess, const bool pinged) :
           session_(sess),
           pinged_(pinged) {
         }
@@ -34,7 +34,7 @@ namespace ares {
         }
 
       private:
-        session_ptr session_;
+        std::shared_ptr<session> session_;
         bool pinged_;
       };
     }
@@ -44,13 +44,12 @@ namespace ares {
 ares::character::account_server::state::state(character::server& serv, session& sess) :
   server_(serv),
   session_(sess),
-  ping_account_server_timer_(std::make_shared<asio::steady_timer>(*server_.io_context()))
-  
-  //  send_aids_timer(sess.shared_from_this(), std::chrono::seconds(120)),
-  //  send_user_count_timer(sess.shared_from_this(), std::chrono::seconds(120)),
-{
-  
-  }
+  ping_account_server_timer_(std::make_shared<asio::steady_timer>(*server_.io_context())) {
+}
+
+ares::character::account_server::state::~state() {
+  SPDLOG_TRACE(log(), "Destructing client state for session {}", session_.id());
+}
 
 void ares::character::account_server::state::reset_ping_account_server_timer() {
   const size_t timeout = 10;
@@ -86,6 +85,7 @@ void ares::character::account_server::state::on_operation_aborted() {
 }
 
 void ares::character::account_server::state::on_eof() {
+  SPDLOG_TRACE(log(), "Account server session {} EOF", session_.id());
   session_.close_abruptly();
 }
 
@@ -96,9 +96,6 @@ void ares::character::account_server::state::on_socket_error() {
 void ares::character::account_server::state::defuse_asio() {
   if (ping_account_server_timer_)
     ping_account_server_timer_->cancel();
-  
-  //send_aids_timer.cancel();
-  //send_user_count_timer.cancel();
 }
 
 auto ares::character::account_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {

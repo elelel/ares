@@ -10,6 +10,9 @@ ares::character::mono::state::state(character::server& serv, session& sess) :
   session_(sess) {
   }
 
+ares::character::mono::state::~state() {
+  SPDLOG_TRACE(log(), "Destructing mono state for session {}", session_.id());
+}
 
 void ares::character::mono::state::on_connect() {
 }

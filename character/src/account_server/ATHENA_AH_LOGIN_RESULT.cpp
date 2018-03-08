@@ -6,8 +6,6 @@ void ares::character::account_server::packet_handler<ares::packet::current<ares:
   if (p_->ErrorCode() == 0) {
     log()->info("Connected to account server");
     state_.reset_ping_account_server_timer();
-    //    session_state_.send_aids_timer.fire();
-    //    session_state_.send_user_count_timer.set();
   } else {
     log()->error("ATHENA_AH_LOGIN_RESULT account server rejected login request. Check login/password configuration");
     session_.close_gracefuly();

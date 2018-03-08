@@ -3,7 +3,7 @@
 
 void ares::character::zone_server::packet_handler<ares::packet::current<ares::packet::ARES_ZH_CID_AUTH_REQ>>::operator()() {
   SPDLOG_TRACE(log(), "ARES_ZH_CID_AUTH_REQ: begin");
-  session_ptr found;
+  std::shared_ptr<session> found;
   {
     std::lock_guard<std::mutex> lock(server_.mutex());
     found = server_.client_by_aid(p_->aid());

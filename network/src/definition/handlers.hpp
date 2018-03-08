@@ -5,16 +5,19 @@
 template <typename Session>
 inline ares::network::handler::session_base<Session>::session_base(std::shared_ptr<Session> s) :
   session_(s) {
+  if (session_ == nullptr) throw std::runtime_error("Attempt to construct session handler with session == nullptr");
 };
 
 template <typename Session>
 inline ares::network::handler::session_base<Session>::session_base(const session_base<Session>& other) :
   session_(other.session_) {
+  if (session_ == nullptr) throw std::runtime_error("Attempt to copy-construct session handler with session == nullptr");
 }
 
 template <typename Session>
 inline ares::network::handler::session_base<Session>::session_base(session_base<Session>&& other) :
   session_(std::move(other.session_)) {
+  if (session_ == nullptr) throw std::runtime_error("Attempt to move-construct session handler with session == nullptr");
 }
 
 template <typename Session>

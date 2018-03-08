@@ -49,7 +49,15 @@ namespace ares {
       state_variant session_state_;
     };
 
-    using session_ptr = std::shared_ptr<session>;
+    inline bool operator<(const std::weak_ptr<session>& lhs,
+                          const std::weak_ptr<session>& rhs) {
+      auto l = lhs.lock();
+      auto r = rhs.lock();
+      if (l && r) return l->id() < r->id();
+      if (l && !r) return false;
+      if (!l && r) return true;
+      return false;
+    }
 
   }
 }

@@ -9,7 +9,7 @@ namespace ares {
   namespace zone {
     namespace character_server {
       struct ping_character_server_handler {
-        ping_character_server_handler(session_ptr sess, const bool pinged) :
+        ping_character_server_handler(std::shared_ptr<session> sess, const bool pinged) :
           session_(sess),
           pinged_(pinged) {
         }
@@ -34,9 +34,8 @@ namespace ares {
         }
 
       private:
-        session_ptr session_;
+        std::shared_ptr<session> session_;
         bool pinged_;
-
       };
     }
   }

@@ -20,7 +20,7 @@ namespace ares {
 
     private:
       struct request_info {
-        std::shared_ptr<Session> session;
+        std::weak_ptr<Session> session;
         std::shared_ptr<asio::steady_timer> timer;
       };
       

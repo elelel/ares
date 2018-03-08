@@ -3,7 +3,7 @@
 
 void ares::character::account_server::packet_handler<ares::packet::current<ares::packet::ARES_AH_AID_AUTH_RESULT>>::operator()() {
   SPDLOG_TRACE(log(), "ARES_AH_AID_AUTH_RESULT: begin");
-  session_ptr s;
+  std::shared_ptr<session> s;
   {
     std::lock_guard<std::mutex> lock(server_.mutex());
     s = server_.auth_requests->responded(p_->request_id());

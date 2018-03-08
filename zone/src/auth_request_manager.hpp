@@ -12,7 +12,7 @@ namespace ares {
                                   std::enable_shared_from_this<zone::auth_request_manager> {
       using network::auth_request_manager<zone::auth_request_manager, server, session>::auth_request_manager;
 
-      void auth_timeout(session_ptr s);
+      void auth_timeout(std::shared_ptr<session> s);
     };
   }
 }

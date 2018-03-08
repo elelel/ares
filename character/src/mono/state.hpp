@@ -21,6 +21,7 @@ namespace ares {
     namespace mono {
       struct state {
         state(character::server& serv, session& sess);
+        ~state();
 
         friend struct client::state;
         friend struct zone_server::state;

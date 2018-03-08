@@ -17,8 +17,7 @@ namespace ares {
     template <typename Derived, typename Session>
     struct server {
       using acceptor = ares::network::acceptor<Derived>;
-      using session_ptr = std::shared_ptr<Session>;
-      
+
       /*! Constructs server
         \param io_context pointer to ASIO io_context
         \param num_threads number of threads dedicated to TCP listening
@@ -41,7 +40,7 @@ namespace ares {
       */
       //      void create_session(std::shared_ptr<asio::ip::tcp::socket> socket);
       
-      void remove_session(session_ptr s);
+      void remove_session(std::shared_ptr<Session> s);
 
       void run();
 

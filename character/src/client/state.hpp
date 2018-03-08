@@ -20,6 +20,7 @@ namespace ares {
       struct state {
         state(server& serv, session& sess);        
         state(const mono::state& mono_state);
+        ~state();
 
         void on_connect();
         void on_connection_reset();

@@ -13,6 +13,7 @@ namespace ares {
     namespace account_server {
       struct state {
         state(server& serv, session& sess);
+        ~state();
 
         void on_connect();
         void on_connection_reset();
@@ -34,9 +35,6 @@ namespace ares {
 
       public:
         std::shared_ptr<asio::steady_timer> ping_account_server_timer_;
-
-        //timer::send_aids send_aids_timer;
-        //timer::send_user_count send_user_count_timer;
       };
       
       ARES_DECLARE_PACKET_HANDLER_TEMPLATE();

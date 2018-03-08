@@ -13,7 +13,7 @@ namespace ares {
         struct ca_login_responder {
         protected:          
           ca_login_responder(server& serv,
-                             session_ptr sess,
+                             std::shared_ptr<session> sess,
                              std::string&& pck_username,
                              std::string&& pck_password,
                              const uint32_t version,
@@ -39,7 +39,7 @@ namespace ares {
             if (user_data) {
               SPDLOG_TRACE(log(), "login responder running accept procedure");
               std::unique_lock<std::mutex> l(server_.mutex());
-              if (server_.char_servers().size() > 0) {
+              if (server_.num_char_servers_open() > 0) {
                 auto found = server_.client_by_aid(user_data->aid);
                 if (!found) {
                   log()->info("Accepting login for AID = {}", user_data->aid);
@@ -70,8 +70,8 @@ namespace ares {
                      user_data->sex,
                      server_.char_servers().size());
 
-                  for (const auto& c : server_.char_servers()) {
-                    if (c) {
+                  for (const auto& cs : server_.char_servers()) {
+                    if (auto c = cs.lock()) {
                       const auto& data = c->as_char_server();
                       session_->emplace_and_send<packet::current<packet::AC_ACCEPT_LOGIN>::SERVER_ADDR>
                         (htonl(data.ip_v4.to_ulong()),
@@ -85,8 +85,8 @@ namespace ares {
                 } else {
                   log()->info("AID {} session already exists, refusing the connection for new session {} and closing the existing one {}",
                               user_data->aid, (void*)session_.get(), (void*)found.get());
-                  for (const auto& c : server_.char_servers()) {
-                    c->emplace_and_send<packet::current<packet::ATHENA_AH_KICK_AID>>(user_data->aid);
+                  for (const auto& cs : server_.char_servers()) {
+                    if (auto c = cs.lock()) c->emplace_and_send<packet::current<packet::ATHENA_AH_KICK_AID>>(user_data->aid);
                   }
                   session_->emplace_and_send<packet::current<packet::SC_NOTIFY_BAN>>(8);  // 08 = Server still recognizes your last login
                   session_->close_gracefuly();
@@ -126,7 +126,7 @@ namespace ares {
           }
 
           server& server_;
-          session_ptr session_;
+          std::shared_ptr<session> session_;
           const std::string pck_username;
           const std::string pck_password;
           const uint32_t version;
@@ -135,7 +135,7 @@ namespace ares {
         
         struct ca_login_responder_lp : ca_login_responder {
           ca_login_responder_lp(server& serv,
-                                session_ptr sess,
+                                std::shared_ptr<session> sess,
                                 std::string&& pck_username,
                                 std::string&& pck_password,
                                 const uint32_t version,
@@ -150,7 +150,7 @@ namespace ares {
 
         struct ca_login_responder_token : ca_login_responder {
           ca_login_responder_token(server& serv,
-                                   session_ptr sess,
+                                   std::shared_ptr<session> sess,
                                    std::string&& pck_username,
                                    std::string&& pck_password,
                                    std::string&& pck_token,

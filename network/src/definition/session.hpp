@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <atomic>
 
 #include <ares/packets>
 
@@ -21,6 +21,11 @@ ares::network::session<Derived, Server>::session(Server& server,
   connect_ep_(connect_ep),
   idle_timer_(std::make_shared<asio::steady_timer>(*server.io_context())),
   idle_timer_timeout_(idle_timer_timeout) {
+  
+  static std::atomic<size_t> last_id{0};
+
+  ++last_id;
+  id_ = last_id;
   if (socket_) {
     // TODO: Make configurable
     socket_->set_option(asio::ip::tcp::no_delay(true));
@@ -218,4 +223,9 @@ void ares::network::session<Derived, Server>::close_abruptly() {
   if (reconnect_timer_) set_reconnect_timer(reconnect_timer_timeout_, reconnect_timer_timeout_);
   std::lock_guard<std::mutex> lock(server_.mutex());
   server_.remove_session(static_cast<Derived*>(this)->shared_from_this());
+}
+
+template <typename Derived, typename Server>
+size_t ares::network::session<Derived, Server>::id() const {
+  return id_;
 }

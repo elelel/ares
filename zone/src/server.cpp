@@ -29,12 +29,13 @@ void ares::zone::server::start() {
     }
     log()->info("Establishing connection to character server");
     auto& ep = conf_.character_server->connect;
-    char_server_ = std::make_shared<session>(*this,
-                                             ep,
-                                             nullptr,
-                                             std::chrono::seconds{30});
-    char_server_->variant().emplace<character_server::state>(*this, *char_server_);
-    char_server_->set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
+    auto char_server = std::make_shared<session>(*this,
+                                                 ep,
+                                                 nullptr,
+                                                 std::chrono::seconds{30});
+    char_server->variant().emplace<character_server::state>(*this, *char_server);
+    char_server->set_reconnect_timer(std::chrono::seconds{0}, std::chrono::seconds{5});
+    char_server_ = char_server;
   } else {
     log()->error("Can't start: listen ipv4 configuration is empty");
   }
@@ -52,70 +53,68 @@ auto ares::zone::server::conf() const -> const config& {
   return conf_;
 }
 
-auto ares::zone::server::char_server() const -> const session_ptr& {
-  return char_server_;
+auto ares::zone::server::char_server() const -> std::shared_ptr<session> {
+  return char_server_.lock();
 }
 
-void ares::zone::server::add(session_ptr s) {
+void ares::zone::server::add(std::shared_ptr<session> s) {
   struct visitor {
-    visitor(server& serv, const session_ptr& s) :
-      serv(serv), s(s) {};
+    visitor(server& serv, const std::shared_ptr<session>& s) :
+      serv_(serv), s_(s) {};
 
     void operator()(const mono::state&) {
-      if (serv.auth_requests) {
-        serv.auth_requests->cancel(s);
+      if (serv_.auth_requests) {
+        serv_.auth_requests->cancel(s_);
       }
-      serv.mono_.insert(s);
+      serv_.mono_.insert(s_);
     }
 
     void operator()(const client::state&) {
-      if (serv.auth_requests) {
-        serv.auth_requests->cancel(s);
+      if (serv_.auth_requests) {
+        serv_.auth_requests->cancel(s_);
       }
-      serv.clients_.insert({s->as_client().aid, s});
-      serv.mono_.erase(s);
+      serv_.clients_.insert({s_->as_client().aid, s_});
+      serv_.mono_.erase(s_);
     }
 
     void operator()(const character_server::state&) {
-      serv.char_server_ = s;
+      serv_.char_server_ = s_;
     }
     
   private:
-    server& serv;
-    session_ptr s;
+    server& serv_;
+    std::shared_ptr<session> s_;
   };
   std::visit(visitor(*this, s), s->variant());
 }
 
-void ares::zone::server::remove(session_ptr s) {
+void ares::zone::server::remove(std::shared_ptr<session> s) {
   struct visitor {
-    visitor(server& serv, const session_ptr& s) :
-      serv(serv), s(s) {};
+    visitor(server& serv, const std::shared_ptr<session>& s) :
+      serv_(serv), s_e(s) {};
 
     void operator()(const mono::state&) {
-      serv.mono_.erase(s);
+      serv_.mono_.erase(s_);
     }
 
     void operator()(const client::state&) {
-      serv.clients_.erase(s->as_client().aid);
+      serv_.clients_.erase(s_->as_client().aid);
     }
 
     void operator()(const character_server::state&) {
-      if (s == serv.char_server_) serv.char_server_ == nullptr;
     }
   private:
-    server& serv;
-    session_ptr s;
+    server& serv_;
+    std::shared_ptr<session> s_;
   };
+  
   std::visit(visitor(*this, s), s->variant());
 }
 
-
-auto ares::zone::server::client_by_aid(const uint32_t aid) -> session_ptr {
+auto ares::zone::server::client_by_aid(const uint32_t aid) -> std::shared_ptr<session> {
   auto found = clients_.find(aid);
   if (found != clients_.end()) {
-    return found->second;
-  } else {
-    return nullptr;
+    if (auto s = found->second.lock()) return s;
   }
+  return nullptr;
 }

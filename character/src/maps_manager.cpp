@@ -45,10 +45,10 @@ ares::character::maps_manager::maps_manager(std::shared_ptr<spdlog::logger> log,
   resources_ = nullptr;
 }
 
-void ares::character::maps_manager::remove_zone_session(session_ptr s) {
+void ares::character::maps_manager::remove_zone_session(std::shared_ptr<session> s) {
   for (auto it = id_to_zone_session_.begin(); it != id_to_zone_session_.end();) {
     const auto& r = *it;
-    if (r.second == s) {
+    if (r.second.lock() == s) {
       assigned_ids_.erase(r.first);
       it = id_to_zone_session_.erase(it);
     } else {
@@ -146,7 +146,7 @@ auto ares::character::maps_manager::resources() -> std::shared_ptr<ares::grf::re
   }
 }
 
-uint32_t ares::character::maps_manager::id_by_name(const std::string& map_name) {
+uint32_t ares::character::maps_manager::id_by_name(const std::string& map_name) const {
   auto found = map_name_to_id_.find(map_name);
   if (found != map_name_to_id_.end()) {
     return found->second;
@@ -154,11 +154,38 @@ uint32_t ares::character::maps_manager::id_by_name(const std::string& map_name) 
   return 0;
 }
 
-const std::string& ares::character::maps_manager::name_by_id(const uint32_t map_id) {
+const std::string& ares::character::maps_manager::name_by_id(const uint32_t map_id) const {
   static std::string empty_string;
   auto found = map_id_to_name_.find(map_id);
   if (found != map_id_to_name_.end()) {
     return found->second;
   }
   return empty_string;
+}
+
+auto ares::character::maps_manager::zone_session_by_id(const uint32_t map_id) const -> std::shared_ptr<session> {
+  auto found = id_to_zone_session_.find(map_id);
+  if (found != id_to_zone_session_.end()) {
+    return found->second.lock();
+  }
+  return nullptr;
+}
+
+bool ares::character::maps_manager::link_id_to_zone_session(const uint32_t map_id, std::shared_ptr<session> s) {
+  auto found = zone_session_by_id(map_id);
+  if (found == nullptr) {
+    id_to_zone_session_[map_id] = s;
+    return true;
+  } else {
+    log_->error("Can't link map id {} to zone session with id {} because it is already linked to zone session with id {}",
+                map_id, s->id(), found->id());
+    return false;
+  }
+}
+
+auto ares::character::maps_manager::assigned_to_zone_login(const std::string& login) const -> const std::vector<uint32_t>& {
+  static const std::vector<uint32_t> empty;
+  auto found = zone_login_to_id_.find(login);
+  if (found != zone_login_to_id_.end()) return found->second;
+  return empty;
 }

@@ -21,23 +21,29 @@ namespace ares {
       const config& conf() const;
 
       /*! Returns connected character server sessions */ 
-      const std::set<session_ptr>& char_servers() const;
+      //      const std::set<session_ptr>& char_servers() const;
 
       /*! Adds a session to current sessions list
        \param s session to add */
-      void add(session_ptr s);
+      void add(std::shared_ptr<session> s);
       
       /*! Returns client session by account id 
        \param aid account id */
-      session_ptr client_by_aid(const uint32_t aid);
+      std::shared_ptr<session> client_by_aid(const uint32_t aid) const;
       /*! Associates account id with character server session
        \param aid Account id
        \param s character server session */
-      void link_aid_to_char_server(const uint32_t aid, session_ptr s);
+      void link_aid_to_char_server(const uint32_t aid, std::shared_ptr<session> s);
       /*! Dessociates account id from character server session
        \param aid Account id
        \param s character server session */
-      void unlink_aid_from_char_server(const uint32_t aid, session_ptr s);
+      void unlink_aid_from_char_server(const uint32_t aid, std::shared_ptr<session> s);
+
+      size_t num_char_servers_open() const;
+
+      const std::set<std::weak_ptr<session>>& char_servers() const;
+
+      std::shared_ptr<session> char_server_by_login(const std::string& login) const;
 
     protected:
       friend ares::network::server<server, session>;
@@ -50,13 +56,13 @@ namespace ares {
 
       /*! Removes a session from current sessions list. Should be called only from RX interface
        \param s session to remove */
-      void remove(session_ptr s);
+      void remove(std::shared_ptr<session> s);
 
     private:
-      std::map<uint32_t, session_ptr> aid_to_char_server_;
-      std::map<uint32_t, session_ptr> clients_;
-      std::set<session_ptr> char_servers_;
-      std::set<session_ptr> mono_;
+      std::map<uint32_t, std::weak_ptr<session>> aid_to_char_server_;
+      std::map<uint32_t, std::weak_ptr<session>> clients_;
+      std::set<std::weak_ptr<session>> char_servers_;
+      std::set<std::weak_ptr<session>> mono_;
 
       const config& conf_;
       

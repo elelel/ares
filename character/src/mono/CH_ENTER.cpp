@@ -11,7 +11,7 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::C
     const auto aid = p_->AID();
     session_.copy_and_send(&aid, sizeof(aid));
 
-    session_ptr found;
+    std::shared_ptr<session> found;
     {
       std::lock_guard<std::mutex> lock(server_.mutex());
       found = server_.client_by_aid(p_->AID());
@@ -24,13 +24,16 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::C
     } else {
       // Login from account server
       SPDLOG_TRACE(log(), "Sending ATHENA_HA_AID_AUTH_REQ");
-      uint32_t request_id;
+      uint32_t request_id{0};
       {
         std::lock_guard<std::mutex> lock(server_.mutex());
-        request_id = server_.auth_requests->new_request(session_.shared_from_this());
+        auto s = session_.shared_from_this();
+        request_id = server_.auth_requests->new_request(s);
       }
       state_.auth_code1 = p_->AuthCode();
       state_.auth_code2 = p_->userLevel();
+
+      SPDLOG_TRACE(log(), "Account server existence check: {} {}", server_.account_server() != nullptr, request_id);
       server_.account_server()->emplace_and_send<packet::current<packet::ARES_HA_AID_AUTH_REQ>>(request_id,
                                                                                                 p_->AID(),
                                                                                                 state_.auth_code1,

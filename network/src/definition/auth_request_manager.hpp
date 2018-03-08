@@ -4,7 +4,7 @@
 
 template <typename Derived, typename Server, typename Session>
 inline ares::network::auth_request_manager<Derived, Server, Session>::auth_request_manager(Server& server,
-                                                                           const std::chrono::seconds auth_timeout) :
+                                                                                           const std::chrono::seconds auth_timeout) :
   server_(server),
   i_{0},
   auth_timeout_(auth_timeout) {
@@ -41,7 +41,7 @@ inline auto ares::network::auth_request_manager<Derived, Server, Session>::respo
   std::shared_ptr<Session> s;
   if (found != pending_.end()) {
     found->second.timer->cancel();
-    s = found->second.session;
+    s = found->second.session.lock();
     pending_.erase(found);
   };
   return s;
@@ -50,7 +50,7 @@ inline auto ares::network::auth_request_manager<Derived, Server, Session>::respo
 template <typename Derived, typename Server, typename Session>
 inline void ares::network::auth_request_manager<Derived, Server, Session>::cancel(std::shared_ptr<Session> s) {
   auto found = std::find_if(pending_.begin(), pending_.end(), [s] (const auto& r) {
-      return r.second.session == s;
+      return r.second.session.lock() == s;
     });
   if (found != pending_.end()) {
     found->second.timer->cancel();

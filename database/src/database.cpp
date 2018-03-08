@@ -118,7 +118,7 @@ WHERE ("aid" = $1) AND ("slot" = $2)
 )");
 
     pqxx_conn_->prepare("character_delete_date", R"(
-SELECT "delete_date" FROM "characters" WHERE ("charaters"."id" = $1)
+SELECT "delete_date" FROM "characters" WHERE ("characters"."id" = $1)
 )");
 
     pqxx_conn_->prepare("character_create", R"(

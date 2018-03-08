@@ -3,7 +3,7 @@
 
 void ares::zone::character_server::packet_handler<ares::packet::current<ares::packet::ARES_HZ_CID_AUTH_RESULT>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ATHENA_HZ_CID_AUTH_RESULT: begin");
-  session_ptr s;
+  std::shared_ptr<session> s;
   {
     std::lock_guard<std::mutex> lock(server_.mutex());
     s = server_.auth_requests->responded(p_->request_id());

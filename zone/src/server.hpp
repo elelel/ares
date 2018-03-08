@@ -19,17 +19,17 @@ namespace ares {
       /*! Starts the zone server */
       void start();
 
+      const config& conf() const;
+      
       /*! Adds a session to current sessions list tracking the state type.
        \param s session to add */
       void add(session_ptr s);
 
-
       /*! Returns client session by account id 
        \param aid account id */
-      session_ptr client_by_aid(const uint32_t aid);
+      std::shared_ptr<session> client_by_aid(const uint32_t aid);
       
-      const session_ptr& char_server() const;
-      const config& conf() const;
+      std::shared_ptr<session> char_server() const;
 
       std::set<uint32_t> map_ids;
 
@@ -52,9 +52,9 @@ namespace ares {
       void remove(session_ptr s);
 
     private:
-      std::map<uint32_t, session_ptr> clients_;
-      session_ptr char_server_;
-      std::set<session_ptr> mono_;
+      std::map<uint32_t, std::weak_ptr<session>> clients_;
+      std::weak_ptr<session> char_server_;
+      std::set<std::weak_ptr<session>> mono_;
       
       const config& conf_;
       

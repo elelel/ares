@@ -84,6 +84,8 @@ namespace ares {
 
       void reset_idle_timer();
 
+      size_t id() const;
+
     private:
       friend struct handler::reconnect_timer<Derived>;
       friend struct handler::close_gracefuly_timer<Derived>;
@@ -104,6 +106,7 @@ namespace ares {
       void defuse();
 
     protected:
+      size_t id_;
       elelel::network_buffer send_buf_;
       std::mutex send_mutex_;
       std::mutex recv_mutex_;
@@ -129,4 +132,3 @@ namespace ares {
     };
   }
 }
-

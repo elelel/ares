@@ -13,6 +13,10 @@ ares::character::client::state::state(const mono::state& mono_state) :
   session_(mono_state.session_) {
 }
 
+ares::character::client::state::~state() {
+  SPDLOG_TRACE(log(), "Destructing client state for session {}", session_.id());
+}
+
 void ares::character::client::state::on_connect() {
 }
 
@@ -25,6 +29,7 @@ void ares::character::client::state::on_operation_aborted() {
 }
 
 void ares::character::client::state::on_eof() {
+  SPDLOG_TRACE(log(), "Client session {} EOF", session_.id());
 }
 
 void ares::character::client::state::on_socket_error() {
