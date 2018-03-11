@@ -69,6 +69,8 @@ namespace ares {
     // Zone <-> Client
     struct CZ_ENTER {};
     struct CZ_REQUEST_MOVE {};
+    struct ZC_ACCEPT_ENTER {};
+    struct ZC_REFUSE_ENTER {};
 
     // Athena packets
     // Account <-> Character
@@ -107,5 +109,6 @@ namespace ares {
     struct ARES_AH_AID_AUTH_RESULT {};
     struct ARES_ZH_CID_AUTH_REQ {};
     struct ARES_HZ_CID_AUTH_RESULT {};
+    struct ARES_ZH_MAP_ID_LOADED {};
   }
 }

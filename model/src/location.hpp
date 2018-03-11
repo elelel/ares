@@ -25,6 +25,8 @@ namespace ares {
     };
 
     struct packed_coordinates {
+      packed_coordinates();
+      
       void emplace(const uint16_t x, const uint16_t y);
       void emplace(const uint16_t x, const uint16_t y, const uint8_t dir);
       packed_coordinates(const uint16_t x, const uint16_t y);

@@ -52,6 +52,9 @@ inline bool ares::model::map_name_ext_string::operator==(const map_name_string& 
   return strncmp(data_, s, map_name_string::size::value) == 0;
 }
 
+inline ares::model::packed_coordinates::packed_coordinates() {
+}
+
 inline void ares::model::packed_coordinates::emplace(const uint16_t x, const uint16_t y) {
   data_[0] = x >> 2;
   data_[1] = (x << 6) | ((y >> 4) & 0x3f);

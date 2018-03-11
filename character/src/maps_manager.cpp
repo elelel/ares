@@ -14,7 +14,7 @@ ares::character::maps_manager::maps_manager(std::shared_ptr<spdlog::logger> log,
                                             const std::vector<std::string>& grfs) :
   log_(log),
   grfs_(grfs) {
-  log_->info("Loading maps configuration");
+  log_->info("Loading maps configuration and verifying maps");
 
   const auto cores = std::thread::hardware_concurrency();
   for (const auto& zs : zs_conf) {
@@ -27,12 +27,15 @@ ares::character::maps_manager::maps_manager(std::shared_ptr<spdlog::logger> log,
       threads.push_back
         (std::thread([this, &pg_conf, &zs, &maps, start, end] () {
             db = std::make_shared<ares::database::db>(log_, pg_conf->dbname, pg_conf->host, pg_conf->port, pg_conf->user, pg_conf->password);
-            for (size_t i = start; i < end; ++i) load_map_for_zone(maps[i], zs.login);
+            for (size_t i = start; i < end; ++i) {
+              load_map_for_zone(maps[i], zs.login);
+            }
             db.reset();
           }));
     }
     for (size_t i = 0; i < cores; ++i) threads[i].join();
   }
+  log_->info("Map verification done");
 
   log_->info("Loading maps index");
   db = std::make_shared<ares::database::db>(log_, pg_conf->dbname, pg_conf->host, pg_conf->port, pg_conf->user, pg_conf->password);
@@ -62,8 +65,6 @@ void ares::character::maps_manager::load_map_for_zone(const std::string& map_nam
   if (!map_id) {
     log_->warn("Data for map '{}' is corrupt or missing, loading from dir/grf resources", map_name);
     map_id.emplace(create_map(map_name));
-  } else {
-    log_->info("Verified map '{}' id {}", map_name, *map_id);    
   }
 
   std::lock_guard<std::mutex> lock(mutex_);

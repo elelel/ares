@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <mutex>
 
 namespace ares {
   namespace network {
@@ -14,6 +15,7 @@ namespace ares {
       uint32_t new_request(std::shared_ptr<Session> s);
       std::shared_ptr<Session> responded(const uint32_t request_id);
       void cancel(std::shared_ptr<Session> s);
+      std::mutex& mutex();
       
     protected:
       Server& server_;
@@ -27,6 +29,8 @@ namespace ares {
       std::map<uint32_t, request_info> pending_;
       uint32_t i_;
       std::chrono::seconds auth_timeout_;
+
+      std::mutex mutex_;
     };
   }
 }

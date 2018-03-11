@@ -6,6 +6,8 @@
 #include "auth_request_manager.hpp"
 #include "config.hpp"
 #include "session.hpp"
+#include "maps_manager.hpp"
+#include "pcs_manager.hpp"
 
 namespace ares {
   namespace zone {
@@ -23,7 +25,7 @@ namespace ares {
       
       /*! Adds a session to current sessions list tracking the state type.
        \param s session to add */
-      void add(session_ptr s);
+      void add(std::shared_ptr<session> s);
 
       /*! Returns client session by account id 
        \param aid account id */
@@ -31,12 +33,10 @@ namespace ares {
       
       std::shared_ptr<session> char_server() const;
 
-      std::set<uint32_t> map_ids;
-
       std::shared_ptr<auth_request_manager> auth_requests;
 
-      std::unordered_map<std::string, uint32_t> map_name_to_id;
-      std::map<uint32_t, std::string> map_id_to_name;
+      zone::maps_manager maps;
+      zone::pcs_manager pcs;
 
     protected:
       friend ares::network::server<server, session>;
@@ -49,7 +49,7 @@ namespace ares {
 
       /*! Removes a session from current sessions list
        \param s session to remove */
-      void remove(session_ptr s);
+      void remove(std::shared_ptr<session> s);
 
     private:
       std::map<uint32_t, std::weak_ptr<session>> clients_;

@@ -36,6 +36,8 @@ namespace ares {
     // Zone <-> Client
 #include "CZ/CZ_ENTER.hpp"
 #include "CZ/CZ_REQUEST_MOVE.hpp"
+#include "ZC/ZC_ACCEPT_ENTER.hpp"
+#include "ZC/ZC_REFUSE_ENTER.hpp"
 
     // Athena packets
     // Account <-> Character
@@ -68,6 +70,7 @@ namespace ares {
 #include "ATHENA/ATHENA_HZ_CID_AUTH_FAILED.hpp"
     
 #include "ARES/ARES_ZH_MAP_IDS_REQ.hpp"
+#include "ARES/ARES_ZH_MAP_ID_LOADED.hpp"
 #include "ARES/ARES_HZ_MAP_IDS.hpp"
 #include "ARES/ARES_HA_AID_AUTH_REQ.hpp"
 #include "ARES/ARES_AH_AID_AUTH_RESULT.hpp"

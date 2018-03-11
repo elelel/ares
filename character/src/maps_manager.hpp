@@ -21,7 +21,7 @@ namespace ares {
 
       uint32_t id_by_name(const std::string& map_name) const;
       const std::string& name_by_id(const uint32_t map_id) const;
-            
+
     private:
       // Map name index
       std::map<uint32_t, std::string> map_id_to_name_;

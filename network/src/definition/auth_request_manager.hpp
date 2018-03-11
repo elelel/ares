@@ -57,3 +57,8 @@ inline void ares::network::auth_request_manager<Derived, Server, Session>::cance
     pending_.erase(found);
   };
 }
+
+template <typename Derived, typename Server, typename Session>
+inline std::mutex& ares::network::auth_request_manager<Derived, Server, Session>::mutex() {
+  return mutex_;
+}

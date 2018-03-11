@@ -35,6 +35,9 @@ namespace ares {
 
     // Zone <-> Client
     ARES_PCK_ID_NAME(0x85, CZ_REQUEST_MOVE);
+    ARES_PCK_ID_NAME(0x2eb, ZC_ACCEPT_ENTER);
+    ARES_PCK_ID_NAME(0x74, ZC_REFUSE_ENTER);
+    
 
 #undef ARES_PCK_ID_NAME
 

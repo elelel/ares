@@ -9,13 +9,9 @@ ares::zone::server::server(std::shared_ptr<spdlog::logger> log,
                            const ares::zone::config& conf) :
   ares::network::server<server, session>(log, io_context, *conf.network_threads),
   auth_requests(std::make_shared<auth_request_manager>(*this, std::chrono::seconds(5))),
+  maps(log, conf.postgres),
+  pcs(log),
   conf_(conf) {
-  ares::database::db db(log, conf.postgres->dbname, conf.postgres->host, conf.postgres->port, conf.postgres->user, conf.postgres->password);
-  auto known_maps = db.query<database::maps::ids_and_names>();
-  for (const auto& m : known_maps) {
-    map_name_to_id[std::get<1>(m)] = std::get<0>(m);
-    map_id_to_name[std::get<0>(m)] = std::get<1>(m);
-  }
 }
 
 void ares::zone::server::init_thread_local() {
@@ -91,7 +87,7 @@ void ares::zone::server::add(std::shared_ptr<session> s) {
 void ares::zone::server::remove(std::shared_ptr<session> s) {
   struct visitor {
     visitor(server& serv, const std::shared_ptr<session>& s) :
-      serv_(serv), s_e(s) {};
+      serv_(serv), s_(s) {};
 
     void operator()(const mono::state&) {
       serv_.mono_.erase(s_);

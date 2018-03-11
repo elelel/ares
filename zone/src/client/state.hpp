@@ -4,6 +4,8 @@
 
 #include "../config.hpp"
 
+#include "../pc.hpp"
+
 namespace ares {
   namespace zone {
     struct server;
@@ -46,6 +48,8 @@ namespace ares {
         int32_t auth_code2{0};
 
         int32_t client_time_diff{0};
+
+        std::weak_ptr<zone::pc> pc;
       private:
         server& server_;
         session& session_;
