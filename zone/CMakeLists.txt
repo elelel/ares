@@ -24,19 +24,22 @@ set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(SOURCES
   ${SRC}/maps_manager.cpp
   ${SRC}/pcs_manager.cpp
-  ${SRC}/character_server/ARES_HZ_CID_AUTH_RESULT.cpp  
+
   ${SRC}/map.cpp
   ${SRC}/pc.cpp
   ${SRC}/auth_request_manager.cpp
   ${SRC}/mono/state.cpp  
   ${SRC}/mono/CZ_ENTER.cpp
   ${SRC}/character_server/state.cpp
+  ${SRC}/character_server/ARES_HZ_CID_AUTH_RESULT.cpp
   ${SRC}/character_server/ARES_HZ_MAP_IDS.cpp
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
 
   ${SRC}/client/state.cpp
+  ${SRC}/client/CZ_LESSEFFECT.cpp
+  ${SRC}/client/CZ_NOTIFY_ACTORINIT.cpp
   ${SRC}/main.cpp
   ${SRC}/server.cpp
   ${SRC}/session.cpp

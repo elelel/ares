@@ -16,31 +16,31 @@ struct type<PacketSet, CZ_ENTER> {
     Sex_ = Sex;
   }
 
-  inline explicit type<PacketSet, CZ_ENTER>(const uint32_t AID,
-                                            const uint32_t GID,
-                                            const int32_t AuthCode,
-                                            const uint32_t clientTime,
-                                            const uint8_t Sex) {
+  inline explicit type(const uint32_t AID,
+                       const uint32_t GID,
+                       const int32_t AuthCode,
+                       const uint32_t clientTime,
+                       const uint8_t Sex) {
     emplace(AID, GID, AuthCode, clientTime, Sex);
   }
 
-  uint32_t AID() const {
+  inline uint32_t AID() const {
     return AID_;
   }
   
-  uint32_t GID() const {
+  inline uint32_t GID() const {
     return GID_;
   }
   
-  int32_t AuthCode() const {
+  inline int32_t AuthCode() const {
     return AuthCode_;
   }
   
-  uint32_t clientTime() const {
+  inline uint32_t clientTime() const {
     return clientTime_;
   }
 
-  uint8_t Sex() const {
+  inline uint8_t Sex() const {
     return Sex_;
   }
   

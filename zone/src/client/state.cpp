@@ -42,6 +42,7 @@ void ares::zone::client::state::on_socket_error() {
 
 void ares::zone::client::state::rotate_obf_crypt_key() {
   // Rotate packet id obfuscation key
+  SPDLOG_TRACE(log(), "client::state::rotate_obf_crypt_key");
   if (obf_crypt_key_) {
     obf_crypt_key_.emplace(*obf_crypt_key_ *
                            std::get<1>(*server_.conf().obfuscation_key) +
@@ -53,8 +54,11 @@ void ares::zone::client::state::defuse_asio() {
 }
 
 auto ares::zone::client::state::allocate(uint16_t& packet_id) -> packet::alloc_info {
+  SPDLOG_TRACE(log(), "client::state::allocate packet_id before applying obf decrypt {}", packet_id);
   if (obf_crypt_key_) packet_id = packet_id ^ ((*obf_crypt_key_ >> 16) & 0x7fff);  
   switch (packet_id) {
+    ARES_ALLOCATE_PACKET_CASE(CZ_LESSEFFECT);
+    ARES_ALLOCATE_PACKET_CASE(CZ_NOTIFY_ACTORINIT);
   default:
     { // Packet id is not known to this server under selected packet set
       log()->error("Unexpected packet_id {:#x} for client session while allocating", packet_id);
@@ -69,9 +73,11 @@ auto ares::zone::client::state::allocate(uint16_t& packet_id) -> packet::alloc_i
   }
 }
 
-void ares::zone::client::state::dispatch_packet(void* buf, std::function<void(void*)> /* deallocator */) {
+void ares::zone::client::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
   uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
   switch (*packet_id) {
+    ARES_DISPATCH_PACKET_CASE(CZ_LESSEFFECT);
+    ARES_DISPATCH_PACKET_CASE(CZ_NOTIFY_ACTORINIT);
   default:
     {
       log()->error("Unexpected packet_id {:#x} for client::state session, disconnecting", *packet_id);

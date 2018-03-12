@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ares/network>
 #include <ares/packets>
 
 #include "../config.hpp"
@@ -55,6 +56,12 @@ namespace ares {
         session& session_;
         std::optional<uint32_t> obf_crypt_key_;
       };
+
+      ARES_DECLARE_PACKET_HANDLER_TEMPLATE();
+
+      ARES_PACKET_HANDLER(CZ_LESSEFFECT);
+      ARES_PACKET_HANDLER(CZ_NOTIFY_ACTORINIT);
+
     }
   }
 }

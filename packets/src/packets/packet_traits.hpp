@@ -71,6 +71,8 @@ namespace ares {
     struct CZ_REQUEST_MOVE {};
     struct ZC_ACCEPT_ENTER {};
     struct ZC_REFUSE_ENTER {};
+    struct CZ_LESSEFFECT {};
+    struct CZ_NOTIFY_ACTORINIT {};
 
     // Athena packets
     // Account <-> Character

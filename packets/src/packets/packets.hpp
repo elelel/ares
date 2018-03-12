@@ -38,6 +38,8 @@ namespace ares {
 #include "CZ/CZ_REQUEST_MOVE.hpp"
 #include "ZC/ZC_ACCEPT_ENTER.hpp"
 #include "ZC/ZC_REFUSE_ENTER.hpp"
+#include "CZ/CZ_LESSEFFECT.hpp"
+#include "CZ/CZ_NOTIFY_ACTORINIT.hpp"
 
     // Athena packets
     // Account <-> Character

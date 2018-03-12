@@ -2,7 +2,7 @@
 
 namespace ares {
   namespace packet_sets {
-    /*! Client packets that were never changed during the dev cycle.
+    /*! Client packets that have never been changed during the dev cycle.
       As soon as a packet changes, it should be moved down the packetset hierarchy.
     */
 
@@ -37,7 +37,8 @@ namespace ares {
     ARES_PCK_ID_NAME(0x85, CZ_REQUEST_MOVE);
     ARES_PCK_ID_NAME(0x2eb, ZC_ACCEPT_ENTER);
     ARES_PCK_ID_NAME(0x74, ZC_REFUSE_ENTER);
-    
+    ARES_PCK_ID_NAME(0x21d, CZ_LESSEFFECT);
+    ARES_PCK_ID_NAME(0x7d, CZ_NOTIFY_ACTORINIT);
 
 #undef ARES_PCK_ID_NAME
 
