@@ -62,6 +62,7 @@ auto ares::zone::client::state::allocate(uint16_t& packet_id) -> packet::alloc_i
     ARES_ALLOCATE_PACKET_CASE(CZ_REQUEST_TIME);
     ARES_ALLOCATE_PACKET_CASE(CZ_REQ_SCHEDULER_CASHITEM);
     ARES_ALLOCATE_PACKET_CASE(CZ_REQ_GUILD_MENU);
+    ARES_ALLOCATE_PACKET_CASE(CZ_REQNAME);
     ARES_ALLOCATE_PACKET_CASE(CZ_REQUEST_MOVE);
   default:
     { // Packet id is not known to this server under selected packet set
@@ -85,6 +86,7 @@ void ares::zone::client::state::dispatch_packet(void* buf, std::function<void(vo
     ARES_DISPATCH_PACKET_CASE(CZ_REQUEST_TIME);
     ARES_DISPATCH_PACKET_CASE(CZ_REQ_SCHEDULER_CASHITEM);
     ARES_DISPATCH_PACKET_CASE(CZ_REQ_GUILD_MENU);
+    ARES_DISPATCH_PACKET_CASE(CZ_REQNAME);
     ARES_DISPATCH_PACKET_CASE(CZ_REQUEST_MOVE);
   default:
     {

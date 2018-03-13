@@ -28,6 +28,7 @@ set(SOURCES
   ${SRC}/client/CZ_REQUEST_MOVE.cpp
   ${SRC}/client/CZ_REQ_SCHEDULER_CASHITEM.cpp
   ${SRC}/client/CZ_REQ_GUILD_MENU.cpp
+  ${SRC}/client/CZ_REQNAME.cpp
   ${SRC}/client/CZ_REQUEST_TIME.cpp
 
   ${SRC}/map.cpp

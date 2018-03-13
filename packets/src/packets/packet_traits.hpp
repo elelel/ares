@@ -78,6 +78,7 @@ namespace ares {
     struct CZ_REQ_SCHEDULER_CASHITEM {};
     struct ZC_ACK_SCHEDULER_CASHITEM {};
     struct CZ_REQ_GUILD_MENU {};
+    struct CZ_REQNAME {};
 
     // Athena packets
     // Account <-> Character
