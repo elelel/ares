@@ -68,11 +68,16 @@ namespace ares {
 
     // Zone <-> Client
     struct CZ_ENTER {};
+    struct CZ_REQUEST_TIME {};
+    struct ZC_NOTIFY_TIME {};
     struct CZ_REQUEST_MOVE {};
     struct ZC_ACCEPT_ENTER {};
     struct ZC_REFUSE_ENTER {};
     struct CZ_LESSEFFECT {};
     struct CZ_NOTIFY_ACTORINIT {};
+    struct CZ_REQ_SCHEDULER_CASHITEM {};
+    struct ZC_ACK_SCHEDULER_CASHITEM {};
+    struct CZ_REQ_GUILD_MENU {};
 
     // Athena packets
     // Account <-> Character

@@ -3,39 +3,31 @@ struct type<PacketSet, CZ_REQUEST_MOVE> {
   using packet_set = PacketSet;
   using packet_name = CZ_REQUEST_MOVE;
   
-  inline void emplace(const uint16_t to_x, const uint16_t to_y) {
+  inline void emplace(const model::packed_coordinates& coords) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
-    dest_[0] = to_x >> 2;
-    dest_[1] = (to_x << 6) | ((to_y >> 4) & 0x3f);
-    dest_[2] = to_y << 4;
+    coords_ = coords;
   }
 
-  inline void emplace(const uint16_t to_x, const uint16_t to_y, const uint8_t dir) {
-    emplace(to_x, to_y);
-    dest_[2] = dest_[2] | dir;
+  template <typename... Args>
+  inline void emplace(Args&&... args) {
+    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
+    coords_ = std::move(model::packed_coordinates(std::forward<Args>(args)...));
   }
 
-  explicit type(const uint16_t to_x, const uint16_t to_y) {
-    emplace(to_x, to_y);
+  inline explicit type(const model::packed_coordinates& coords) {
+    emplace(coords);
+  }
+  
+  template <typename... Args>
+  inline type(Args&&... args) {
+    emplace(std::forward<Args>(args)...);
   }
 
-  explicit type(const uint16_t to_x, const uint16_t to_y, uint8_t dir) {
-    emplace(to_x, to_y, dir);
-  }
-
-  inline uint16_t to_x() const {
-    return (dest_[0] << 2) | (dest_[1] >> 6);
-  }
-
-  inline uint16_t to_y() const {
-    return ((dest_[1] & 0x3f) << 4) | (dest_[2] >> 4);
-  }
-
-  inline uint8_t dir() const {
-    return dest_[2] & 0xf;
+  inline const model::packed_coordinates& coords() const {
+    return coords_;
   }
   
   uint16_t PacketType;
 private:
-  uint8_t dest_[3];
+  model::packed_coordinates coords_;
 };

@@ -10,7 +10,9 @@ namespace ares {
 
     ARES_PCK_ID_NAME(0x811, CZ_ENTER);
     ARES_PCK_ID_NAME(0x9a0, HC_CHAR_PAGES_NUM::no_nchars);
-    
+    ARES_PCK_ID_NAME(0x876, CZ_REQUEST_TIME);
+    ARES_PCK_ID_NAME(0x941, CZ_REQUEST_MOVE);
+
 #undef ARES_PCK_ID_NAME
   }
 }

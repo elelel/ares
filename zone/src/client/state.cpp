@@ -54,11 +54,15 @@ void ares::zone::client::state::defuse_asio() {
 }
 
 auto ares::zone::client::state::allocate(uint16_t& packet_id) -> packet::alloc_info {
-  SPDLOG_TRACE(log(), "client::state::allocate packet_id before applying obf decrypt {}", packet_id);
+  SPDLOG_TRACE(log(), "client::state::allocate packet_id before applying obf decrypt {:#x}", packet_id);
   if (obf_crypt_key_) packet_id = packet_id ^ ((*obf_crypt_key_ >> 16) & 0x7fff);  
   switch (packet_id) {
     ARES_ALLOCATE_PACKET_CASE(CZ_LESSEFFECT);
     ARES_ALLOCATE_PACKET_CASE(CZ_NOTIFY_ACTORINIT);
+    ARES_ALLOCATE_PACKET_CASE(CZ_REQUEST_TIME);
+    ARES_ALLOCATE_PACKET_CASE(CZ_REQ_SCHEDULER_CASHITEM);
+    ARES_ALLOCATE_PACKET_CASE(CZ_REQ_GUILD_MENU);
+    ARES_ALLOCATE_PACKET_CASE(CZ_REQUEST_MOVE);
   default:
     { // Packet id is not known to this server under selected packet set
       log()->error("Unexpected packet_id {:#x} for client session while allocating", packet_id);
@@ -78,6 +82,10 @@ void ares::zone::client::state::dispatch_packet(void* buf, std::function<void(vo
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(CZ_LESSEFFECT);
     ARES_DISPATCH_PACKET_CASE(CZ_NOTIFY_ACTORINIT);
+    ARES_DISPATCH_PACKET_CASE(CZ_REQUEST_TIME);
+    ARES_DISPATCH_PACKET_CASE(CZ_REQ_SCHEDULER_CASHITEM);
+    ARES_DISPATCH_PACKET_CASE(CZ_REQ_GUILD_MENU);
+    ARES_DISPATCH_PACKET_CASE(CZ_REQUEST_MOVE);
   default:
     {
       log()->error("Unexpected packet_id {:#x} for client::state session, disconnecting", *packet_id);

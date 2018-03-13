@@ -22,11 +22,22 @@ set(DATABASE "${ARES_DIR}/database")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/maps_manager.cpp
-  ${SRC}/pcs_manager.cpp
+  ${SRC}/client/state.cpp
+  ${SRC}/client/CZ_LESSEFFECT.cpp
+  ${SRC}/client/CZ_NOTIFY_ACTORINIT.cpp
+  ${SRC}/client/CZ_REQUEST_MOVE.cpp
+  ${SRC}/client/CZ_REQ_SCHEDULER_CASHITEM.cpp
+  ${SRC}/client/CZ_REQ_GUILD_MENU.cpp
+  ${SRC}/client/CZ_REQUEST_TIME.cpp
 
   ${SRC}/map.cpp
   ${SRC}/pc.cpp
+  ${SRC}/maps_manager.cpp
+  ${SRC}/pcs_manager.cpp
+  ${SRC}/main.cpp
+  ${SRC}/server.cpp
+  ${SRC}/session.cpp
+  ${SRC}/config.cpp
   ${SRC}/auth_request_manager.cpp
   ${SRC}/mono/state.cpp  
   ${SRC}/mono/CZ_ENTER.cpp
@@ -36,14 +47,6 @@ set(SOURCES
   ${SRC}/character_server/ATHENA_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ATHENA_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ATHENA_HZ_PING_ACK.cpp
-
-  ${SRC}/client/state.cpp
-  ${SRC}/client/CZ_LESSEFFECT.cpp
-  ${SRC}/client/CZ_NOTIFY_ACTORINIT.cpp
-  ${SRC}/main.cpp
-  ${SRC}/server.cpp
-  ${SRC}/session.cpp
-  ${SRC}/config.cpp
   )
 
 if (NOT TARGET common) 

@@ -6,7 +6,7 @@ struct type<PacketSet, ZC_ACCEPT_ENTER> {
   inline void emplace(const std::chrono::system_clock::time_point& start_time,
                       const uint16_t x, const uint16_t y, const uint8_t dir,
                       const uint8_t x_size, const uint8_t y_size, const uint16_t font) {
-    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
+    PacketType = packet_sets::id_of<packet_set, packet_name>::value;
     startTime_ = model::to_host_epoch_time(start_time);
     PosDir_ = model::packed_coordinates(x, y, dir);
     x_size_ = x_size;

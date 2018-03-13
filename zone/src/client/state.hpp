@@ -50,6 +50,8 @@ namespace ares {
 
         int32_t client_time_diff{0};
 
+        uint32_t tick{0};
+
         std::weak_ptr<zone::pc> pc;
       private:
         server& server_;
@@ -61,6 +63,10 @@ namespace ares {
 
       ARES_PACKET_HANDLER(CZ_LESSEFFECT);
       ARES_PACKET_HANDLER(CZ_NOTIFY_ACTORINIT);
+      ARES_PACKET_HANDLER(CZ_REQUEST_TIME);
+      ARES_PACKET_HANDLER(CZ_REQUEST_MOVE);
+      ARES_PACKET_HANDLER(CZ_REQ_SCHEDULER_CASHITEM);
+      ARES_PACKET_HANDLER(CZ_REQ_GUILD_MENU);
 
     }
   }

@@ -35,12 +35,17 @@ namespace ares {
 
     // Zone <-> Client
 #include "CZ/CZ_ENTER.hpp"
-#include "CZ/CZ_REQUEST_MOVE.hpp"
+#include "CZ/CZ_REQUEST_TIME.hpp"
+#include "ZC/ZC_NOTIFY_TIME.hpp"
 #include "ZC/ZC_ACCEPT_ENTER.hpp"
 #include "ZC/ZC_REFUSE_ENTER.hpp"
 #include "CZ/CZ_LESSEFFECT.hpp"
 #include "CZ/CZ_NOTIFY_ACTORINIT.hpp"
-
+#include "CZ/CZ_REQUEST_MOVE.hpp"
+#include "CZ/CZ_REQ_SCHEDULER_CASHITEM.hpp"
+#include "ZC/ZC_ACK_SCHEDULER_CASHITEM.hpp"
+#include "CZ/CZ_REQ_GUILD_MENU.hpp"
+    
     // Athena packets
     // Account <-> Character
 #include "ATHENA/ATHENA_HA_PING_REQ.hpp"
