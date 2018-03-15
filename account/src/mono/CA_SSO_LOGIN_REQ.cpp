@@ -183,7 +183,7 @@ void ares::account::mono::packet_handler<ares::packet::current<ares::packet::CA_
   if (zero_pos != std::string::npos) pck_username.erase(zero_pos, std::string::npos);
   zero_pos = pck_password.find(char(0));
   if (zero_pos != std::string::npos) pck_password.erase(zero_pos, std::string::npos);
-  SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password pck_username = " + pck_username + " pck_password " = pck_password);
+  SPDLOG_TRACE(log(), "CA_SSO_LOGIN_REQ::login_password pck_username = " + pck_username + " pck_password " + pck_password);
   detail::ca_login_responder_lp respond(server_,
                                         session_.shared_from_this(),
                                         std::move(pck_username),
