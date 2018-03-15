@@ -3,8 +3,8 @@ struct type<PacketSet, CZ_ENTER> {
   using packet_set = PacketSet;
   using packet_name = CZ_ENTER;
   
-  inline void emplace(const uint32_t AID,
-                      const uint32_t GID,
+  inline void emplace(const model::AID& AID,
+                      const model::GID& GID,
                       const int32_t AuthCode,
                       const uint32_t clientTime,
                       const uint8_t Sex) {
@@ -16,19 +16,19 @@ struct type<PacketSet, CZ_ENTER> {
     Sex_ = Sex;
   }
 
-  inline explicit type(const uint32_t AID,
-                       const uint32_t GID,
+  inline explicit type(const model::AID& AID,
+                       const model::GID& GID,
                        const int32_t AuthCode,
                        const uint32_t clientTime,
                        const uint8_t Sex) {
     emplace(AID, GID, AuthCode, clientTime, Sex);
   }
 
-  inline uint32_t AID() const {
+  inline const model::AID& AID() const {
     return AID_;
   }
   
-  inline uint32_t GID() const {
+  inline const model::GID& GID() const {
     return GID_;
   }
   
@@ -46,8 +46,8 @@ struct type<PacketSet, CZ_ENTER> {
   
   uint16_t PacketType;
 private:
-  uint32_t AID_;
-  uint32_t GID_;
+  model::AID AID_;
+  model::GID GID_;
   int32_t AuthCode_;
   uint32_t clientTime_;
   uint8_t Sex_;

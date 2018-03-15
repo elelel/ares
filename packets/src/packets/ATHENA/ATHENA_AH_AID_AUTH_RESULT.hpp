@@ -67,7 +67,7 @@ struct type<PacketSet, ATHENA_AH_AID_AUTH_RESULT> {
   
   uint16_t PacketType;
 private:
-  uint32_t aid_;
+  model::account_id account_id_;
   int32_t auth_code1_;
   int32_t auth_code2_;
   uint8_t sex_;

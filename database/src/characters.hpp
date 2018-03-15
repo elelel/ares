@@ -10,11 +10,11 @@ namespace ares {
   namespace database {
     namespace characters {
       struct create : pqxx::transactor<> {
-        using result_type = std::optional<uint32_t>;
+        using result_type = std::optional<model::character_id>;
         result_type& rslt;
         
         create(result_type& rslt,
-               const uint32_t& aid,
+               const model::account_id& account_id,
                const std::string& name,
                const uint8_t& slot,
                const uint16_t& head_palette,
@@ -29,7 +29,7 @@ namespace ares {
         void operator()(argument_type& trans);
 
       private:
-        const uint32_t& aid_;
+        const model::account_id& account_id_;
         const std::string& name_;
         const uint8_t& slot_;
         const uint16_t& head_palette_;
@@ -47,34 +47,34 @@ namespace ares {
         result_type& rslt;
         
         delete_date(result_type& rslt,
-                    const uint32_t& id);
+                    const model::character_id& character_id);
 
         void operator()(argument_type& trans);
         
       private:
-        uint32_t id_;
+        model::character_id character_id_;
       };
 
       struct info : pqxx::transactor<> {
         using result_type = std::optional<model::pc_info>;
         result_type& rslt;
         
-        info(result_type& rslt, const uint32_t& id);
+        info(result_type& rslt, const model::character_id& character_id);
 
         void operator()(argument_type& trans);
 
       private:
-        const uint32_t& id_;
+        const model::character_id& character_id_;
       };
 
-      struct infos_for_aid : pqxx::transactor<> {
+      struct infos_for_account_id : pqxx::transactor<> {
         using result_type = std::vector<model::pc_info>;
         result_type& rslt;
         
-        infos_for_aid(result_type& rslt, const uint32_t& aid, const size_t& max_chars);
+        infos_for_account_id(result_type& rslt, const model::account_id& account_id, const size_t& max_chars);
         void operator()(argument_type& trans);
       private:
-        const uint32_t& aid_;
+        const model::account_id& account_id_;
         const size_t& max_chars_;
       };
 
@@ -82,11 +82,11 @@ namespace ares {
         using result_type = std::optional<model::pc_info>;
         result_type& rslt;
 
-        info_for_slot(result_type& rslt, const uint32_t& aid, const uint16_t& slot);
+        info_for_slot(result_type& rslt, const model::account_id& account_id, const uint16_t& slot);
 
         void operator()(argument_type& trans);
       private:
-        const uint32_t& aid_;
+        const model::account_id& account_id_;
         const uint16_t& slot_;
       };
     }

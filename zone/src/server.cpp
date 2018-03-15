@@ -69,7 +69,7 @@ void ares::zone::server::add(std::shared_ptr<session> s) {
       if (serv_.auth_requests) {
         serv_.auth_requests->cancel(s_);
       }
-      serv_.clients_.insert({s_->as_client().aid, s_});
+      serv_.clients_.insert({s_->as_client().account_id, s_});
       serv_.mono_.erase(s_);
     }
 
@@ -94,7 +94,7 @@ void ares::zone::server::remove(std::shared_ptr<session> s) {
     }
 
     void operator()(const client::state&) {
-      serv_.clients_.erase(s_->as_client().aid);
+      serv_.clients_.erase(s_->as_client().account_id);
     }
 
     void operator()(const character_server::state&) {
@@ -107,8 +107,8 @@ void ares::zone::server::remove(std::shared_ptr<session> s) {
   std::visit(visitor(*this, s), s->variant());
 }
 
-auto ares::zone::server::client_by_aid(const uint32_t aid) -> std::shared_ptr<session> {
-  auto found = clients_.find(aid);
+auto ares::zone::server::find_client_session(const model::account_id& account_id) const -> std::shared_ptr<session> {
+  auto found = clients_.find(account_id);
   if (found != clients_.end()) {
     if (auto s = found->second.lock()) return s;
   }

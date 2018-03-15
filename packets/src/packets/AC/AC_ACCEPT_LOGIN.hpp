@@ -3,16 +3,17 @@ static const size_t TWITTER_TOKEN_SIZE = 128;
 
 template <typename PacketSet>
 struct type<PacketSet, AC_ACCEPT_LOGIN> {
+  using packet_set = PacketSet;
   using packet_name = AC_ACCEPT_LOGIN;
   
   inline void emplace(const int32_t AuthCode,
-                      const uint32_t AID,
+                      const model::AID AID,
                       const uint32_t userLevel,
                       const uint32_t lastLoginIP,
                       const std::string& lastLoginTime,
                       const uint8_t Sex,
                       const size_t servers_count) {
-    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
+    PacketType = packet_sets::id_of<packet_set, packet_name>::value;
     PacketLength = sizeof(*this) + servers_count * sizeof(SERVER_ADDR);
     AuthCode_ = AuthCode;
     AID_ = AID;
@@ -24,13 +25,13 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
     memset(someNewBuf_, 0, sizeof(someNewBuf_));
   }
 
-  explicit type(const int32_t AuthCode,
-                           const uint32_t AID,
-                           const uint32_t userLevel,
-                           const uint32_t lastLoginIP,
-                           const std::string& lastLoginTime,
-                           const uint8_t Sex,
-                           const size_t servers_count) {
+  inline explicit type(const int32_t AuthCode,
+                       const model::AID AID,
+                       const uint32_t userLevel,
+                       const uint32_t lastLoginIP,
+                       const std::string& lastLoginTime,
+                       const uint8_t Sex,
+                       const size_t servers_count) {
     emplace(AuthCode, AID, userLevel, lastLoginIP, lastLoginTime, Sex, servers_count);
   }
   
@@ -73,7 +74,7 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
     return AuthCode_;
   }
 
-  inline uint32_t AID() const {
+  inline model::AID AID() const {
     return AID_;
   }
 
@@ -110,7 +111,7 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
   
 private:
   int32_t AuthCode_;
-  uint32_t AID_;
+  model::AID AID_;
   uint32_t userLevel_;
   uint32_t lastLoginIP_;
   model::fixed_string<26> lastLoginTime_;

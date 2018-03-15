@@ -21,24 +21,22 @@ set(CONTRIB "${ARES_DIR}/contrib")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
+  ${SRC}/mono/CA_SSO_LOGIN_REQ.cpp
+  ${SRC}/mono/CA_EXE_HASHCHECK.cpp
+  ${SRC}/mono/ARES_HA_LOGIN_REQ.cpp
+  ${SRC}/client/state.cpp
+
   ${SRC}/main.cpp
   ${SRC}/server.cpp
   ${SRC}/config.cpp
   ${SRC}/session.cpp
   ${SRC}/character_server/state.cpp
-  ${SRC}/character_server/ATHENA_HA_ONLINE_AIDS.cpp
-  ${SRC}/character_server/ATHENA_HA_ACCOUNT_DATA_REQ.cpp
-  ${SRC}/character_server/ATHENA_HA_SET_AID_ONLINE.cpp
-  ${SRC}/character_server/ATHENA_HA_SET_AID_OFFLINE.cpp
-  ${SRC}/character_server/ATHENA_HA_USER_COUNT.cpp
-  ${SRC}/character_server/ATHENA_HA_PING_REQ.cpp
-  ${SRC}/character_server/ARES_HA_AID_AUTH_REQ.cpp
+
+  ${SRC}/character_server/ARES_HA_PING_REQ.cpp
+  ${SRC}/character_server/ARES_HA_ONLINE_ACCOUNTS.cpp
+  ${SRC}/character_server/ARES_HA_USER_COUNT.cpp
+  ${SRC}/character_server/ARES_HA_ACCOUNT_AUTH_REQ.cpp
   ${SRC}/mono/state.cpp
-  ${SRC}/mono/CA_SSO_LOGIN_REQ.cpp
-  ${SRC}/mono/CA_EXE_HASHCHECK.cpp
-  ${SRC}/mono/ATHENA_HA_PING_REQ.cpp
-  ${SRC}/mono/ATHENA_HA_LOGIN_REQ.cpp
-  ${SRC}/client/state.cpp
   )
 
 if (NOT TARGET common) 

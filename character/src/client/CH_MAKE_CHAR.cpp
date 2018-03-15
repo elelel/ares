@@ -5,7 +5,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
   SPDLOG_TRACE(log(), "CH_MAKE_CHAR begin");
   auto& c = session_.as_client();
   auto& db = server_.db;
-  auto slots = db->query<database::accounts::slots>(c.aid);
+  auto slots = db->query<database::accounts::slots>(c.account_id);
   if (slots) {
     // TODO: Check if new char creation is allowed in server configuration
     if (p_->CharNum() < slots->creatable_slots) {
@@ -29,28 +29,29 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           starting_map_id = server_.maps->id_by_name(starting_map);
         }
         if (starting_map_id != 0) {
-          auto cid = db->query<database::characters::create>(c.aid,
-                                                             std::string(p_->name()),
-                                                             p_->CharNum(),
-                                                             p_->head_palette(),
-                                                             p_->head(),
-                                                             job,
-                                                             p_->sex(),
-                                                             starting_zeny,
-                                                             starting_map_id,
-                                                             starting_map_x,
-                                                             starting_map_y);
-          if (cid) {
-            state_.char_info = db->query<database::characters::info>(*cid);
+          auto character_id = db->query<database::characters::create>(c.account_id,
+                                                                      std::string(p_->name()),
+                                                                      p_->CharNum(),
+                                                                      p_->head_palette(),
+                                                                      p_->head(),
+                                                                      job,
+                                                                      p_->sex(),
+                                                                      starting_zeny,
+                                                                      starting_map_id,
+                                                                      starting_map_x,
+                                                                      starting_map_y);
+          if (character_id) {
+            state_.char_info = db->query<database::characters::info>(*character_id);
             auto &ci = state_.char_info;
-            auto delete_date = db->query<database::characters::delete_date>(*cid);
+            auto delete_date = db->query<database::characters::delete_date>(*character_id);
             if (ci) {
               long delete_timeout{0};
               if (delete_date) {
                 auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*delete_date - std::chrono::system_clock::now());
                 delete_timeout = diff.count();
                 if (delete_timeout < 0) {
-                  log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci->cid, ci->aid, (delete_timeout / 1000) * -1);
+                  log()->error("Character {} of ACCOUNT_ID {} should already have been deleted for {} seconds",
+                               ci->character_id.to_string(), ci->account_id.to_string(), (delete_timeout / 1000) * -1);
                 }
               }
 
@@ -69,11 +70,11 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                 session_.close_gracefuly();
               }
             } else {
-              log()->error("Failed to get character info for newly created cid {} ", *cid);
+              log()->error("Failed to get character info for newly created character_id {} ", character_id->to_string());
               session_.close_gracefuly();
             }
           } else {
-            log()->error("Failed to make character for AID {}", c.aid);
+            log()->error("Failed to make character for ACCOUNT_ID {}", c.account_id.to_string());
             session_.close_gracefuly();
           }
         } else {
@@ -81,7 +82,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
           session_.close_gracefuly();
         }
       } else {
-        log()->error("Client with aid {} requested to create char with invalid job {}", c.aid,
+        log()->error("Client with account_id {} requested to create char with invalid job {}", c.account_id.to_string(),
                      static_cast<std::underlying_type<decltype(p_->job())>::type>(p_->job()));
         session_.close_gracefuly();
       }
@@ -89,7 +90,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
       // TODO: Send "Can't use this slot"
     }
   } else {
-    log()->error("Could not find account data record for aid {} in SQL database, closing client session", c.aid);
+    log()->error("Could not find account data record for account_id {} in SQL database, closing client session", c.account_id.to_string());
     session_.close_gracefuly();
   }
 

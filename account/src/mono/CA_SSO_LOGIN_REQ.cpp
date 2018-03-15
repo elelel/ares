@@ -40,9 +40,9 @@ namespace ares {
               SPDLOG_TRACE(log(), "login responder running accept procedure");
               std::unique_lock<std::mutex> l(server_.mutex());
               if (server_.num_char_servers_open() > 0) {
-                auto found = server_.client_by_aid(user_data->aid);
+                auto found = server_.find_client_session(user_data->account_id);
                 if (!found) {
-                  log()->info("Accepting login for AID = {}", user_data->aid);
+                  log()->info("Accepting login for account id {} ('{}')", user_data->account_id.to_string(), login);
                   const auto auth_code1 = ares::random_int32::get();
                   const auto auth_code2 = ares::random_int32::get();
 
@@ -50,7 +50,7 @@ namespace ares {
                   auto new_state = session_->as_mono();
                   session_->variant().emplace<client::state>(std::move(new_state));
                   client::state& c = session_->as_client();
-                  c.aid = user_data->aid;
+                  c.account_id = user_data->account_id;
                   c.account_level = user_data->level;
                   c.clienttype = clienttype;
                   c.version = version;
@@ -63,7 +63,7 @@ namespace ares {
                                       
                   session_->emplace_and_send<packet::current<packet::AC_ACCEPT_LOGIN>>
                     (auth_code1,
-                     user_data->aid,
+                     model::AID(user_data->account_id),
                      auth_code2,
                      0,
                      "",
@@ -83,10 +83,10 @@ namespace ares {
                     }
                   }
                 } else {
-                  log()->info("AID {} session already exists, refusing the connection for new session {} and closing the existing one {}",
-                              user_data->aid, (void*)session_.get(), (void*)found.get());
+                  log()->info("Session for account id {} ('{}') already exists, refusing the connection for new session {} and closing the existing one {}",
+                              user_data->account_id.to_string(), login, (void*)session_.get(), (void*)found.get());
                   for (const auto& cs : server_.char_servers()) {
-                    if (auto c = cs.lock()) c->emplace_and_send<packet::current<packet::ATHENA_AH_KICK_AID>>(user_data->aid);
+                    if (auto c = cs.lock()) c->emplace_and_send<packet::current<packet::ARES_AH_KICK_ACCOUNT>>(user_data->account_id);
                   }
                   session_->emplace_and_send<packet::current<packet::SC_NOTIFY_BAN>>(8);  // 08 = Server still recognizes your last login
                   session_->close_gracefuly();

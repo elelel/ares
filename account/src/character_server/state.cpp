@@ -43,13 +43,10 @@ void ares::account::character_server::state::defuse_asio() {
 
 auto ares::account::character_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_PING_REQ);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_ONLINE_AIDS);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_USER_COUNT);
-    ARES_ALLOCATE_PACKET_CASE(ARES_HA_AID_AUTH_REQ);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_ACCOUNT_DATA_REQ);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_SET_AID_ONLINE);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_SET_AID_OFFLINE);
+    ARES_ALLOCATE_PACKET_CASE(ARES_HA_PING_REQ);
+    ARES_ALLOCATE_PACKET_CASE(ARES_HA_ONLINE_ACCOUNTS);
+    ARES_ALLOCATE_PACKET_CASE(ARES_HA_USER_COUNT);
+    ARES_ALLOCATE_PACKET_CASE(ARES_HA_ACCOUNT_AUTH_REQ);
   default:
     { // Packet id is not known to this server under selected packet set
       log()->error("Unexpected packet_id {:#x} for character server session while allocating", packet_id);
@@ -67,13 +64,10 @@ auto ares::account::character_server::state::allocate(const uint16_t packet_id) 
 void ares::account::character_server::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
   uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
   switch (*packet_id) {
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_PING_REQ);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_ONLINE_AIDS);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_USER_COUNT);
-    ARES_DISPATCH_PACKET_CASE(ARES_HA_AID_AUTH_REQ);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_ACCOUNT_DATA_REQ);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_SET_AID_ONLINE);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_SET_AID_OFFLINE);
+    ARES_DISPATCH_PACKET_CASE(ARES_HA_PING_REQ);
+    ARES_DISPATCH_PACKET_CASE(ARES_HA_ONLINE_ACCOUNTS);
+    ARES_DISPATCH_PACKET_CASE(ARES_HA_USER_COUNT);
+    ARES_DISPATCH_PACKET_CASE(ARES_HA_ACCOUNT_AUTH_REQ);
   default:
     {
       log()->error("Unexpected packet_id {:#x} for mono session, disconnecting", *packet_id);

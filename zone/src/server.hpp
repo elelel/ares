@@ -29,7 +29,7 @@ namespace ares {
 
       /*! Returns client session by account id 
        \param aid account id */
-      std::shared_ptr<session> client_by_aid(const uint32_t aid);
+      std::shared_ptr<session> find_client_session(const model::account_id& account_id) const;
       
       std::shared_ptr<session> char_server() const;
 
@@ -52,7 +52,7 @@ namespace ares {
       void remove(std::shared_ptr<session> s);
 
     private:
-      std::map<uint32_t, std::weak_ptr<session>> clients_;
+      std::map<model::account_id, std::weak_ptr<session>> clients_;
       std::weak_ptr<session> char_server_;
       std::set<std::weak_ptr<session>> mono_;
       

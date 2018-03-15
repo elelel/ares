@@ -3,14 +3,14 @@ struct type<PacketSet, ATHENA_AH_ACCOUNT_DATA_RESULT> {
   using packet_set = PacketSet;
   using packet_name = ATHENA_AH_ACCOUNT_DATA_RESULT;
 
-  inline void emplace(const uint32_t aid,
+  inline void emplace(const model::account_id& account_id,
                       const std::string& email,
                       const std::optional<std::chrono::system_clock::time_point>& expiration_time,
                       const uint8_t gmlevel,
                       const std::optional<std::chrono::system_clock::time_point>& birthdate,
                       const std::optional<std::string>& pin) {
     PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
-    aid_ = aid;
+    account_id_ = account_id;
     gmlevel_ = gmlevel;
     email_ = email;
     
@@ -33,18 +33,18 @@ struct type<PacketSet, ATHENA_AH_ACCOUNT_DATA_RESULT> {
     }
   }
   
-  explicit inline type(const uint32_t aid,
+  explicit inline type(const model::account_id& account_id,
                        const std::string& email,
                        const std::optional<std::chrono::system_clock::time_point>& expiration_time,
                        const uint8_t gmlevel,
                        const std::optional<std::chrono::system_clock::time_point>& birthdate,
                        const std::optional<std::string>& pin
                        ) {
-    emplace(aid, email, expiration_time, gmlevel, birthdate, pin);
+    emplace(account_id, email, expiration_time, gmlevel, birthdate, pin);
   }
 
-  inline uint32_t aid() const {
-    return aid_;
+  inline uint32_t account_id() const {
+    return account_id_;
   }
 
   inline const model::fixed_string<40>& email() const {
@@ -70,7 +70,7 @@ struct type<PacketSet, ATHENA_AH_ACCOUNT_DATA_RESULT> {
 public:
   uint16_t PacketType;
 private:
-  uint32_t aid_;
+  model::account_id account_id_;
   model::fixed_string<40> email_;
   uint32_t expiration_time_;
   uint8_t gmlevel_;

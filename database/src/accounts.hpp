@@ -14,7 +14,7 @@ namespace ares {
          */
         struct user_data {
           /*! Account id */
-          uint32_t aid;
+          model::account_id account_id;
           /*! Account login */
           std::string login;
           /*! Account email */
@@ -34,7 +34,7 @@ namespace ares {
         /*! Account slots info in character server's database
          */
         struct account_slots {
-          uint32_t aid;
+          model::account_id account_id;
           uint8_t normal_slots;
           uint8_t premium_slots;
           uint8_t billing_slots;
@@ -82,7 +82,7 @@ namespace ares {
       };
 
       struct create_data : pqxx::transactor<> {
-        create_data(const uint32_t& aid,
+        create_data(const model::account_id& account_id,
                     const uint8_t& normal_slots,
                     const uint8_t& premium_slots,
                     const uint8_t& billing_slots,
@@ -94,7 +94,7 @@ namespace ares {
 
         void operator()(argument_type& trans);
       private:
-        const uint32_t& aid_;
+        const model::account_id& account_id_;
         const uint8_t& normal_slots_;
         const uint8_t& premium_slots_;
         const uint8_t& billing_slots_;
@@ -128,36 +128,36 @@ namespace ares {
         using result_type = std::optional<size_t>;
         result_type& rslt;
 
-        num_chars(result_type& rslt, const uint32_t& id, const size_t& max_chars);
+        num_chars(result_type& rslt, const model::account_id& account_id, const size_t& max_chars);
 
         void operator()(argument_type& trans);
       private:
-        const uint32_t& id_;
+        const model::account_id& account_id_;
         const size_t& max_chars_;
       };
 
-      /*! Load account slots record for a given aid */
+      /*! Load account slots record for a given account_id */
       struct slots : pqxx::transactor<> {
         using result_type = std::optional<record::account_slots>;
         result_type& rslt;
 
-        slots(result_type& rslt, const uint32_t id);
+        slots(result_type& rslt, const model::account_id account_id);
 
         void operator()(argument_type& trans);
       private:
-        uint32_t id_;
+        model::account_id account_id_;
       };
 
-      /*! Load account storage record for a given aid */
+      /*! Load account storage record for a given account_id */
       struct storage : pqxx::transactor<> {
         using result_type = std::optional<record::account_storage>;
         result_type& rslt;
 
-        storage(result_type& rslt, const uint32_t id);
+        storage(result_type& rslt, const model::account_id account_id);
 
         void operator()(argument_type& trans);
       private:
-        uint32_t id_;
+        model::account_id account_id_;
       };
 
       /*! Load user data from account database server by login
@@ -183,11 +183,11 @@ namespace ares {
         /*!
           \param id account id to load data for
         */
-        user_data_for_id(result_type& rslt, const uint32_t& id);
+        user_data_for_id(result_type& rslt, const model::account_id& account_id);
 
         void operator()(argument_type& trans);
       private:
-        const std::uint32_t& id_;
+        const model::account_id& account_id_;
         
       };
     }

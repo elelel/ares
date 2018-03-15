@@ -1,7 +1,7 @@
 #include "../characters.hpp"
 
 ares::database::characters::create::create(result_type& rslt,
-                                           const uint32_t& aid,
+                                           const model::account_id& account_id,
                                            const std::string& name,
                                            const uint8_t& slot,
                                            const uint16_t& head_palette,
@@ -13,7 +13,7 @@ ares::database::characters::create::create(result_type& rslt,
                                            const uint16_t& map_x,
                                            const uint16_t& map_y) :
   rslt(rslt),
-  aid_(aid),
+  account_id_(account_id),
   name_(name),
   slot_(slot),
   head_palette_(head_palette),
@@ -38,12 +38,12 @@ void ares::database::characters::create::operator()(argument_type& trans) {
   }
           
   trans.prepared("character_create")
-    (aid_)(slot_)(name_)(sex_)(static_cast<uint16_t>(job_)).exec();
+    (account_id_)(slot_)(name_)(sex_)(static_cast<uint16_t>(job_)).exec();
 
   auto create_cid = trans.prepared("character_id_by_name")(name_).exec();
           
   if (create_cid.size() == 1) {
-    uint32_t cid;
+    model::character_id cid;
     create_cid[0]["id"].to(cid);
             
     trans.prepared("character_create_stats")

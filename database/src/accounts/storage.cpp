@@ -1,12 +1,12 @@
 #include "../accounts.hpp"
 
-ares::database::accounts::storage::storage(result_type& rslt, const uint32_t aid) :
+ares::database::accounts::storage::storage(result_type& rslt, const model::account_id account_id) :
   rslt(rslt),
-  id_(aid) {
+  account_id_(account_id) {
 }
 
 void ares::database::accounts::storage::operator()(argument_type& trans) {
-  auto qr = trans.prepared("account_storage_for_aid")(id_).exec();
+  auto qr = trans.prepared("account_storage_for_account_id")(account_id_).exec();
   if (qr.size() == 1) {
     record::account_storage r;
     qr[0]["bank_vault"].to(r.bank_vault);

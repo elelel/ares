@@ -37,9 +37,10 @@ void ares::character::mono::state::defuse_asio() {
 }
 
 auto ares::character::mono::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+  SPDLOG_TRACE(log(), "mono::state::allocate {:#x}", packet_id);
   switch (packet_id) {
     ARES_ALLOCATE_PACKET_CASE(CH_ENTER);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_ZH_LOGIN_REQ);
+    ARES_ALLOCATE_PACKET_CASE(ARES_ZH_LOGIN_REQ);
   default:
     { // Packet id is not known to this server under selected packet set
       log()->error("Unexpected packet_id {:#x} for mono session while allocating", packet_id);
@@ -56,9 +57,10 @@ auto ares::character::mono::state::allocate(const uint16_t packet_id) -> packet:
 
 void ares::character::mono::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
   uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+  SPDLOG_TRACE(log(), "mono::state::dispatch_packet {:#x}", *packet_id);
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(CH_ENTER);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_ZH_LOGIN_REQ);
+    ARES_DISPATCH_PACKET_CASE(ARES_ZH_LOGIN_REQ);
   default:
     {
       log()->error("Unexpected packet_id {:#x} for mono session while dispatching, disconnecting", *packet_id);

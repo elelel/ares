@@ -1,7 +1,8 @@
 # CREATE EXTENSION pgcrypto;
 
-DROP TABLE IF EXISTS users CASCADE;
-CREATE TABLE users (
+DROP TABLE IF EXISTS accounts CASCADE;
+DROP INDEX IF EXISTS accounts_pkey;
+CREATE TABLE accounts (
   id serial PRIMARY KEY,
   login varchar UNIQUE NOT NULL,
   password varchar NOT NULL,
@@ -15,7 +16,7 @@ CREATE TABLE users (
 
 DROP TABLE IF EXISTS account_slots;
 CREATE TABLE account_slots (
-  aid int REFERENCES users(id) ON DELETE CASCADE,
+  account_id int REFERENCES accounts(id) ON DELETE CASCADE,
   normal_slots smallint NOT NULL,
   premium_slots smallint NOT NULL,
   billing_slots smallint NOT NULL,
@@ -25,15 +26,16 @@ CREATE TABLE account_slots (
 
 DROP TABLE IF EXISTS account_storage;
 CREATE TABLE account_storage (
-  aid int REFERENCES users(id) ON DELETE CASCADE,
+  account_id int REFERENCES accounts(id) ON DELETE CASCADE,
   bank_vault bigint NOT NULL,
   max_storage bigint NOT NULL
 );
 
 DROP TABLE IF EXISTS characters CASCADE;
+DROP INDEX IF EXISTS characters_pkey;
 CREATE TABLE characters (
   id serial PRIMARY KEY,
-  aid int NOT NULL,
+  account_id int NOT NULL,
   slot smallint NOT NULL,
   "name" varchar NOT NULL UNIQUE,
   sex smallint NOT NULL,
@@ -41,12 +43,12 @@ CREATE TABLE characters (
   delete_date timestamp,
   rename smallint NOT NULL
 );
-DROP INDEX IF EXISTS characters_aid_slot_idx;
-CREATE UNIQUE INDEX characters_aid_slot_idx ON characters (aid, slot);
+DROP INDEX IF EXISTS characters_account_id_slot_idx;
+CREATE UNIQUE INDEX characters_account_id_slot_idx ON characters (account_id, slot);
 
 DROP TABLE IF EXISTS char_appearance;
 CREATE TABLE char_appearance (
-  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
+  character_id int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
   head smallint NOT NULL,
   body smallint NOT NULL,
   weapon smallint NOT NULL,
@@ -61,7 +63,7 @@ CREATE TABLE char_appearance (
 
 DROP TABLE IF EXISTS char_stats;
 CREATE TABLE char_stats (
-  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
+  character_id int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
   base_level smallint NOT NULL,
   job_level smallint NOT NULL,
   base_exp int NOT NULL,
@@ -89,7 +91,7 @@ CREATE TABLE char_stats (
 
 DROP TABLE IF EXISTS char_zeny;
 CREATE TABLE char_zeny (
-  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
+  character_id int UNIQUE REFERENCES characters(id) ON DELETE CASCADE, 
   zeny bigint NOT NULL
 );  
 
@@ -107,7 +109,7 @@ CREATE TABLE maps (
 );
 
 CREATE TABLE char_last_location (
-  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
+  character_id int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
   map_id int REFERENCES maps(id),
   x smallint NOT NULL,
   y smallint NOT NULL
@@ -115,7 +117,7 @@ CREATE TABLE char_last_location (
 
 
 CREATE TABLE char_save_location (
-  cid int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
+  character_id int UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
   map_id int REFERENCES maps(id),
   x smallint NOT NULL,
   y smallint NOT NULL

@@ -26,7 +26,7 @@ namespace ares {
               session_->close_gracefuly();
             } else {
               SPDLOG_TRACE(session_->log(), "sending ping to account server");
-              session_->emplace_and_send<packet::current<packet::ATHENA_HA_PING_REQ>>();
+              session_->emplace_and_send<packet::current<packet::ARES_HA_PING_REQ>>();
               session_->as_account_server().ping_account_server_timer_->expires_at(std::chrono::steady_clock::now() + std::chrono::seconds{5});
               session_->as_account_server().ping_account_server_timer_->async_wait(ping_account_server_handler{session_, true});
             }
@@ -67,13 +67,13 @@ void ares::character::account_server::state::on_connect() {
   log()->info("Starting handshake with account server");
   const auto my_ipv4 = conf.listen_ipv4[0].address().to_v4().to_ulong();
   const auto my_port = conf.listen_ipv4[0].port();
-  session_.emplace_and_send<packet::current<packet::ATHENA_HA_LOGIN_REQ>>(conf.account_server->login,
-                                                                          conf.account_server->password,
-                                                                          htonl(my_ipv4),
-                                                                          htons(my_port),
-                                                                          *conf.server_name,
-                                                                          server_.state_num,
-                                                                          server_.property);
+  session_.emplace_and_send<packet::current<packet::ARES_HA_LOGIN_REQ>>(conf.account_server->login,
+                                                                        conf.account_server->password,
+                                                                        htonl(my_ipv4),
+                                                                        htons(my_port),
+                                                                        *conf.server_name,
+                                                                        server_.state_num,
+                                                                        server_.property);
 }
 
 void ares::character::account_server::state::on_connection_reset() {
@@ -100,11 +100,10 @@ void ares::character::account_server::state::defuse_asio() {
 
 auto ares::character::account_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_AH_LOGIN_RESULT);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_AH_PING_ACK);
-    ARES_ALLOCATE_PACKET_CASE(ARES_AH_AID_AUTH_RESULT);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_AH_ACCOUNT_DATA_RESULT);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_AH_KICK_AID);
+    ARES_ALLOCATE_PACKET_CASE(ARES_AH_LOGIN_RESULT);
+    ARES_ALLOCATE_PACKET_CASE(ARES_AH_PING_ACK);
+    ARES_ALLOCATE_PACKET_CASE(ARES_AH_ACCOUNT_AUTH_RESULT);
+    ARES_ALLOCATE_PACKET_CASE(ARES_AH_KICK_ACCOUNT);
   default:
     { // Packet id is not known to this server under selected packet set
       log()->error("Unexpected packet_id {:#x} for account server session while allocating", packet_id);
@@ -122,11 +121,10 @@ auto ares::character::account_server::state::allocate(const uint16_t packet_id) 
 void ares::character::account_server::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
   uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
   switch (*packet_id) {
-    ARES_DISPATCH_PACKET_CASE(ATHENA_AH_LOGIN_RESULT);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_AH_PING_ACK);
-    ARES_DISPATCH_PACKET_CASE(ARES_AH_AID_AUTH_RESULT);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_AH_ACCOUNT_DATA_RESULT);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_AH_KICK_AID);
+    ARES_DISPATCH_PACKET_CASE(ARES_AH_LOGIN_RESULT);
+    ARES_DISPATCH_PACKET_CASE(ARES_AH_PING_ACK);
+    ARES_DISPATCH_PACKET_CASE(ARES_AH_ACCOUNT_AUTH_RESULT);
+    ARES_DISPATCH_PACKET_CASE(ARES_AH_KICK_ACCOUNT);
   default:
     {
       log()->error("Unexpected packet_id {:#x} for account server session while dispatching, disconnecting", *packet_id);

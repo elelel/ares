@@ -16,18 +16,19 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
       for (size_t k = 0; k < num_to_send; ++k) {
         const auto& ci = chars[chars.size() - 1];
         long delete_timeout{0};
-        auto delete_date = server_.db->query<database::characters::delete_date>(ci.cid);
+        auto delete_date = server_.db->query<database::characters::delete_date>(ci.character_id);
         if (delete_date) {
           auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(*delete_date - std::chrono::system_clock::now());
           delete_timeout = diff.count();
           if (delete_timeout < 0) {
-            log()->error("Character {} of AID {} should already have been deleted for {} seconds", ci.cid, ci.aid, (delete_timeout / 1000) * -1);
+            log()->error("Character {} of account id {} should already have been deleted for {} seconds",
+                         ci.character_id.to_string(), ci.account_id.to_string(), (delete_timeout / 1000) * -1);
           }
         }
 
         const auto& last_map_name = server_.maps->name_by_id(ci.location_last.map_id);
         if (last_map_name.size() > 0) {
-          SPDLOG_TRACE(log(), "Sending character {} in response to char page req", ci.cid);
+          SPDLOG_TRACE(log(), "Sending character {} in response to char page req", ci.character_id.to_string());
 
           session_.emplace_and_send<packet::CHARACTER_INFO>(ci,
                                                             last_map_name,
@@ -37,7 +38,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
                                                             );
 
         } else {
-          log()->error("Character {} has unknown map id {} in last location, not sending to client", ci.cid, ci.location_last.map_id);
+          log()->error("Character {} has unknown map id {} in last location, not sending to client", ci.character_id.to_string(), ci.location_last.map_id);
           --k;
         }
         chars.pop_back();
@@ -59,8 +60,8 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
       }
     }
   } else {
-    log()->error("Session for AID {} requested char page {} times, probably HC_CHAR_PAGES_NUM, or HC_CHAR_PAGES/CHARACTER_INFO format has changed, disconnecting",
-                 c.aid, c.char_page_reqs);
+    log()->error("Session for account id {} requested char page {} times, probably HC_CHAR_PAGES_NUM, or HC_CHAR_PAGES/CHARACTER_INFO format has changed, disconnecting",
+                 c.account_id.to_string(), c.char_page_reqs);
     session_.close_gracefuly();
   }
   SPDLOG_TRACE(log(), "CH_CHAR_PAGE_REQ end");

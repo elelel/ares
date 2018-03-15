@@ -21,8 +21,8 @@ namespace ares {
       using state_variant = std::variant<mono::state, client::state, zone_server::state, account_server::state>;
       
       friend struct mono::packet_handler<packet::current<packet::CH_ENTER>>;
-      friend struct mono::packet_handler<packet::current<packet::ATHENA_ZH_LOGIN_REQ>>;
-      friend struct account_server::packet_handler<packet::current<packet::ARES_AH_AID_AUTH_RESULT>>;
+      friend struct mono::packet_handler<packet::current<packet::ARES_ZH_LOGIN_REQ>>;
+      friend struct account_server::packet_handler<packet::current<packet::ARES_AH_ACCOUNT_AUTH_RESULT>>;
       
       session(character::server& serv,
               const std::optional<asio::ip::tcp::endpoint> connect_ep,

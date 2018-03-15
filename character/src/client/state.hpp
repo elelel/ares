@@ -36,19 +36,11 @@ namespace ares {
         const config& conf() const;
 
         // Data
-        uint32_t aid{0};
+        model::account_id account_id = model::account_id::from_uint32(0);
         /*! Athena auth code 1 */
         int32_t auth_code1{0};
         /*! Athena auth code 2 (original userLevel) */
         int32_t auth_code2{0};
-        /*! Expiration time in epoch format */
-        uint32_t expiration_time{0};
-        /*! User's email */
-        std::string email;
-        /*! User's pin */
-        std::string pin;
-        /*! GM level */
-        uint8_t gmlevel{0};
 
         size_t playable_slots{0};
         size_t creatable_slots{0};

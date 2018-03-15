@@ -18,5 +18,5 @@ struct type<PacketSet, ATHENA_HA_ACCOUNT_DATA_REQ> {
 
   uint16_t PacketType;
 private:
-  uint32_t aid_;
+  model::account_id account_id_;
 };

@@ -10,7 +10,7 @@ namespace ares {
     struct pcs_manager {
       pcs_manager(std::shared_ptr<spdlog::logger> log);
 
-      void add(const uint32_t char_id, std::shared_ptr<zone::pc> pc, std::shared_ptr<session> s);
+      void add(const model::character_id& char_id, std::shared_ptr<zone::pc> pc, std::shared_ptr<session> s);
                
     private:
       // Char name index
@@ -18,7 +18,7 @@ namespace ares {
 
       std::set<std::shared_ptr<zone::pc>> pcs_;
 
-      std::map<uint32_t, std::weak_ptr<session>> id_to_session_;
+      std::map<model::character_id, std::weak_ptr<session>> id_to_session_;
 
       std::mutex mutex_;
       std::shared_ptr<spdlog::logger> log_;

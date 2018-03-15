@@ -1,12 +1,12 @@
 #include "../accounts.hpp"
 
-ares::database::accounts::slots::slots(result_type& rslt, const uint32_t id) :
+ares::database::accounts::slots::slots(result_type& rslt, const model::account_id account_id) :
   rslt(rslt),
-  id_(id) {
+  account_id_(account_id) {
   }
 
 void ares::database::accounts::slots::operator()(argument_type& trans) {
-  auto qr = trans.prepared("account_slots_for_id")(id_).exec();
+  auto qr = trans.prepared("account_slots_for_id")(account_id_).exec();
   if (qr.size() == 1) {
     record::account_slots r;
     qr[0]["normal_slots"].to(r.normal_slots);

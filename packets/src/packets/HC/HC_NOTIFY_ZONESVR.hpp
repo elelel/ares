@@ -3,25 +3,25 @@ struct type<PacketSet, HC_NOTIFY_ZONESVR> {
   using packet_set = PacketSet;
   using packet_name = HC_NOTIFY_ZONESVR;
  
-  inline void emplace(uint32_t GID,
+  inline void emplace(const model::GID& GID,
                       const std::string& mapName,
-                      uint32_t ip,
-                      uint16_t port) {
-    PacketType = packet_sets::id_of<PacketSet, packet_name>::value;
+                      const uint32_t ip,
+                      const uint16_t port) {
+    PacketType = packet_sets::id_of<packet_set, packet_name>::value;
     GID_ = GID;
     mapName_ = mapName;
     ip_ = ip;
     port_ = port;
   }
 
-  explicit inline type(uint32_t GID,
+  explicit inline type(const model::GID& GID,
                        const std::string& mapName,
-                       uint32_t ip,
-                       uint16_t port) {
+                       const uint32_t ip,
+                       const uint16_t port) {
     emplace(GID, mapName, ip, port);
   }
   
-  inline uint32_t GID() const {
+  inline const model::GID& GID() const {
     return GID_;
   }
 
@@ -39,7 +39,7 @@ struct type<PacketSet, HC_NOTIFY_ZONESVR> {
   
   uint16_t PacketType;
 private:
-  uint32_t GID_;  // char id
+  model::GID GID_;
   model::map_name_ext_string mapName_;
   uint32_t ip_;
   uint16_t port_;

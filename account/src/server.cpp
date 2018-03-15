@@ -48,7 +48,7 @@ void ares::account::server::add(std::shared_ptr<session> s) {
     }
 
     void operator()(const client::state&) {
-      serv_.clients_.insert({s_->as_client().aid, s_});
+      serv_.clients_.insert({s_->as_client().account_id, s_});
       serv_.mono_.erase(s_);
     }
 
@@ -74,7 +74,7 @@ void ares::account::server::remove(std::shared_ptr<session> s) {
     }
 
     void operator()(const client::state&) {
-      serv_.clients_.erase(s_->as_client().aid);
+      serv_.clients_.erase(s_->as_client().account_id);
     }
 
     void operator()(const character_server::state&) {
@@ -87,26 +87,25 @@ void ares::account::server::remove(std::shared_ptr<session> s) {
   std::visit(visitor(*this, s), s->variant());
 }
 
-auto ares::account::server::client_by_aid(const uint32_t aid) const -> std::shared_ptr<session> {
-  SPDLOG_TRACE(log(), "Searching in client list of size {} aid {}", clients_.size(), aid);
-  auto found = clients_.find(aid);
+auto ares::account::server::find_client_session(const model::account_id& account_id) const -> std::shared_ptr<session> {
+  auto found = clients_.find(account_id);
   if (found != clients_.end()) {
     if (auto s = found->second.lock()) return s;
   }
   return nullptr;
 }
 
-void ares::account::server::link_aid_to_char_server(const uint32_t aid, std::shared_ptr<session> s) {
-  aid_to_char_server_[aid] = s;
+void ares::account::server::link_to_char_server(const model::account_id& account_id, std::shared_ptr<session> s) {
+  account_id_to_char_server_[account_id] = s;
 }
 
-void ares::account::server::unlink_aid_from_char_server(const uint32_t aid, std::shared_ptr<session> s) {
-  auto found = aid_to_char_server_.find(aid);
-  if (found != aid_to_char_server_.end()) {
+void ares::account::server::unlink_from_char_server(const model::account_id& account_id, std::shared_ptr<session> s) {
+  auto found = account_id_to_char_server_.find(account_id);
+  if (found != account_id_to_char_server_.end()) {
     if (found->second.lock() == s) {
-      aid_to_char_server_.erase(aid);
+      account_id_to_char_server_.erase(account_id);
     } else {
-      log_->warn("unlink_aid_from_char_server aid is linked to another char server session, not unlinking");
+      log_->warn("unlink_account_id_from_char_server account_id is linked to another char server session, not unlinking");
     }
   }
 }

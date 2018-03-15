@@ -35,8 +35,8 @@ namespace ares {
 
         int32_t client_time_diff;
         int32_t auth_code1;
-        uint32_t aid;
-        uint32_t cid;
+        model::account_id account_id = model::account_id::from_uint32(0);
+        model::character_id character_id = model::character_id::from_uint32(0);
       private:
         friend struct zone::client::state;
         

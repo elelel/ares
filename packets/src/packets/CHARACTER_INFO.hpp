@@ -5,7 +5,7 @@ struct CHARACTER_INFO {
                       const uint32_t change_slot_enabled,
                       const uint32_t rename_enabled
                       ) {
-    GID_ = pc.cid;
+    GID_ = model::GID(pc.character_id);
     exp_ = pc.base_exp;
     money_ = pc.zeny;
     jobexp_ = pc.job_exp;
@@ -60,7 +60,7 @@ struct CHARACTER_INFO {
   }
   
 private:
-  uint32_t GID_;
+  model::GID GID_;
   int64_t exp_;
   int64_t money_;
   int32_t jobexp_;

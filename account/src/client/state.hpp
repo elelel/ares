@@ -46,7 +46,7 @@ namespace ares {
         /*! Game client's type as reported by client */
         uint8_t clienttype{0};
         /*! Account id */
-        uint32_t aid{0};
+        model::account_id account_id = model::account_id::from_uint32(0);
         /*! Account level */ 
         uint32_t account_level{0};
         /*! Athena-style auth_code, part 1 */

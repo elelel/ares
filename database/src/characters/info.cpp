@@ -2,7 +2,8 @@
 
 template <typename SqlRecord>
 inline void assign(ares::model::pc_info& pc, const SqlRecord& sql) {
-  sql["id"].to(pc.cid);
+  sql["character_id"].to(pc.character_id);
+  sql["account_id"].to(pc.account_id);
   std::string tmp_str;
   sql["name"].to(tmp_str);
   pc.name = tmp_str;
@@ -61,13 +62,13 @@ inline void assign(ares::model::pc_info& pc, const SqlRecord& sql) {
   if (pc.effect_state & 0x7e80020) { pc.weapon = 0; }
 }
 
-ares::database::characters::info::info(result_type& rslt, const uint32_t& id) :
+ares::database::characters::info::info(result_type& rslt, const model::character_id& character_id) :
   rslt(rslt),
-  id_(id) {
+  character_id_(character_id) {
 }
 
 void ares::database::characters::info::operator()(argument_type& trans) {
-  auto qr = trans.prepared("character_info")(id_).exec();
+  auto qr = trans.prepared("character_info")(character_id_).exec();
   if (qr.size() == 1) {
     model::pc_info r;
     assign(r, qr[0]);
@@ -75,14 +76,14 @@ void ares::database::characters::info::operator()(argument_type& trans) {
   }
 }
 
-ares::database::characters::infos_for_aid::infos_for_aid(result_type& rslt, const uint32_t& aid, const size_t& max_chars) :
+ares::database::characters::infos_for_account_id::infos_for_account_id(result_type& rslt, const model::account_id& account_id, const size_t& max_chars) :
   rslt(rslt),
-  aid_(aid),
+  account_id_(account_id),
   max_chars_(max_chars) {
   }
 
-void ares::database::characters::infos_for_aid::operator()(argument_type& trans) {
-  auto qr = trans.prepared("character_infos_for_aid")(aid_)(max_chars_).exec();
+void ares::database::characters::infos_for_account_id::operator()(argument_type& trans) {
+  auto qr = trans.prepared("character_infos_for_account_id")(account_id_)(max_chars_).exec();
   for (const auto& sql : qr) {
     model::pc_info r;
     assign(r, sql);
@@ -90,14 +91,14 @@ void ares::database::characters::infos_for_aid::operator()(argument_type& trans)
   }
 }
 
-ares::database::characters::info_for_slot::info_for_slot(result_type& rslt, const uint32_t& aid, const uint16_t& slot) :
+ares::database::characters::info_for_slot::info_for_slot(result_type& rslt, const model::account_id& account_id, const uint16_t& slot) :
   rslt(rslt),
-  aid_(aid),
+  account_id_(account_id),
   slot_(slot) {
   }
 
 void ares::database::characters::info_for_slot::operator()(argument_type& trans) {
-  auto qr = trans.prepared("character_info_for_slot")(aid_)(slot_).exec();
+  auto qr = trans.prepared("character_info_for_slot")(account_id_)(slot_).exec();
   if (qr.size() == 1) {
     model::pc_info r;
     assign(r, qr[0]);

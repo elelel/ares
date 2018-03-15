@@ -80,43 +80,31 @@ namespace ares {
     struct CZ_REQ_GUILD_MENU {};
     struct CZ_REQNAME {};
 
-    // Athena packets
+    
+    // Interserver packets
+
     // Account <-> Character
-    struct ATHENA_HA_LOGIN_REQ {};
-    struct ATHENA_AH_LOGIN_RESULT {};
-    struct ATHENA_HA_PING_REQ {};
-    struct ATHENA_AH_PING_ACK {};
-    struct ATHENA_HA_AID_AUTH_REQ {};
-    struct ATHENA_AH_AID_AUTH_RESULT {};
-    struct ATHENA_HA_USER_COUNT {};
-    struct ATHENA_HA_ACCOUNT_DATA_REQ {};
-    struct ATHENA_AH_ACCOUNT_DATA_RESULT {};
-    struct ATHENA_HA_SET_AID_ONLINE {};
-    struct ATHENA_HA_SET_AID_OFFLINE {};
-    struct ATHENA_HA_ONLINE_AIDS {};
-    struct ATHENA_AH_KICK_AID {};
-    struct ATHENA_HA_SET_ALL_AIDS_OFFLINE {};
-
+    struct ARES_HA_LOGIN_REQ {};
+    struct ARES_AH_LOGIN_RESULT {};
+    struct ARES_HA_PING_REQ {};
+    struct ARES_AH_PING_ACK {};
+    struct ARES_HA_ACCOUNT_AUTH_REQ {};
+    struct ARES_AH_ACCOUNT_AUTH_RESULT {};
+    struct ARES_AH_KICK_ACCOUNT {};
+    struct ARES_HA_ONLINE_ACCOUNTS {};
+    struct ARES_HA_USER_COUNT {};
+    
     // Character <-> Zone
-    struct ATHENA_ZH_LOGIN_REQ {};
-    struct ATHENA_HZ_LOGIN_RESULT {};
-    struct ATHENA_ZH_MAP_NAMES {};
-    struct ATHENA_HZ_PRIVATE_MSG_NAME {};
-    struct ATHENA_ZH_PING_REQ {};
-    struct ATHENA_HZ_PING_ACK {};
-    struct ATHENA_ZH_ONLINE_USERS {};
-    struct ATHENA_ZH_USER_COUNT {};
-    struct ATHENA_ZH_GAME_RATES {};
-    struct ATHENA_ZH_CID_AUTH_REQ {};
-    struct ATHENA_HZ_CID_AUTH_FAILED {};
-
-    // Ares
+    struct ARES_ZH_LOGIN_REQ {};
+    struct ARES_HZ_LOGIN_RESULT {};
+    struct ARES_ZH_PING_REQ {};
+    struct ARES_HZ_PING_ACK {};
     struct ARES_ZH_MAP_IDS_REQ {};
     struct ARES_HZ_MAP_IDS {};
-    struct ARES_HA_AID_AUTH_REQ {};
-    struct ARES_AH_AID_AUTH_RESULT {};
-    struct ARES_ZH_CID_AUTH_REQ {};
-    struct ARES_HZ_CID_AUTH_RESULT {};
+    struct ARES_ZH_CHAR_AUTH_REQ {};
+    struct ARES_HZ_CHAR_AUTH_RESULT {};
     struct ARES_ZH_MAP_ID_LOADED {};
+    struct ARES_HZ_PRIVATE_MSG_NAME {};
+    struct ARES_ZH_GAME_RATES {};
   }
 }

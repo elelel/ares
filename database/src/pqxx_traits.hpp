@@ -89,5 +89,47 @@ namespace pqxx {
       return std::to_string(d);
     }
   };
+
+  template <>
+  struct PQXX_LIBEXPORT string_traits<ares::model::account_id> {
+    using data_type = ares::model::account_id;
+
+    static const char* name() { return "model::account_id"; };
+
+    static bool has_null() { return false; };
+
+    static bool is_null(const data_type&) { return false; };
+
+    static data_type null() { return data_type(); };
+
+    static void from_string(const char* str, data_type& t) {
+      t = data_type::from_uint32(std::stoi(str));
+    }
+
+    static std::string to_string(const data_type& d) {
+      return d.to_string();
+    }
+  };
+  
+  template <>
+  struct PQXX_LIBEXPORT string_traits<ares::model::character_id> {
+    using data_type = ares::model::character_id;
+
+    static const char* name() { return "model::character_id"; };
+
+    static bool has_null() { return false; };
+
+    static bool is_null(const data_type&) { return false; };
+
+    static data_type null() { return data_type(); };
+
+    static void from_string(const char* str, data_type& t) {
+      t = data_type::from_uint32(std::stoi(str));
+    }
+
+    static std::string to_string(const data_type& d) {
+      return d.to_string();
+    }
+  };
   
 }

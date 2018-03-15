@@ -44,7 +44,7 @@ namespace ares {
                            std::function<void(void*)> deallocator);
 
     private:
-      friend struct mono::packet_handler<packet::current<packet::ATHENA_HA_LOGIN_REQ>>;
+      friend struct mono::packet_handler<packet::current<packet::ARES_HA_LOGIN_REQ>>;
       
       state_variant session_state_;
     };

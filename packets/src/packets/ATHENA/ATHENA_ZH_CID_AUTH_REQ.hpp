@@ -55,7 +55,7 @@ struct type<PacketSet, ATHENA_ZH_CID_AUTH_REQ> {
   
   uint16_t PacketType;
 private:
-  uint32_t aid_;
+  model::account_id account_id_;
   uint32_t cid_;
   int32_t auth_code1_;
   uint8_t sex_;

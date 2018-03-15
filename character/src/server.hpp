@@ -28,20 +28,13 @@ namespace ares {
       void add(std::shared_ptr<session> s);
       
       /*! Returns client session by account id 
-        \param aid account id */
-      std::shared_ptr<session> client_by_aid(const uint32_t aid);
+        \param account_id account id */
+      std::shared_ptr<session> find_client_session(const model::account_id& account_id) const;
       
-      void link_aid_to_zone_server(const uint32_t aid, std::shared_ptr<session> s);
-      void unlink_aid_from_zone_server(const uint32_t aid, std::shared_ptr<session> s);
-
-      // std::shared_ptr<session> zone_server_by_map_id(const uint32_t map_id) const;
+      void link_to_zone_session(const model::account_id& account_id, std::shared_ptr<session> s);
+      void unlink_from_zone_session(const model::account_id& account_id, std::shared_ptr<session> s);
 
       std::shared_ptr<session> account_server() const;
-      /*
-      const std::map<uint32_t, std::weak_ptr<session>>& clients() const;
-
-      const std::set<std::weak_ptr<session>>& zone_servers() const;
-      */
 
       std::shared_ptr<session> zone_server_by_login(const std::string& login) const;
       
@@ -63,12 +56,12 @@ namespace ares {
       void remove(std::shared_ptr<session> s);
 
     private:
-      std::map<uint32_t, std::weak_ptr<session>> clients_;
+      std::map<model::account_id, std::weak_ptr<session>> clients_;
       std::set<std::weak_ptr<session>> mono_;
       std::set<std::weak_ptr<session>> zone_servers_;
       std::weak_ptr<session> account_server_;
 
-      std::map<uint32_t, std::weak_ptr<session>> aid_to_zone_server_;
+      std::map<model::account_id, std::weak_ptr<session>> account_id_to_zone_server_;
 
       const config& conf_;
     public:
@@ -77,8 +70,6 @@ namespace ares {
       std::shared_ptr<auth_request_manager> auth_requests;
       std::unique_ptr<maps_manager> maps;
 
-    private:
-      void verify_db_map_info(const uint32_t map_id, const std::string& map_name, std::shared_ptr<ares::grf::resource_set>& resources);
     };
   }
 }

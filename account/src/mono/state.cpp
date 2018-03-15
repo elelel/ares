@@ -37,8 +37,7 @@ auto ares::account::mono::state::allocate(const uint16_t packet_id) -> packet::a
     ARES_ALLOCATE_PACKET_CASE(CA_EXE_HASHCHECK);
     ARES_ALLOCATE_PACKET_CASE(CA_SSO_LOGIN_REQ::login_password);
     ARES_ALLOCATE_PACKET_CASE(CA_SSO_LOGIN_REQ::token_auth);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_LOGIN_REQ);
-    ARES_ALLOCATE_PACKET_CASE(ATHENA_HA_PING_REQ);
+    ARES_ALLOCATE_PACKET_CASE(ARES_HA_LOGIN_REQ);
   default:
     { // Packet id is not known to this server under selected packet set
       log()->error("Unexpected packet_id {:#x} for mono::state session while allocating", packet_id);
@@ -59,8 +58,7 @@ void ares::account::mono::state::dispatch_packet(void* buf, std::function<void(v
     ARES_DISPATCH_PACKET_CASE(CA_EXE_HASHCHECK);
     ARES_DISPATCH_PACKET_CASE(CA_SSO_LOGIN_REQ::login_password);
     ARES_DISPATCH_PACKET_CASE(CA_SSO_LOGIN_REQ::token_auth);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_LOGIN_REQ);
-    ARES_DISPATCH_PACKET_CASE(ATHENA_HA_PING_REQ);
+    ARES_DISPATCH_PACKET_CASE(ARES_HA_LOGIN_REQ);
   default:
     {
       log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", *packet_id);

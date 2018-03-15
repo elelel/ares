@@ -95,7 +95,7 @@ void ares::character::server::add(std::shared_ptr<session> s) {
 
     void operator()(const client::state&) {
       std::shared_ptr s(s_);
-      serv_.clients_.insert({s->as_client().aid, s_});
+      serv_.clients_.insert({s->as_client().account_id, s_});
       serv_.mono_.erase(s_);
     }
 
@@ -124,13 +124,13 @@ void ares::character::server::remove(std::shared_ptr<session> s) {
     }
 
     void operator()(const zone_server::state&) {
-      for (auto it = serv_.aid_to_zone_server_.begin(); it != serv_.aid_to_zone_server_.end();) {
+      for (auto it = serv_.account_id_to_zone_server_.begin(); it != serv_.account_id_to_zone_server_.end();) {
         const auto& r = *it;
         auto sp = r.second.lock();
         if (!sp || (sp == s_)) {
           // Kill client if zone_server disconnects?
           // clients.erase(r.first);
-          it = serv_.aid_to_zone_server_.erase(it);
+          it = serv_.account_id_to_zone_server_.erase(it);
         } else {
           ++it;
         }
@@ -140,8 +140,8 @@ void ares::character::server::remove(std::shared_ptr<session> s) {
     }
 
     void operator()(const client::state&) {
-      serv_.aid_to_zone_server_.erase(s_->as_client().aid);
-      serv_.clients_.erase(s_->as_client().aid);
+      serv_.account_id_to_zone_server_.erase(s_->as_client().account_id);
+      serv_.clients_.erase(s_->as_client().account_id);
     }
 
     void operator()(const account_server::state&) {
@@ -171,31 +171,26 @@ auto ares::character::server::zone_server_by_login(const std::string& login) con
   return nullptr;
 }
 
-auto ares::character::server::client_by_aid(const uint32_t aid) -> std::shared_ptr<session> {
-  auto found = clients_.find(aid);
+auto ares::character::server::find_client_session(const model::account_id& account_id) const -> std::shared_ptr<session> {
+  auto found = clients_.find(account_id);
   if (found != clients_.end()) {
     return found->second.lock();
   }
   return nullptr;
 }
 
-/*
-auto ares::character::server::clients() const -> const std::map<uint32_t, session_ptr>& {
-  return clients_;
-  }*/
-
-void ares::character::server::link_aid_to_zone_server(const uint32_t aid, std::shared_ptr<session> s) {
-  aid_to_zone_server_[aid] = s;
+void ares::character::server::link_to_zone_session(const model::account_id& account_id, std::shared_ptr<session> s) {
+  account_id_to_zone_server_[account_id] = s;
 }
 
-void ares::character::server::unlink_aid_from_zone_server(const uint32_t aid, std::shared_ptr<session> s) {
-  auto found = aid_to_zone_server_.find(aid);
-  if (found != aid_to_zone_server_.end()) {
+void ares::character::server::unlink_from_zone_session(const model::account_id& account_id, std::shared_ptr<session> s) {
+  auto found = account_id_to_zone_server_.find(account_id);
+  if (found != account_id_to_zone_server_.end()) {
     auto ptr = found->second.lock();
     if (!ptr || (ptr == s)) {
-      aid_to_zone_server_.erase(aid);
+      account_id_to_zone_server_.erase(account_id);
     } else {
-      log_->warn("unlink_aid_from_zone_server aid is linked to another zone server session, not unlinking");
+      log_->warn("unlink_from_zone_session account_id is linked to another zone server session, not unlinking");
     }
   }
 }
