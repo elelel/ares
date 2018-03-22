@@ -1,6 +1,5 @@
 #pragma once
 
-#include "map_lattice.hpp"
 #include "pc.hpp"
 
 namespace ares {
@@ -23,9 +22,9 @@ namespace ares {
     };
     
     struct map_cell_flags {
-      static const uint8_t walkable = 0x01;
-      static const uint8_t shootable = 0x02;
-      static const uint8_t water = 0x04;
+      static constexpr uint8_t walkable = 0x01;
+      static constexpr uint8_t shootable = 0x02;
+      static constexpr uint8_t water = 0x04;
       
       static map_cell_flags from_uint8(const uint8_t& uint8);
       explicit map_cell_flags(const map_cell_gat_type& gat_type);

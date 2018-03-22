@@ -1,4 +1,4 @@
-#include "../map_lattice.hpp"
+#include "../lattice.hpp"
 
 namespace ares {
   namespace model {

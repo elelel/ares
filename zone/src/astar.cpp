@@ -1,8 +1,25 @@
 #include "astar.hpp"
 
-thread_local std::multimap<uint32_t, ares::zone::a_star::nodes_vector> ares::zone::a_star::search_state::fringe_ = std::multimap<uint32_t, nodes_vector>();
+thread_local std::multimap<float, ares::zone::a_star::nodes_vector> ares::zone::a_star::search_state::fringe_ = std::multimap<float, nodes_vector>();
 thread_local ares::zone::a_star::nodes_set ares::zone::a_star::search_state::closed_ = ares::zone::a_star::nodes_set();
 thread_local ares::zone::a_star::nodes_vector ares::zone::a_star::search_state::children_ = ares::zone::a_star::nodes_vector();
+
+ares::zone::a_star::space_node::space_node(const space_node& other) :
+  x(other.x),
+  y(other.y),
+  diag(other.diag),
+  dir(other.dir),
+  depth(other.depth) {
+}
+
+auto ares::zone::a_star::space_node::operator=(const space_node& other) -> space_node& {
+  x = other.x;
+  y = other.y;
+  diag = other.diag;
+  dir = other.dir;
+  depth = other.depth;
+  return *this;
+}
 
 auto ares::zone::a_star::nodes_vector::pool_instance() -> pool_type& {
   thread_local foonathan::memory::memory_pool<> p(sizeof(space_node), 4096);
@@ -32,9 +49,9 @@ ares::zone::a_star::nodes_set::nodes_set() :
 
 ares::zone::a_star::search_state::search_state(const model::map_info& map, const space_node& start, const space_node& goal) :
   map_(map),
-  current_(start),
   goal_(goal) {
   closed_.data.clear();
+  fringe_.clear();
   fringe_.insert(std::move(std::make_pair(0, nodes_vector{start})));
   }
 
@@ -46,10 +63,25 @@ auto ares::zone::a_star::search_state::end() -> ares::zone::a_star::search_itera
   return search_iterator(this, true);
 }
 
-/*
-auto ares::zone::a_star::search_state::result() const -> const std::vector<space_state>& {
+auto ares::zone::a_star::search_state::run() -> const nodes_vector& {
+  for (auto it = begin(); it != end(); ++it);
+  return result();
+}
+
+auto ares::zone::a_star::search_state::path() const -> std::vector<model::packed_coordinates> {
+  std::vector<model::packed_coordinates> rslt;
+  for (size_t i = 0; i < result_.data.size(); ++i) {
+    uint8_t dir;
+    if (i < result_.data.size() - 1) dir = result_.data[i + 1].dir;
+    else dir = result_.data[i].dir;
+    rslt.push_back({result_.data[i].x, result_.data[i].y, dir});
+  }
+  return rslt;
+}
+
+auto ares::zone::a_star::search_state::result() const -> const nodes_vector& {
   return result_;
-  }*/
+}
 
 ares::zone::a_star::search_iterator::search_iterator(search_state* search, bool end) :
   search_(search),

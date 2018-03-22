@@ -18,18 +18,24 @@ if (BUILD_TESTING)
   set(CATCH "${ARES_DIR}/contrib/Catch")
   set(MODEL "${ARES_DIR}/model")
   set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  set(ZONE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
   
   set(INCLUDE_DIRS
     ${ARES_INCLUDE_DIRECTORIES}
     ${CATCH}/include
     ${MODEL}/include
-    ${COMMON}/include)
+    ${MODEL}/include
+    ${COMMON}/include
+    ${CONTRIB}/memory/include
+    ${ZONE_SRC}
+    )
 
   set(TEST_SOURCES
     ${SRC}/zone_test.cpp
+    ${ZONE_SRC}/astar.cpp
     )
   
-#  add_subdirectory(${CONTRIB}/memory memory)
+  add_subdirectory(${CONTRIB}/memory memory)
   add_subdirectory(${COMMON} common)
   
   add_executable(zone_test ${TEST_SOURCES})
@@ -37,7 +43,7 @@ if (BUILD_TESTING)
     COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
     LINK_FLAGS "${ARES_LINK_FLAGS}"
     )
-  target_link_libraries(zone_test common ${ARES_LINK_LIBRARIES})
+  target_link_libraries(zone_test common foonathan_memory ${ARES_LINK_LIBRARIES})
   target_include_directories(zone_test PRIVATE ${INCLUDE_DIRS})
   target_compile_definitions(zone_test PRIVATE ${ARES_COMPILE_DEFINITIONS} "CATCH_CONFIG_MAIN" "CATCH_CONFIG_COLOUR_NONE")
 

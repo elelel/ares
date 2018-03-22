@@ -51,8 +51,6 @@ set(SOURCES
 
   )
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/test" test)
-
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)
 endif()
