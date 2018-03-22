@@ -63,9 +63,9 @@ auto ares::zone::a_star::search_state::end() -> ares::zone::a_star::search_itera
   return search_iterator(this, true);
 }
 
-auto ares::zone::a_star::search_state::run() -> const nodes_vector& {
+auto ares::zone::a_star::search_state::run() -> std::vector<model::packed_coordinates> {
   for (auto it = begin(); it != end(); ++it);
-  return result();
+  return path();
 }
 
 auto ares::zone::a_star::search_state::path() const -> std::vector<model::packed_coordinates> {

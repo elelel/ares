@@ -72,8 +72,7 @@ namespace ares {
         search_iterator begin();
         search_iterator end();
 
-        const nodes_vector& run();
-        std::vector<model::packed_coordinates> path() const;
+        std::vector<model::packed_coordinates> run();
 
         inline void refresh_children(const space_node& current) {
           children_.data.clear();
@@ -132,6 +131,8 @@ namespace ares {
         const nodes_vector& result() const;
         
       private:
+        std::vector<model::packed_coordinates> path() const;
+        
         static thread_local std::multimap<float, nodes_vector> fringe_;
         static thread_local nodes_set closed_;
         static thread_local nodes_vector children_;

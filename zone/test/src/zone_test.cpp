@@ -73,8 +73,7 @@ O O O G
       REQUIRE(goal.y == 0);
 
       auto search = ares::zone::a_star::search_state(map, start, goal);
-      search.run();
-      auto path = search.path();
+      auto path = search.run();
       std::vector<packed_coordinates> expected
       { packed_coordinates{3, 2, packed_coordinates::DIR_WEST},
           packed_coordinates{2, 2, packed_coordinates::DIR_WEST},
@@ -101,8 +100,7 @@ O O O G
       REQUIRE(goal.y == 0);
 
       auto search = ares::zone::a_star::search_state(map, start, goal);
-      search.run();
-      auto path = search.path();
+      auto path = search.run();
       std::vector<packed_coordinates> expected
       { packed_coordinates{0, 2, packed_coordinates::DIR_SOUTHEAST},
           packed_coordinates{1, 1, packed_coordinates::DIR_SOUTH},
@@ -113,6 +111,58 @@ O O O G
       REQUIRE(path.size() == expected.size());
       REQUIRE(path == expected);
     }
+  }
+
+  GIVEN("Map 5x4") {
+    map_info map(4, 3);
+    map.static_flags(0, 0) = walkable;
+    map.static_flags(1, 0) = walkable;
+    map.static_flags(2, 0) = walkable;
+    map.static_flags(3, 0) = walkable;
+    map.static_flags(4, 0) = walkable;
+
+    map.static_flags(0, 1) = walkable;
+    map.static_flags(1, 1) = non_walkable;
+    map.static_flags(2, 1) = non_walkable;
+    map.static_flags(3, 1) = non_walkable;
+    map.static_flags(4, 1) = walkable;
+      
+    map.static_flags(0, 2) = walkable;
+    map.static_flags(1, 2) = non_walkable;
+    map.static_flags(2, 2) = walkable;
+    map.static_flags(3, 2) = non_walkable;
+    map.static_flags(4, 2) = walkable;
+
+    map.static_flags(0, 3) = walkable;
+    map.static_flags(1, 3) = walkable;
+    map.static_flags(2, 3) = walkable;
+    map.static_flags(3, 3) = walkable;
+    map.static_flags(4, 3) = walkable;
     
+    THEN(R"(Walkability test
+0 0 0 0 0
+0 X S X 0
+0 X X X 0
+0 0 0 G 0
+)") {
+      auto start = ares::zone::a_star::space_node(2, 2, 0, -1, 0);
+      auto goal = ares::zone::a_star::space_node(3, 0, 0, -1, 0);
+      auto path = ares::zone::a_star::search_state(map, start, goal).run();
+      std::vector<packed_coordinates> expected
+      { packed_coordinates{2, 2, packed_coordinates::DIR_NORTH},
+          packed_coordinates{2, 3, packed_coordinates::DIR_EAST},
+            packed_coordinates{3, 3, packed_coordinates::DIR_EAST},
+              packed_coordinates{4, 3, packed_coordinates::DIR_SOUTH},
+                packed_coordinates{4, 2, packed_coordinates::DIR_SOUTH},
+                  packed_coordinates{4, 1, packed_coordinates::DIR_SOUTH},
+                    packed_coordinates{4, 0, packed_coordinates::DIR_WEST},
+                      packed_coordinates{3, 0, packed_coordinates::DIR_WEST} };
+      REQUIRE(path.size() == expected.size());
+      REQUIRE(path == expected);
+    }
   }
 }
+
+
+
+
