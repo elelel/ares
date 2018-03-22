@@ -84,30 +84,18 @@ namespace ares {
           bool east{false};
           bool west{false};
           if ((y < map_.y_size()) && (map_.static_flags(x, y + 1).data() & model::map_cell_flags::walkable)) {
-            auto dyn_flags = map_.dynamic_flags(x, y + 1);
-            if ((!dyn_flags) || (dyn_flags->data() & model::map_cell_flags::walkable)) {
-              north = true;
-            }
+            north = true;
           }
           if ((y > 0) && (map_.static_flags(x, y - 1).data() & model::map_cell_flags::walkable)) {
-            auto dyn_flags = map_.dynamic_flags(x, y - 1);
-            if ((!dyn_flags) || (dyn_flags->data() & model::map_cell_flags::walkable)) {
-              south = true;
-            }
+            south = true;
           }
           // East
           if ((x < map_.x_size()) && (map_.static_flags(x + 1, y).data() & model::map_cell_flags::walkable)) {
-            auto dyn_flags = map_.dynamic_flags(x + 1, y);
-            if ((!dyn_flags) || (dyn_flags->data() & model::map_cell_flags::walkable)) {
-              east = true;
-            }
+            east = true;
           }
           // West
           if ((x > 0) && (map_.static_flags(x - 1, y).data() & model::map_cell_flags::walkable)) {
-            auto dyn_flags = map_.dynamic_flags(x - 1, y);
-            if ((!dyn_flags) || (dyn_flags->data() & model::map_cell_flags::walkable)) {
-              west = true;
-            }
+            west = true;
           }
 
           // Since we are storing the direction in node state, we can use it to prune search tree early from steps backwards towards the root
