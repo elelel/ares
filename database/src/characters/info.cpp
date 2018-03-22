@@ -52,11 +52,11 @@ inline void assign(ares::model::pc_info& pc, const SqlRecord& sql) {
   sql["body_palette"].to(pc.body_palette);
 
   sql["save_map_id"].to(pc.location_save.map_id);
-  sql["save_x"].to(pc.location_save.coords.x);
-  sql["save_y"].to(pc.location_save.coords.y);
+  sql["save_x"].to(*pc.location_save.coords.x());
+  sql["save_y"].to(*pc.location_save.coords.y());
   sql["last_map_id"].to(pc.location_last.map_id);
-  sql["last_x"].to(pc.location_last.coords.x);
-  sql["last_y"].to(pc.location_last.coords.y);
+  sql["last_x"].to(*pc.location_last.coords.x());
+  sql["last_y"].to(*pc.location_last.coords.y());
 
   // weapon can't be != 0 if the option is 'riding'
   if (pc.effect_state & 0x7e80020) { pc.weapon = 0; }

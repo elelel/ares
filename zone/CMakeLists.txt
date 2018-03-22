@@ -22,15 +22,7 @@ set(DATABASE "${ARES_DIR}/database")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/client/state.cpp
-  ${SRC}/client/CZ_LESSEFFECT.cpp
-  ${SRC}/client/CZ_NOTIFY_ACTORINIT.cpp
-  ${SRC}/client/CZ_REQUEST_MOVE.cpp
-  ${SRC}/client/CZ_REQ_SCHEDULER_CASHITEM.cpp
-  ${SRC}/client/CZ_REQ_GUILD_MENU.cpp
-  ${SRC}/client/CZ_REQNAME.cpp
-  ${SRC}/client/CZ_REQUEST_TIME.cpp
-
+  ${SRC}/astar.cpp
   ${SRC}/map.cpp
   ${SRC}/pc.cpp
   ${SRC}/maps_manager.cpp
@@ -48,7 +40,18 @@ set(SOURCES
   ${SRC}/character_server/ARES_HZ_LOGIN_RESULT.cpp
   ${SRC}/character_server/ARES_HZ_PRIVATE_MSG_NAME.cpp
   ${SRC}/character_server/ARES_HZ_PING_ACK.cpp
+  ${SRC}/client/state.cpp
+  ${SRC}/client/CZ_LESSEFFECT.cpp
+  ${SRC}/client/CZ_NOTIFY_ACTORINIT.cpp
+  ${SRC}/client/CZ_REQUEST_MOVE.cpp
+  ${SRC}/client/CZ_REQ_SCHEDULER_CASHITEM.cpp
+  ${SRC}/client/CZ_REQ_GUILD_MENU.cpp
+  ${SRC}/client/CZ_REQNAME.cpp
+  ${SRC}/client/CZ_REQUEST_TIME.cpp
+
   )
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/test" test)
 
 if (NOT TARGET common) 
   add_subdirectory(${COMMON} common)

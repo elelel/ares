@@ -2,14 +2,17 @@
 
 #include "../../src/utils.hpp"
 #include "../../src/fixed_string.hpp"
+#include "../../src/lattice.hpp"
 #include "../../src/id.hpp"
 #include "../../src/account.hpp"
 #include "../../src/location.hpp"
 #include "../../src/pc.hpp"
 #include "../../src/map.hpp"
 
+
 #include "../../src/definition/utils.hpp"
 #include "../../src/definition/fixed_string.hpp"
+#include "../../src/definition/lattice.hpp"
 #include "../../src/definition/id.hpp"
 #include "../../src/definition/location.hpp"
 #include "../../src/definition/map.hpp"

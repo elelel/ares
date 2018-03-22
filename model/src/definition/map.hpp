@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "../map.hpp"
 
 inline ares::model::map_cell_gat_type::map_cell_gat_type(const uint32_t& gat_uint32) :
@@ -30,6 +32,10 @@ inline auto ares::model::map_cell_gat_type::operator=(const map_cell_gat_type& o
 
 inline const uint32_t& ares::model::map_cell_gat_type::data() const {
   return data_;
+}
+
+inline ares::model::map_cell_flags::map_cell_flags() :
+  data_{0} {
 }
 
 inline ares::model::map_cell_flags::map_cell_flags(const uint8_t& flags) :
@@ -65,3 +71,56 @@ inline auto ares::model::map_cell_flags::operator=(const map_cell_flags& other) 
 inline const uint8_t& ares::model::map_cell_flags::data() const {
   return data_;
 }
+
+inline ares::model::map_info::map_info(const uint16_t& x_size, const uint16_t& y_size) :
+  static_flags_(x_size, y_size),
+  dynamic_flags_(x_size, y_size),
+  x_size_(x_size),
+  y_size_(y_size) {
+  if ((x_size == 0) || (y_size == 0)) throw std::runtime_error("model::map_info can't create structure if one of coordinates is 0");
+  }
+
+inline uint16_t ares::model::map_info::x_size() const {
+  return x_size_;
+}
+
+inline uint16_t ares::model::map_info::y_size() const {
+  return y_size_;
+}
+
+inline auto ares::model::map_info::static_flags() -> dense_lattice<map_cell_flags>& {
+  return static_flags_;
+}
+
+inline auto ares::model::map_info::static_flags() const -> const dense_lattice<map_cell_flags>& {
+  return static_flags_;
+}
+
+
+inline auto ares::model::map_info::static_flags(const uint16_t& x, const uint16_t& y) -> map_cell_flags& {
+  return static_flags_(x, y);
+}
+
+inline auto ares::model::map_info::static_flags(const uint16_t& x, const uint16_t& y) const -> const map_cell_flags& {
+  return static_flags_(x, y);
+}
+
+inline auto ares::model::map_info::dynamic_flags(const uint16_t& x, const uint16_t& y) const -> std::optional<map_cell_flags> {
+  return dynamic_flags_(x, y);
+}
+
+/*
+inline void ares::model::map_info::set_dynamic_flags(const uint16_t& x, const uint16_t& y, const map_cell_flags& flags) {
+  dynamic_flags_.insert({index(x,y), flags});
+}
+
+inline auto ares::model::map_info::dynamic_flags(const uint16_t& x, const uint16_t& y) const -> std::optional<map_cell_flags> {
+  auto found = dynamic_flags_.find(index(x,y));
+  std::optional<map_cell_flags> rslt;
+  if (found != dynamic_flags_.end()) {
+    rslt.emplace(found->second);
+  }
+  return rslt;
+}
+
+*/

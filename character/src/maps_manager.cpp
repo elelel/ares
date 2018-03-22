@@ -82,10 +82,10 @@ std::optional<uint32_t> ares::character::maps_manager::load_and_verify(const std
   auto map_id = db->query<database::maps::id_by_name>(map_name);
   if (map_id) {
     auto map_info = db->query<database::maps::info>(*map_id);
-    if (!map_info || (uint32_t(map_info->x_size * map_info->y_size) != map_info->cell_flags.size())) {
+    if (!map_info || (uint32_t(map_info->x_size() * map_info->y_size()) != map_info->static_flags().size())) {
       map_id.reset();
     } else {
-      for (const auto& f : map_info->cell_flags) {
+      for (const auto& f : map_info->static_flags().container()) {
         if ((f.data() & ~(model::map_cell_flags::walkable | model::map_cell_flags::shootable | model::map_cell_flags::water)) != 0) {
           SPDLOG_TRACE(log_, "Unknown map_cell_flags {}", f.data());
           map_id.reset();
@@ -104,21 +104,24 @@ uint32_t ares::character::maps_manager::create_map(const std::string& map_name) 
   if (!rsw_fn) { rsw_fn = "data\\" + map_name + ".rsw"; };
   auto gat = resources()->read_file(*gat_fn);
   auto rsw = resources()->read_file(*rsw_fn);
-  model::map_info mi;
+
   if (gat && rsw && (gat->size() > 0) && (rsw->size() > 0)) {
     const auto& g = *gat;
     const auto& r = *rsw;
-    mi.x_size = *(int32_t*)(&(g[6]));
-    mi.y_size = *(int32_t*)(&(g[10]));
+    auto x_size = *(int32_t*)(&(g[6]));
+    auto y_size = *(int32_t*)(&(g[10]));
+    model::map_info mi(x_size, y_size);    
     const auto water_height = *(float*)(&(r[166]));
-    const size_t xy_size = mi.x_size * mi.y_size;
     size_t off{14};
-    for (size_t xy = 0; xy < xy_size; ++xy) {
-      auto height = *(float*)(&(g[off]));
-      auto type = *(uint32_t*)(&(g[off + 16]));
-      if ((type == 0) && (height > water_height)) type = 3;
-      mi.cell_flags.push_back(model::map_cell_flags(model::map_cell_gat_type::from_gat_uint32(type)));
-      off += 20;
+    // TODO: Check x/y storage order in gat
+    for (int x = 0; x < x_size; ++x) {
+      for (int y = 0; y < y_size; ++y) {
+        auto height = *(float*)(&(g[off]));
+        auto type = *(uint32_t*)(&(g[off + 16]));
+        if ((type == 0) && (height > water_height)) type = 3;
+        mi.static_flags(x, y) = model::map_cell_flags(model::map_cell_gat_type::from_gat_uint32(type));
+        off += 20;
+      }
     }
     auto rslt = db->query<database::maps::update>(map_name, mi);
     if (rslt) return *rslt; else {

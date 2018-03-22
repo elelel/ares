@@ -14,22 +14,25 @@ ares::database::maps::info::info(result_type& rslt, const uint32_t& id) :
 void ares::database::maps::info::operator()(argument_type& trans) {
   auto qr = trans.prepared("map_by_id")(id_).exec();
   if (qr.size() == 1) {
-    model::map_info r;
-    qr[0]["x_size"].to(r.x_size);
-    qr[0]["y_size"].to(r.y_size);
+    uint16_t x_size;
+    uint16_t y_size;
+    qr[0]["x_size"].to(x_size);
+    qr[0]["y_size"].to(y_size);
+    model::map_info i(x_size, y_size);
     pqxx::binarystring blob(qr[0]["cell_flags"]);
-    size_t actual_sz = r.x_size * r.y_size;
+
     size_t data_sz = blob.size();
-    std::vector<uint8_t> uncompressed(actual_sz);
+
+    auto& uncompressed = i.static_flags();
+    size_t actual_sz = uncompressed.size();
+    
     ELzmaStatus lzma_status;
-    auto lzma_res = LzmaDecode(uncompressed.data(), &actual_sz,
+    auto lzma_res = LzmaDecode((Byte*)uncompressed.data(), &actual_sz,
                                &blob[LZMA_PROPS_SIZE], &data_sz,
                                &blob[0], LZMA_PROPS_SIZE,
                                LZMA_FINISH_END, &lzma_status, &SzAllocForLzma);
-    if ((lzma_res == SZ_OK) && (actual_sz == size_t(r.x_size * r.y_size))) {
-      for (const auto& f : uncompressed)
-        r.cell_flags.push_back(model::map_cell_flags::from_uint8(f));
-      rslt.emplace(std::move(r));
+    if ((lzma_res == SZ_OK) && (actual_sz == uncompressed.size())) {
+      rslt.emplace(std::move(i));
     }
   }
 }

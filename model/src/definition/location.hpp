@@ -55,6 +55,12 @@ inline bool ares::model::map_name_ext_string::operator==(const map_name_string& 
 inline ares::model::packed_coordinates::packed_coordinates() {
 }
 
+inline ares::model::packed_coordinates::packed_coordinates(const packed_coordinates& other) {
+  data_[0] = other.data_[0];
+  data_[1] = other.data_[1];
+  data_[2] = other.data_[2];
+}
+
 inline void ares::model::packed_coordinates::emplace(const uint16_t x, const uint16_t y) {
   data_[0] = x >> 2;
   data_[1] = (x << 6) | ((y >> 4) & 0x3f);
@@ -95,4 +101,48 @@ inline uint16_t ares::model::packed_coordinates::y() const {
 
 inline uint8_t ares::model::packed_coordinates::dir() const {
   return data_[2] & 0xf;
+}
+
+inline ares::model::coordinates::coordinates() {
+}
+
+inline ares::model::coordinates::coordinates(const uint16_t x, const uint16_t y) :
+  data_(x | (y << sizeof(uint16_t))) {
+}
+
+inline ares::model::coordinates::coordinates(const uint32_t index) :
+  data_(index) {
+}
+
+inline ares::model::coordinates::coordinates(const coordinates& other) :
+  data_(other.data_) {
+}
+
+inline bool ares::model::coordinates::operator==(const coordinates& other) const {
+  return data_ == other.data_;
+}
+
+inline bool ares::model::coordinates::operator!=(const coordinates& other) const {
+  return !(*this == other);
+}
+
+inline auto ares::model::coordinates::operator=(const coordinates& other) -> coordinates& {
+  data_ = other.data_;
+  return *this;
+}
+
+inline bool ares::model::coordinates::operator<(const coordinates& other) const {
+  return data_ < other.data_;
+}
+
+inline uint16_t* ares::model::coordinates::x() {
+  return reinterpret_cast<uint16_t*>(&data_);
+}
+
+inline uint16_t* ares::model::coordinates::y() {
+  return reinterpret_cast<uint16_t*>((uintptr_t)&data_ + sizeof(uint16_t));
+}
+
+inline uint32_t& ares::model::coordinates::index() {
+  return data_;
 }

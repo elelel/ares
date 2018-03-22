@@ -28,8 +28,8 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
               s->as_client().pc = pc;
               server_.pcs.add(p_->character_id(), pc, s);
               s->emplace_and_send<packet::current<packet::ZC_ACCEPT_ENTER>>(std::chrono::system_clock::time_point(),
-                                                                            pc_info->location_last.coords.x,
-                                                                            pc_info->location_last.coords.y,
+                                                                            *pc_info->location_last.coords.x(),
+                                                                            *pc_info->location_last.coords.y(),
                                                                             0, // TODO: direction
                                                                             5,
                                                                             5,
