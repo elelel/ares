@@ -9,7 +9,7 @@ void ares::character::mono::packet_handler<ares::packet::current<ares::packet::A
   const auto login = std::string((char*)p_->login().data());
 
   SPDLOG_TRACE(log(), "ARES_ZH_LOGIN_REQ acquiring server lock");
-  std::lock_guard lock(server_.mutex());
+  std::lock_guard<std::mutex> lock(server_.mutex());
   SPDLOG_TRACE(log(), "ARES_ZH_LOGIN_REQ server lock acquired");
   
   auto found = std::find_if(conf.zone_servers.begin(),

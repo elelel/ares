@@ -2,6 +2,8 @@
 
 #include "../handlers.hpp"
 
+#include <mutex>
+
 template <typename Session>
 inline ares::network::handler::session_base<Session>::session_base(std::shared_ptr<Session> s) :
   session_(s) {
@@ -161,7 +163,7 @@ inline void ares::network::handler::send<Session>::operator()(const std::error_c
   auto& s = *this->session_;
   if (ec.value() == 0) {
     SPDLOG_TRACE(s.log(), "send handler ackquiring lock");
-    std::lock_guard lock(s.send_mutex_);
+    std::lock_guard<std::mutex> lock(s.send_mutex_);
     auto& buf = s.send_buf_;
     buf.pop_front(sent_sz);
     SPDLOG_TRACE(s.log(), "send handler removed {} bytes from send buf", sent_sz);
@@ -217,7 +219,7 @@ inline void ares::network::handler::receive_id<Session>::operator()(const std::e
             *pck_id = packet_id;
             if (ai.expected_packet_sz > sizeof(packet_id)) {
               s.socket_->async_read_some(asio::buffer((void*)((uintptr_t)ai.buf + sizeof(packet_id)), ai.expected_packet_sz - sizeof(packet_id)),
-                                         handler::receive_after_id(this->session_, std::move(ai), sizeof(packet_id)));
+                                         handler::receive_after_id<Session>(this->session_, std::move(ai), sizeof(packet_id)));
             } else {
               s.dispatch_packet(ai.buf, ai.deallocator);
               s.receiving_ = false;
@@ -288,12 +290,12 @@ inline void ares::network::handler::receive_after_id<Session>::operator()(const 
       bytes_received_ += sz;
       // Check if we need more bytes. We may need more for two reasons: we still haven't got what we've already requested
       // or we already have PacketLength field's contents and it indicates that we must change our expected_packet_sz
-      int need_more = ai_.expected_packet_sz - bytes_received_;
+      int need_more = int(ai_.expected_packet_sz) - int(bytes_received_);
       int need_more_dyn_length = 0;
       if ((ai_.PacketLength_offset != 0) && (bytes_received_ >= ai_.PacketLength_offset + sizeof(uint16_t))) {
         auto PacketLength = (uint16_t*)((uintptr_t)ai_.buf + ai_.PacketLength_offset);
         ai_.expected_packet_sz = *PacketLength;
-        need_more_dyn_length = *PacketLength - bytes_received_ ;
+        need_more_dyn_length = int(*PacketLength) - int(bytes_received_);
       }
       need_more = need_more > need_more_dyn_length ? need_more : need_more_dyn_length;
       if (need_more == 0) {

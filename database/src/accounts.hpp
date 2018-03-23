@@ -14,7 +14,7 @@ namespace ares {
          */
         struct user_data {
           /*! Account id */
-          model::account_id account_id;
+          model::account_id account_id = model::account_id::from_uint32(0);
           /*! Account login */
           std::string login;
           /*! Account email */
@@ -34,7 +34,7 @@ namespace ares {
         /*! Account slots info in character server's database
          */
         struct account_slots {
-          model::account_id account_id;
+          model::account_id account_id = model::account_id::from_uint32(0);
           uint8_t normal_slots;
           uint8_t premium_slots;
           uint8_t billing_slots;

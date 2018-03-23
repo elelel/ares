@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <optional>
 
+#include <ares/model>
+
 namespace pqxx {
   /*! Custom trait for libpqxx to seamlessly perform SQL operation on time_point datetimes */
   template <>
@@ -33,15 +35,7 @@ namespace pqxx {
 
     static std::string to_string(const data_type& d) {
       if (d) {
-        auto tt = std::chrono::system_clock::to_time_t(*d);
-        auto tm = gmtime(&tt);
-        std::stringstream ss;
-        ss << std::put_time(tm, "%Y-%m-%d %H:%M:%S");
-        if (!ss.fail()) {
-          return ss.str();
-        } else {
-          throw std::runtime_error("Failed to format time string for PostgreSQL");
-        }
+        return ares::model::to_gmtime_string(*d);
       } else {
         return "";
       }
@@ -100,7 +94,7 @@ namespace pqxx {
 
     static bool is_null(const data_type&) { return false; };
 
-    static data_type null() { return data_type(); };
+    //    static data_type null() { return data_type(); };
 
     static void from_string(const char* str, data_type& t) {
       t = data_type::from_uint32(std::stoi(str));
@@ -121,7 +115,7 @@ namespace pqxx {
 
     static bool is_null(const data_type&) { return false; };
 
-    static data_type null() { return data_type(); };
+    // static data_type null() { return data_type(); };
 
     static void from_string(const char* str, data_type& t) {
       t = data_type::from_uint32(std::stoi(str));

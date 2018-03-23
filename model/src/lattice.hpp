@@ -2,6 +2,7 @@
 
 #include <map>
 #include <vector>
+#include <optional>
 
 namespace ares {
   namespace model {

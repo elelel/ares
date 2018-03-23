@@ -50,6 +50,9 @@ struct type<PacketSet, AC_ACCEPT_LOGIN> {
       property_ = property;
       memset(&twitter_token_, 0, TWITTER_TOKEN_SIZE);
     }
+
+    explicit SERVER_ADDR() {
+    }
       
     explicit SERVER_ADDR(const uint32_t ip,
                          const uint16_t port,

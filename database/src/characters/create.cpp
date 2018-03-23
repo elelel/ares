@@ -43,7 +43,7 @@ void ares::database::characters::create::operator()(argument_type& trans) {
   auto create_cid = trans.prepared("character_id_by_name")(name_).exec();
           
   if (create_cid.size() == 1) {
-    model::character_id cid;
+    model::character_id cid = model::character_id::from_uint32(0);
     create_cid[0]["id"].to(cid);
             
     trans.prepared("character_create_stats")

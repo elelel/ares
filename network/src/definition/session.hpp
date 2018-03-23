@@ -75,7 +75,7 @@ template <typename Derived, typename Server>
 inline void ares::network::session<Derived, Server>::receive() {
   if (!receiving_) {
     receiving_ = true;
-    auto h = handler::receive_id(static_cast<Derived&>(*this).shared_from_this());
+    auto h = handler::receive_id<Derived>(static_cast<Derived&>(*this).shared_from_this());
     socket_->async_read_some(asio::buffer((void*)((uintptr_t)&packet_id_recv_buf_), sizeof(packet_id_recv_buf_)),
                              std::move(h));
   } else {

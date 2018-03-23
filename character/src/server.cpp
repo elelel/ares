@@ -94,8 +94,7 @@ void ares::character::server::add(std::shared_ptr<session> s) {
     }
 
     void operator()(const client::state&) {
-      std::shared_ptr s(s_);
-      serv_.clients_.insert({s->as_client().account_id, s_});
+      serv_.clients_.insert({s_->as_client().account_id, s_});
       serv_.mono_.erase(s_);
     }
 

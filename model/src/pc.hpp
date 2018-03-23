@@ -167,8 +167,8 @@ namespace ares {
     /*! Character info
      */
     struct pc_info {
-      model::account_id account_id;
-      model::character_id character_id;
+      model::account_id account_id = model::account_id::from_uint32(0);
+      model::character_id character_id = model::character_id::from_uint32(0);
 
       pc_name_string name;
       uint8_t sex;

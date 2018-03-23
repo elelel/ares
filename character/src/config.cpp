@@ -86,7 +86,7 @@ void ares::character::config::load_zone_servers() {
         auto j_maps = j_zone_server.find("maps");
         if (j_maps != j_zone_server.end()) {
           for (const auto& j_map : *j_maps) {
-            if (j_map.is_string()) r.maps.insert(std::string{j_map}); else {
+            if (j_map.is_string()) r.maps.insert(j_map.get<std::string>()); else {
               log_->error("Map name in zone server config is not a string");
             }
           }
@@ -135,10 +135,10 @@ void ares::character::config::load_account_server() {
 }
 
 void ares::character::config::load_priv_msg_server_name() {
-  auto load_priv_msg_server_name = [this] () {
+   auto load_priv_msg_server_name = [this] () {
     auto j_priv_msg_server_name = json_.find("priv_msg_server_name");
     if ((j_priv_msg_server_name != json_.end()) && (j_priv_msg_server_name->is_string())) {
-      priv_msg_server_name.emplace(*j_priv_msg_server_name);
+      priv_msg_server_name.emplace(j_priv_msg_server_name->get<std::string>());
     } else {
       priv_msg_server_name = "Server";
     }
@@ -150,7 +150,7 @@ void ares::character::config::load_server_name() {
   auto load_server_name = [this] () {
     auto j_server_name = json_.find("server_name");
     if ((j_server_name != json_.end()) && (j_server_name->is_string())) {
-      server_name.emplace(*j_server_name);
+      server_name.emplace(j_server_name->get<std::string>());
     } else {
       server_name = "Server";
     }

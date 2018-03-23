@@ -17,7 +17,7 @@ namespace ares {
 inline ares::model::detail::lattice_base::lattice_base(const size_t x_size, const size_t) :
   y_shift_(detail::count_significant_bits(x_size - 1)),
   x_mask_(0) {
-  for (size_t i = 0; i < y_shift_; ++i) x_mask_ |= 1 << i;
+  for (size_t i = 0; i < y_shift_; ++i) x_mask_ |= size_t(1) << i;
 }  
 
 inline size_t ares::model::detail::lattice_base::xy_to_index(const size_t x, const size_t y) const {
@@ -31,7 +31,7 @@ inline std::tuple<size_t, size_t> ares::model::detail::lattice_base::index_to_xy
 template <typename T>
 inline ares::model::dense_lattice<T>::dense_lattice(const size_t x_size, const size_t y_size) :
   detail::lattice_base(x_size, y_size),
-  data_(1 << detail::count_significant_bits((y_size - 1) << y_shift_)) {
+  data_(size_t(1) << detail::count_significant_bits((y_size - 1) << y_shift_)) {
 }
 
 template <typename T>

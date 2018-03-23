@@ -19,7 +19,7 @@ Windows is probably possible through a Linux environment like MSYS2.
 Windows 10 native Linux subsystem won't probably do as it is
 hopelessly old.
 
-## Build example on Linux
+## Build and installation instructions for Linux
 1. Install the libraries listed in 'Build requirements' section
 using your distribution's packet management system or by other means
 2. Clone the repository including all submodules

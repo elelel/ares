@@ -52,7 +52,7 @@ ares::zone::a_star::search_state::search_state(const model::map_info& map, const
   goal_(goal) {
   closed_.data.clear();
   fringe_.clear();
-  fringe_.insert(std::move(std::make_pair(0, nodes_vector{start})));
+  fringe_.insert(std::move(std::make_pair(0.0, nodes_vector{start})));
   }
 
 auto ares::zone::a_star::search_state::begin() -> ares::zone::a_star::search_iterator {

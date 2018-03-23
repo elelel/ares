@@ -22,9 +22,9 @@ ares::grf::resource_set::resource_set(const std::vector<std::string>& filenames)
     auto filepath = fs::path(filename);
     if (fs::exists(filepath, ec) && (ec.value() == 0)) {
       if (fs::is_directory(filepath)) {
-        add_local_dir(filepath);
+        add_local_dir(filepath.string());
       } else if (fs::is_regular_file(filepath) && (filepath.extension() == ".grf")) {
-        add_grf(filepath);
+        add_grf(filepath.string());
       }
     } else {
       throw std::runtime_error("ares::grf path " + filename + " does not exist or error determining file existence");
@@ -49,7 +49,7 @@ void ares::grf::resource_set::add_local_dir(const std::string& dir_path) {
   namespace fs = std::experimental::filesystem;
   for (const auto& p : fs::recursive_directory_iterator(dir_path)) {
     if (fs::is_regular_file(p)) {
-      std::string path = p.path();
+      std::string path = p.path().string();
       resource f;
       f.storage = STORAGE::LOCAL_DIR;
       f.source = get_source(dir_path);
@@ -84,8 +84,8 @@ void ares::grf::resource_set::add_grf(const std::string& grf_path) {
           std::vector<uint8_t> compressed(filetable_header.compressed_sz);
           std::vector<uint8_t> uncompressed(filetable_header.uncompressed_sz);
           f.read((char*)compressed.data(), compressed.size());
-          uLongf actual_sz = uncompressed.size();
-          auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), compressed.size());
+          auto actual_sz = uLongf(uncompressed.size());
+          auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), uLong(compressed.size()));
           if ((zlib_rc == Z_OK) && (actual_sz == uncompressed.size())) {
             size_t ofs = 0;
             while (ofs < uncompressed.size()) {
@@ -179,10 +179,10 @@ std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file_grf(const
   f.seekg(r.offset);
   f.read((char*)compressed.data(), compressed.size());
   decode_grf(compressed, FILELIST_TYPE(r.type), r.compressed_sz);
-  uLongf actual_sz = uncompressed.size();
-  auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), compressed.size());
+  auto actual_sz = uLongf(uncompressed.size());
+  auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), uLong(compressed.size()));
   if (((zlib_rc != Z_OK) || (actual_sz == 0)) && (compressed[0] == 0)) {
-    actual_sz = uncompressed.size();
+    SizeT actual_sz = uncompressed.size();
     ELzmaStatus lzma_status;
     auto data_sz = compressed.size() - LZMA_PROPS_SIZE - 1;
     auto lzma_res = LzmaDecode(uncompressed.data(), &actual_sz,

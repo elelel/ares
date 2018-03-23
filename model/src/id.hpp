@@ -35,6 +35,7 @@ namespace ares {
 
       using detail::id_base::id_base;
 
+      inline AID();
       inline AID(const account_id& acc_id);
       
       inline bool operator==(const AID& other) const;
@@ -55,6 +56,7 @@ namespace ares {
       
       using detail::id_base::id_base;
 
+      inline GID();
       inline GID(const character_id& char_id);
       
       inline bool operator==(const GID& other) const;
@@ -74,7 +76,8 @@ namespace ares {
       friend struct AID;
 
       using detail::id_base::id_base;
-
+      
+      inline account_id();
       inline account_id(const AID& aid);
 
       inline account_id& operator=(const account_id& other);
@@ -91,7 +94,8 @@ namespace ares {
       friend struct GID;
       
       using detail::id_base::id_base;
-      
+
+      inline character_id();
       inline character_id(const GID& gid);
       
       inline character_id& operator=(const character_id& other);

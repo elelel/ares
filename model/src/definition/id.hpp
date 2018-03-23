@@ -19,6 +19,9 @@ inline std::string ares::model::detail::id_base::id_base::to_string() const {
   return std::to_string(value_);
 }
 
+inline ares::model::AID::AID() :
+  id_base() {
+}
 
 inline ares::model::AID::AID(const account_id& acc_id) :
   detail::id_base(acc_id.value_ + AID_limits<account_id>::min()) {
@@ -44,6 +47,11 @@ inline bool ares::model::AID::in_bounds<ares::model::account_id>() const {
 inline auto ares::model::AID::operator=(const AID& other) -> AID& {
   value_ = other.value_;
   return *this;
+}
+
+
+inline ares::model::GID::GID() :
+  id_base() {
 }
 
 inline ares::model::GID::GID(const character_id& char_id) :
@@ -73,6 +81,10 @@ inline auto ares::model::GID::operator=(const GID& other) -> GID& {
 }
 
 
+inline ares::model::account_id::account_id() :
+  id_base() {
+}
+
 inline ares::model::account_id::account_id(const AID& aid) :
   detail::id_base(aid.value_ - AID_limits<account_id>::min()) {
 }
@@ -94,6 +106,10 @@ inline bool ares::model::account_id::operator<(const account_id& other) const {
   return value_ < other.value_;
 }
 
+
+inline ares::model::character_id::character_id() :
+  id_base() {
+}
 
 inline ares::model::character_id::character_id(const GID& gid) :
   detail::id_base(gid.value_ - GID_limits<character_id>::min()) {

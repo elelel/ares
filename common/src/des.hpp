@@ -5,6 +5,8 @@
   TODO: Left slow, since it's not used a lot. Consider unrolling with C++17 variadic folds if more speed is in fact needed
 */
 
+#include <array>
+
 namespace ares {
   struct des {
     inline static void decrypt_block(uint64_t& block) {

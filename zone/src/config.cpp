@@ -81,7 +81,7 @@ void ares::zone::config::load_obfuscation_key() {
         uint32_t k[3];
         for (size_t i = 0; i < 3; ++i) {
           std::stringstream ss;
-          ss << std::hex << std::string((*j_key)[i]);
+          ss << std::hex << (*j_key)[i].get<std::string>();
           ss >> k[i]; 
         }
 

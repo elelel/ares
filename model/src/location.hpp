@@ -8,6 +8,7 @@ namespace ares {
     struct map_name_string : fixed_string<12> {
       using fixed_string<12>::fixed_string;
 
+      map_name_string();
       map_name_string(const map_name_ext_string& s);
       map_name_string& operator=(const map_name_ext_string& s);
       map_name_string& operator=(const std::string& s);
@@ -17,6 +18,7 @@ namespace ares {
     struct map_name_ext_string : fixed_string<16> {
       using fixed_string<16>::fixed_string;
 
+      map_name_ext_string();
       map_name_ext_string(const std::string& s);
       map_name_ext_string(const map_name_string& s);
       map_name_ext_string& operator=(const map_name_string& s);

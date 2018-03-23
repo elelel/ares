@@ -8,6 +8,7 @@ include(${ARES_DIR}/projects/CMake/shared.cmake)
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(MODEL "${ARES_DIR}/model")
+set(CONTRIB "${ARES_DIR}/contrib")
 
 set(SOURCES
   ${SRC}/database.cpp
@@ -35,6 +36,8 @@ set_target_properties(database PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_LIBRARIES "${ARES_LINK_LIBRARIES}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
+  C_STANDARD 11
+  CXX_STANDARD 17
   )
 
 set(INCLUDE_DIRS
@@ -46,3 +49,6 @@ set(INCLUDE_DIRS
 
 target_include_directories(database PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(database PRIVATE ${ARES_COMPILE_DEFINITIONS})
+target_link_libraries(database lzma ${ARES_LINK_LIBRARIES})
+
+message("Database include dirs ${INCLUDE_DIRS}")

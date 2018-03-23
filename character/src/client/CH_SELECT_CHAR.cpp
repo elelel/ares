@@ -7,7 +7,7 @@ void ares::character::client::packet_handler<ares::packet::current<ares::packet:
   if (p_->CharNum() < c.playable_slots) {
     auto ci = server_.db->query<database::characters::info_for_slot>(c.account_id, p_->CharNum());
     if (ci) {
-      std::lock_guard lock(server_.mutex());
+      std::lock_guard<std::mutex> lock(server_.mutex());
       auto found_zs = server_.maps->zone_session_by_id(ci->location_last.map_id);
       if (found_zs != nullptr) {
         // Store selected char_info

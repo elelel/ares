@@ -42,6 +42,8 @@ if (BUILD_TESTING)
   set_target_properties(zone_test PROPERTIES
     COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
     LINK_FLAGS "${ARES_LINK_FLAGS}"
+    C_STANDARD 11
+    CXX_STANDARD 17
     )
   target_link_libraries(zone_test common foonathan_memory ${ARES_LINK_LIBRARIES})
   target_include_directories(zone_test PRIVATE ${INCLUDE_DIRS})

@@ -5,6 +5,10 @@
 #include "../location.hpp"
 #include "../utils.hpp"
 
+inline ares::model::map_name_string::map_name_string() :
+  fixed_string() {
+}
+
 inline ares::model::map_name_string::map_name_string(const map_name_ext_string& s) :
   fixed_string(s, uintptr_t(strchr(s, '.')) - uintptr_t(s.data())) {
 }
@@ -23,6 +27,10 @@ inline bool ares::model::map_name_string::operator==(const map_name_ext_string& 
   return strncmp(data_, s, size::value) == 0;
 }
 
+inline ares::model::map_name_ext_string::map_name_ext_string() :
+  fixed_string() {
+}
+  
 inline ares::model::map_name_ext_string::map_name_ext_string(const std::string& s) :
   fixed_string(s) {
   const char ext[] = ".gat";

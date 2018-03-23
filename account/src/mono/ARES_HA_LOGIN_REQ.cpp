@@ -14,7 +14,7 @@ void ares::account::mono::packet_handler<ares::packet::current<ares::packet::ARE
   auto& conf = server_.conf();
   const auto login = std::string((char*)p_->login().data());
   SPDLOG_TRACE(log(), "ARES_HA_LOGIN_REQ acquiring server lock");
-  std::lock_guard lock(serv.mutex());
+  std::lock_guard<std::mutex> lock(serv.mutex());
   SPDLOG_TRACE(log(), "ARES_HA_LOGIN_REQ server lock acquired");
   auto found = std::find_if(conf.char_servers.begin(),
                             conf.char_servers.end(),

@@ -40,7 +40,7 @@ namespace ares {
         // Use Euclidian (consistent heuristic), though the client uses Manhattan which breaks A* Graph search
         // optimality guarantees when using closed set
         // TODO: Check the consequences later
-        return std::hypot(float(g_x) - float(x), float(g_y) - float(y));
+        return float(std::hypot(float(g_x) - float(x), float(g_y) - float(y)));
       }
       
       inline bool operator<(const space_node& lhs, const space_node& rhs) {
@@ -149,7 +149,7 @@ namespace ares {
           auto& fringe = search_->fringe_;
           auto& closed = search_->closed_;
           static float move_cost{1.0};
-          static float move_diagonal_cost{sqrt(2)};
+          static auto move_diagonal_cost = float(sqrt(2.0));
           if (fringe.size() > 0) {
             auto path = fringe.begin()->second;
             fringe.erase(fringe.begin());
@@ -161,7 +161,7 @@ namespace ares {
                 for (space_node& child : search_->children_.data) {
                   if (child.depth < search_->depth_limit_) {
                     child.g = child.diag ? current.g + move_diagonal_cost : current.g + move_cost;
-                    auto h = heuristic(child.x, child.y, search_->goal_.x, search_->goal_.y);
+                    float h = heuristic(child.x, child.y, search_->goal_.x, search_->goal_.y);
                     float f = child.g + h;
                     nodes_vector new_path(path);
                     new_path.data.push_back(child);
@@ -179,11 +179,11 @@ namespace ares {
           return *this;
         }
 
-        inline bool operator==(const search_iterator& other) {
+        inline bool operator==(const search_iterator& other) const {
           return end_ == other.end_;
         }
 
-        inline bool operator!=(const search_iterator& other) {
+        inline bool operator!=(const search_iterator& other) const {
           return !(*this == other);
         }
 

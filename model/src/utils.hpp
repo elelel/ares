@@ -18,41 +18,50 @@ namespace ares {
       \param src source buffer to copy the bytes from
       \param src_sz number of meaningful bytes in source buffer
     */
-    inline static void copy_buf_with_zero_pad(void* dest, const size_t dest_sz, const void* src, const size_t src_sz);
+    inline void copy_buf_with_zero_pad(void* dest, const size_t dest_sz, const void* src, const size_t src_sz);
 
     /*! Convert time point to host epoch time 
       \param time_point time point to convert
     */
-    inline static uint32_t to_host_epoch_time(const std::chrono::system_clock::time_point& time_point);
+    inline uint32_t to_host_epoch_time(const std::chrono::system_clock::time_point& time_point);
 
     /*! Format time point as GMT string using a custom format
       \param time_point time point to format
       \param fmt time format to use */
-    inline static std::string to_gmtime_string_fmt(const std::chrono::system_clock::time_point& time_point, const char* fmt);
+    inline std::string to_gmtime_string_fmt(const std::chrono::system_clock::time_point& time_point, const char* fmt);
 
     /*! Format time point as GMT string using predefined date/time format
       \param time_point time point to format
     */
-    inline static std::string to_gmtime_string(const std::chrono::system_clock::time_point& time_point);
+    inline std::string to_gmtime_string(const std::chrono::system_clock::time_point& time_point);
     
     /*! Format time point as GMT string using predefined date format
       \param time_point time point to format
     */
-    inline static std::string to_gmdate_string(const std::chrono::system_clock::time_point& time_point);
+    inline std::string to_gmdate_string(const std::chrono::system_clock::time_point& time_point);
 
     /*! Format time point as local time string using a custom format
       \param time_point time point to format
       \param fmt time format to use */
-    inline static std::string to_localtime_string_fmt(const std::chrono::system_clock::time_point& time_point, const char* fmt);
+    inline std::string to_localtime_string_fmt(const std::chrono::system_clock::time_point& time_point, const char* fmt);
 
     /*! Format time point as local time string using predefined date/time format
       \param time_point time point to format
     */
-    inline static std::string to_localtime_string(const std::chrono::system_clock::time_point& time_point);
+    inline std::string to_localtime_string(const std::chrono::system_clock::time_point& time_point);
     
     /*! Format time point as local time string using a custom format
       \param time_point time point to format
       \param fmt time format to use */
-    inline static std::string to_localdate_string(const std::chrono::system_clock::time_point& time_point);
+    inline std::string to_localdate_string(const std::chrono::system_clock::time_point& time_point);
+
+    /*! OS-independent wrapper for gmtime_s
+     */
+    inline std::tm gmtime(const std::time_t& time_tt);
+
+    /*! OS-independent wrapper for localtime_s
+     */
+    inline std::tm localtime(const std::time_t& time_tt);
+
   }
 }

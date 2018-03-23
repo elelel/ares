@@ -16,7 +16,7 @@ inline ares::network::server<Derived, Session>::server(std::shared_ptr<spdlog::l
 template <typename Derived, typename Session>
 inline void ares::network::server<Derived, Session>::start(const asio::ip::tcp::endpoint& ep) {
   SPDLOG_TRACE(log(), "ares::network::server::start acquiring server lock");
-  std::unique_lock lock(mutex_);
+  std::unique_lock<std::mutex> lock(mutex_);
   SPDLOG_TRACE(log(), "ares::network::server::start adding new acceptor");
   for (auto it = acceptors_.begin(); it != acceptors_.end();) {
     if (*it == nullptr) {

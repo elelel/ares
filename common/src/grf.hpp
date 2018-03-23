@@ -4,13 +4,11 @@
  A rewrite of Athena's grfio library for Ares
  */
 
-
-
-#include <vector>
-#include <unordered_map>
 #include <map>
 #include <memory>
-
+#include <optional>
+#include <unordered_map>
+#include <vector>
 
 namespace ares {
   namespace grf {
@@ -34,7 +32,7 @@ namespace ares {
       std::string name;
       uint32_t compressed_sz{0};
       uint32_t compressed_sz_aligned{0};
-      uint32_t uncompressed_sz{0};
+      uintmax_t uncompressed_sz{0};
       uint32_t offset{0};
       uint8_t type{0};
     };

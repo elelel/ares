@@ -47,8 +47,13 @@ if (NOT TARGET database)
   add_subdirectory(${DATABASE} database)
 endif()
 
-add_subdirectory(${CONTRIB}/memory memory)
-add_subdirectory(${CONTRIB}/lzma lzma)
+if (NOT TARGET lzma)
+  add_subdirectory(${CONTRIB}/lzma lzma)
+endif()
+
+if (NOT TARGET memory)
+  add_subdirectory(${CONTRIB}/memory memory)
+endif()
 
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}
@@ -66,13 +71,14 @@ set(INCLUDE_DIRS
   ${CONTRIB}/memory/include
   ${ARES_DIR})
 
-message("Account server compile definitions: ${ARES_COMPILE_DEFINITIONS}")
-
 add_executable(ares_account ${SOURCES})
 set_target_properties(ares_account PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
+  C_STANDARD 11
+  CXX_STANDARD 17
   )
-target_link_libraries(ares_account foonathan_memory config common database lzma ${ARES_LINK_LIBRARIES})
+  
+target_link_libraries(ares_account ${ARES_LINK_LIBRARIES} foonathan_memory common database lzma )
 target_include_directories(ares_account PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_account PRIVATE ${ARES_COMPILE_DEFINITIONS})

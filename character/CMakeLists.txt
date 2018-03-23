@@ -12,8 +12,6 @@ endif()
 
 include(${ARES_DIR}/projects/CMake/shared.cmake)
 
-find_package(ZLIB REQUIRED)
-
 set(NETWORK "${ARES_DIR}/network")
 set(COMMON "${ARES_DIR}/common")
 set(MODEL "${ARES_DIR}/model")
@@ -87,8 +85,10 @@ add_executable(ares_character ${SOURCES})
 set_target_properties(ares_character PROPERTIES
   COMPILE_FLAGS "${ARES_COMPILE_FLAGS}"
   LINK_FLAGS "${ARES_LINK_FLAGS}"
+  C_STANDARD 11
+  CXX_STANDARD 17
   )
 
-target_link_libraries(ares_character foonathan_memory config common database ${ZLIB_LIBRARIES} stdc++fs lzma ${ARES_LINK_LIBRARIES})
+target_link_libraries(ares_character ${ARES_LINK_LIBRARIES} foonathan_memory common database lzma)
 target_include_directories(ares_character PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_character PRIVATE ${ARES_COMPILE_DEFINITIONS})

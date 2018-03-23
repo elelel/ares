@@ -51,6 +51,10 @@ struct CHARACTER_INFO {
     last_map_name_.emplace(last_map_name);
   }
 
+  // Workaround for MSVC - wants a default constructor for flexible struct member
+  CHARACTER_INFO() {
+  }
+  
   explicit CHARACTER_INFO(const model::pc_info& pc,
                           const std::string& last_map_name,
                           const int32_t delete_timeout,

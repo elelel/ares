@@ -129,13 +129,12 @@ namespace ares {
 
       template <typename Packet,
                 typename int_<decltype(Packet::PacketLength)>::type = 0>
-      static alloc_info allocate_(Packet*, dynamic_size) {
+      static alloc_info allocate_(Packet* p, dynamic_size) {
         using pool_allocator_type = pool_allocator<
           (sizeof(Packet) > 512)
             ? sizeof(Packet) + (1024 - (sizeof(Packet) % 1024)) + 1024
             : 1024>; 
         const auto& [buf, buf_sz] = pool_allocator_type::allocate();
-        Packet* p;
         return {sizeof(Packet), buf, buf_sz, [] (void* p) { pool_allocator_type::deallocate(p); }, (uintptr_t)&p->PacketLength - (uintptr_t)p};
       }
 
