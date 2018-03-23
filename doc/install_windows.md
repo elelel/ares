@@ -19,7 +19,9 @@ libraries can be pgAdmin tool which can also be downloaded from the official sit
 #### libpqxx
 Clone https://github.com/jtv/libpqxx somewhere, e.g to c:\libs_for_ares\:
 
+```
 git clone https://github.com/jtv/libpqxx
+```
 
 The instructions for compiling libpqxx can be found in win32/INSTALL.txt file but may
 be outdated.
