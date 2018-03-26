@@ -37,7 +37,6 @@ ares::zone::a_star::nodes_vector::nodes_vector(const std::initializer_list<space
   }
 }
 
-
 auto ares::zone::a_star::nodes_set::pool_instance() -> pool_type& {
   thread_local foonathan::memory::memory_pool<> p(foonathan::memory::set_node_size<space_node>::value, 4096);
   return p;
