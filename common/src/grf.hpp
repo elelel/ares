@@ -12,11 +12,14 @@
 
 namespace ares {
   namespace grf {
+    /*! Type of storage (is resource stored as file in a local dir or in grf) */
     enum class STORAGE {
       LOCAL_DIR,
       GRF
     };
 
+    /*! Encryption mode for GRF
+     */
     enum FILELIST_TYPE : uint8_t {
       FILE = 0x01, // entry is a file
       ENCRYPT_MIXED = 0x02, // encryption mode 0 (header DES + periodic DES/shuffle)
@@ -26,6 +29,9 @@ namespace ares {
 #pragma pack(push, 1)
 #pragma pack(pop)
 
+    /*!
+      Grf/dir resource descriptor
+     */
     struct resource {
       STORAGE storage;
       std::shared_ptr<std::string> source;
@@ -37,9 +43,15 @@ namespace ares {
       uint8_t type{0};
     };
 
+    /*!
+      Container to catalogue grf/dir resources
+     */
     struct resource_set {
+      /*! \param filenames file or directory names as sources to search for resources in */
       resource_set(const std::vector<std::string>& filenames);
+      /*! Find resource file in given source */
       std::optional<std::string> find_resource_file(const std::string& src);
+      /*! Read resource content resolving dir or grf source */
       std::optional<std::vector<uint8_t>> read_file(const std::string& pathfn);
 
     private:

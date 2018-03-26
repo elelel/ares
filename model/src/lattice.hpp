@@ -4,6 +4,12 @@
 #include <vector>
 #include <optional>
 
+/*!
+  \file lattice.hpp
+
+  Lattice (2d matrix) containers
+ */
+
 namespace ares {
   namespace model {
     namespace detail {
@@ -17,7 +23,10 @@ namespace ares {
         size_t x_mask_;
       };
     }
-    
+
+    /*! Dense lattice class.
+      Access is constant, memory usage is full lattice space size
+     */
     template <typename T>
     struct dense_lattice : detail::lattice_base {
       inline dense_lattice(const size_t x_size, const size_t y_size);
@@ -36,6 +45,9 @@ namespace ares {
       std::vector<T> data_;
     };
 
+    /*! Sparse lattice class
+      Access is O(log), memory usage is used lattice elements
+     */
     template <typename T>
     struct sparse_lattice : detail::lattice_base {
       inline sparse_lattice(const size_t x_size, const size_t y_size);

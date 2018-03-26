@@ -4,6 +4,9 @@
 
 namespace ares {
   namespace network {
+    /*!
+      Generic handler for specific packets, specialized later for Server/State
+     */
     template <typename Derived, typename Packet, typename Server, typename Session, typename SessionState>
     struct packet_handler {
       using handled_packet_type = Packet;

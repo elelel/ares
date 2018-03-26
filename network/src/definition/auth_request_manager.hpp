@@ -55,6 +55,7 @@ inline void ares::network::auth_request_manager<Derived, Server, Session>::cance
   if (found != pending_.end()) {
     found->second.timer->cancel();
     pending_.erase(found);
+    cancel(s);
   };
 }
 

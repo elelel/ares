@@ -14,6 +14,9 @@
 
 namespace ares {
   namespace network {
+    /*!
+      Generic Ares server
+    */
     template <typename Derived, typename Session>
     struct server {
       using acceptor = ares::network::acceptor<Derived>;

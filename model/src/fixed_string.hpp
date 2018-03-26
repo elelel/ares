@@ -2,6 +2,11 @@
 
 #include <string>
 
+/*!
+  \file fixed_string.hpp
+  Wrapper for fixed-size C-style strings. Should be converted to string slices later
+ */
+
 namespace ares {
   namespace model {
     template <size_t Size>
