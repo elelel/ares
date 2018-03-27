@@ -21,6 +21,7 @@ include("${ARES_DIR}/projects/CMake/libpq.cmake")
 include("${ARES_DIR}/projects/CMake/zlib.cmake")
 
 if (WIN32)
+  include("${ARES_DIR/projects/CMake/winver.cmake")
   if (MINGW)
     set(ARES_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wunused")
   elseif(MSVC)

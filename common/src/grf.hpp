@@ -44,7 +44,7 @@ namespace ares {
     };
 
     /*!
-      Container to catalogue grf/dir resources
+      Container to catalog grf/dir resources
      */
     struct resource_set {
       /*! \param filenames file or directory names as sources to search for resources in */
