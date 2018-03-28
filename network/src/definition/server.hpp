@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ares/indestructible>
-
 #include "../server.hpp"
 
 template <typename Derived, typename Session>

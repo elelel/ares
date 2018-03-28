@@ -21,7 +21,7 @@ include("${ARES_DIR}/projects/CMake/libpq.cmake")
 include("${ARES_DIR}/projects/CMake/zlib.cmake")
 
 if (WIN32)
-  include("${ARES_DIR/projects/CMake/winver.cmake")
+  include("${ARES_DIR}/projects/CMake/winver.cmake")
   if (MINGW)
     set(ARES_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wunused")
   elseif(MSVC)
@@ -39,9 +39,12 @@ endif()
 
 set(ARES_INCLUDE_DIRECTORIES ${ARES_INCLUDE_DIRECTORIES} ${ARES_POSTGRES_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
 set(ARES_LINK_LIBRARIES ${ARES_LINK_LIBRARIES} ${ARES_POSTGRES_LIBS} ${ZLIB_LIBRARIES})
-    
+
+include("${ARES_DIR}/projects/CMake/platform_checks.cmake")
+
 message("Ares compile definitions: ${ARES_COMPILE_DEFINITIONS}")
 message("Ares compile flags: ${ARES_COMPILE_FLAGS}")
 message("Ares include directories: ${ARES_INCLUDE_DIRECTORIES}")
 message("Ares server link libraries: ${ARES_LINK_LIBRARIES}")
+
 

@@ -1,9 +1,5 @@
 #include "astar.hpp"
 
-thread_local std::multimap<float, ares::zone::a_star::nodes_vector> ares::zone::a_star::search_state::fringe_ = std::multimap<float, nodes_vector>();
-thread_local ares::zone::a_star::nodes_set ares::zone::a_star::search_state::closed_ = ares::zone::a_star::nodes_set();
-thread_local ares::zone::a_star::nodes_vector ares::zone::a_star::search_state::children_ = ares::zone::a_star::nodes_vector();
-
 ares::zone::a_star::space_node::space_node(const space_node& other) :
   x(other.x),
   y(other.y),
@@ -21,38 +17,43 @@ auto ares::zone::a_star::space_node::operator=(const space_node& other) -> space
   return *this;
 }
 
-auto ares::zone::a_star::nodes_vector::pool_instance() -> pool_type& {
-  thread_local foonathan::memory::memory_pool<> p(sizeof(space_node), 4096);
-  return p;
-}
-
-ares::zone::a_star::nodes_vector::nodes_vector() :
-  data(pool_instance()) {
-}
-
-ares::zone::a_star::nodes_vector::nodes_vector(const std::initializer_list<space_node>& init) :
-  data(pool_instance()) {
-  for (const auto& i : init) {
-    data.push_back(i);
-  }
-}
-
-auto ares::zone::a_star::nodes_set::pool_instance() -> pool_type& {
-  thread_local foonathan::memory::memory_pool<> p(foonathan::memory::set_node_size<space_node>::value, 4096);
-  return p;
-}
-
-ares::zone::a_star::nodes_set::nodes_set() :
-  data(pool_instance()) {
-}
-
 ares::zone::a_star::search_state::search_state(const model::map_info& map, const space_node& start, const space_node& goal) :
   map_(map),
   goal_(goal) {
-  closed_.data.clear();
-  fringe_.clear();
-  fringe_.insert(std::move(std::make_pair(0.0, nodes_vector{start})));
+  closed_set().clear();
+  fringe().clear();
+  auto v = pmr::vector<space_node>(&pool());
+  v.push_back(start);
+  fringe().insert(std::pair<const float, pmr::vector<space_node>>(0.0f, std::move(v)));
   }
+
+auto ares::zone::a_star::search_state::pool() -> pmr::unsynchronized_pool_resource& {
+  pmr::pool_options opts;
+  opts.max_blocks_per_chunk = 512;
+  opts.largest_required_pool_block = 1024 * 1024;
+  static thread_local pmr::unsynchronized_pool_resource p(opts);
+  return p;
+}
+
+auto ares::zone::a_star::search_state::fringe() -> pmr::multimap<float, pmr::vector<space_node>>& {
+  static thread_local pmr::multimap<float, pmr::vector<space_node>> f(&pool());
+  return f;
+}
+
+auto ares::zone::a_star::search_state::closed_set() -> pmr::set<space_node>& {
+  static thread_local pmr::set<space_node> c(&pool());
+  return c;
+}
+
+auto ares::zone::a_star::search_state::children() -> pmr::vector<space_node>& {
+  static thread_local pmr::vector<space_node> v(&pool());
+  return v;
+}
+
+auto ares::zone::a_star::search_state::result() -> pmr::vector<space_node>& {
+  static thread_local pmr::vector<space_node> v(&pool());
+  return v;
+}
 
 auto ares::zone::a_star::search_state::begin() -> ares::zone::a_star::search_iterator {
   return search_iterator(this);
@@ -67,22 +68,107 @@ auto ares::zone::a_star::search_state::run() -> std::vector<model::packed_coordi
   return path();
 }
 
-auto ares::zone::a_star::search_state::path() const -> std::vector<model::packed_coordinates> {
-  std::vector<model::packed_coordinates> rslt;
-  for (size_t i = 0; i < result_.data.size(); ++i) {
-    uint8_t dir;
-    if (i < result_.data.size() - 1) dir = result_.data[i + 1].dir;
-    else dir = result_.data[i].dir;
-    rslt.push_back({result_.data[i].x, result_.data[i].y, dir});
+void ares::zone::a_star::search_state::refresh_children(const space_node& current) {
+  children().clear();
+  const auto x = current.x;
+  const auto y = current.y;
+  bool north{false};
+  bool south{false};
+  bool east{false};
+  bool west{false};
+  if ((y < map_.y_size()) && (map_.static_flags(x, y + 1).data() & model::map_cell_flags::walkable)) {
+    north = true;
   }
-  return rslt;
+  if ((y > 0) && (map_.static_flags(x, y - 1).data() & model::map_cell_flags::walkable)) {
+    south = true;
+  }
+  // East
+  if ((x < map_.x_size()) && (map_.static_flags(x + 1, y).data() & model::map_cell_flags::walkable)) {
+    east = true;
+  }
+  // West
+  if ((x > 0) && (map_.static_flags(x - 1, y).data() & model::map_cell_flags::walkable)) {
+    west = true;
+  }
+
+  // Since we are storing the direction in node state, we can use it to prune search tree early from steps backwards towards the root
+  if (north && (current.dir != model::packed_coordinates::DIR_SOUTH))
+    children().push_back(space_node(x, y + 1, false, model::packed_coordinates::DIR_NORTH, current.depth + 1));
+  if (south && (current.dir != model::packed_coordinates::DIR_NORTH))
+    children().push_back(space_node(x, y - 1, false, model::packed_coordinates::DIR_SOUTH, current.depth + 1));
+  if (east && (current.dir != model::packed_coordinates::DIR_WEST))
+    children().push_back(space_node(x + 1, y, false, model::packed_coordinates::DIR_EAST, current.depth + 1));
+  if (west && (current.dir != model::packed_coordinates::DIR_EAST))
+    children().push_back(space_node(x - 1, y, false, model::packed_coordinates::DIR_WEST, current.depth + 1));
+
+  if ((south && east) &&
+      (current.dir != model::packed_coordinates::DIR_NORTHWEST) &&
+      (map_.static_flags(x + 1, y - 1).data() & model::map_cell_flags::walkable))
+    children().push_back(space_node(x + 1, y - 1, true, model::packed_coordinates::DIR_SOUTHEAST, current.depth + 1));
+        
+  if ((north && east) &&
+      (current.dir != model::packed_coordinates::DIR_SOUTHWEST) &&
+      (map_.static_flags(x + 1, y + 1).data() & model::map_cell_flags::walkable))
+    children().push_back(space_node(x + 1, y + 1, true, model::packed_coordinates::DIR_NORTHEAST, current.depth + 1));
+      
+  if ((north && west) &&
+      (current.dir != model::packed_coordinates::DIR_SOUTHEAST) &&
+      (map_.static_flags(x - 1, y + 1).data() & model::map_cell_flags::walkable))
+    children().push_back(space_node(x - 1, y + 1, true, model::packed_coordinates::DIR_NORTHWEST, current.depth + 1));
+    
+  if ((south && west) &&
+      (current.dir != model::packed_coordinates::DIR_NORTHEAST) &&
+      (map_.static_flags(x - 1, y - 1).data() & model::map_cell_flags::walkable))
+    children().push_back(space_node(x - 1, y - 1, true, model::packed_coordinates::DIR_SOUTHWEST, current.depth + 1));
 }
 
-auto ares::zone::a_star::search_state::result() const -> const nodes_vector& {
-  return result_;
+auto ares::zone::a_star::search_state::path() -> std::vector<model::packed_coordinates> {
+  std::vector<model::packed_coordinates> rslt;
+  for (size_t i = 0; i < result().size(); ++i) {
+    uint8_t dir;
+    if (i < result().size() - 1) dir = result()[i + 1].dir;
+    else dir = result()[i].dir;
+    rslt.push_back({result()[i].x, result()[i].y, dir});
+  }
+  return rslt;
 }
 
 ares::zone::a_star::search_iterator::search_iterator(search_state* search, bool end) :
   search_(search),
   end_(end) {
+  }
+
+auto ares::zone::a_star::search_iterator::operator++() -> search_iterator& {
+  auto& fringe = search_->fringe();
+  auto& closed = search_->closed_set();
+  auto& children = search_->children();
+  static float move_cost{1.0};
+  static float move_diagonal_cost{std::sqrt(float{2.0})};
+  if (fringe.size() > 0) {
+    auto path = fringe.begin()->second;
+    fringe.erase(fringe.begin());
+    space_node& current = *path.rbegin();
+    if (!((current.x == search_->goal_.x) && (current.y == search_->goal_.y))) {
+      if (closed.find(current) == closed.end()) {
+        closed.insert(current);
+        search_->refresh_children(current);
+        for (space_node& child : children) {
+          if (child.depth < search_->depth_limit_) {
+            child.g = child.diag ? current.g + move_diagonal_cost : current.g + move_cost;
+            float h = heuristic(child.x, child.y, search_->goal_.x, search_->goal_.y);
+            float f = child.g + h;
+            pmr::vector<space_node> new_path(path);
+            new_path.push_back(child);
+            fringe.insert(std::pair<const float, pmr::vector<space_node>>(f, std::move(new_path)));
+          }
+        }
+      }
+    } else {
+      search_->result() = path;
+      end_ = true;
+    }
+  } else {
+    end_ = true;
+  }
+  return *this;
 }

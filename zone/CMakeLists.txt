@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-project(account LANGUAGES C CXX)
+project(ares_zone LANGUAGES C CXX)
 
 get_filename_component(ARES_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PATH)
 

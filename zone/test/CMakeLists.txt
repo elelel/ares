@@ -45,7 +45,7 @@ if (BUILD_TESTING)
     C_STANDARD 11
     CXX_STANDARD 17
     )
-  target_link_libraries(zone_test common foonathan_memory ${ARES_LINK_LIBRARIES})
+  target_link_libraries(zone_test common ${ARES_LINK_LIBRARIES})
   target_include_directories(zone_test PRIVATE ${INCLUDE_DIRS})
   target_compile_definitions(zone_test PRIVATE ${ARES_COMPILE_DEFINITIONS} "CATCH_CONFIG_MAIN" "CATCH_CONFIG_COLOUR_NONE")
 

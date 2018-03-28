@@ -1,0 +1,20 @@
+#pragma once
+
+#include <memory_resource>
+
+namespace ares {
+  namespace pmr {
+    using unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
+    
+    template <typename T>
+    using vector = std::pmr::vector<T>;
+
+    template <typename Key, typename T, typename Compare = std::less<Key>>
+    using multimap = std::pmr::multimap<Key, T, Compare>;
+
+    template <typename Key, typename Compare = std::less<Key>>
+    using set = std::pmr::set<Key, Compare>;
+
+    using pool_options = std::pmr::pool_options;
+  }
+}
