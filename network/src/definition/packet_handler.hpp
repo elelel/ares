@@ -7,7 +7,8 @@ inline ares::network::packet_handler<Derived, Packet, Server, Session, SessionSt
   p_(reinterpret_cast<Packet*>(buf.get())),
   session_(sess),
   server_(serv),
-  state_(session_state) {
+  state_(session_state),
+  buf_(buf) {
 }
 
 template <typename Derived, typename Packet, typename Server, typename Session, typename SessionState>
