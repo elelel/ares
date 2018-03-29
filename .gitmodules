@@ -10,12 +10,6 @@
 [submodule "contrib/network_buffer"]
 	path = contrib/network_buffer
 	url = https://github.com/elelel/network_buffer.git
-[submodule "contrib/RxCpp"]
-	path = contrib/RxCpp
-	url = https://github.com/Reactive-Extensions/RxCpp
 [submodule "contrib/asio"]
 	path = contrib/asio
 	url = https://github.com/chriskohlhoff/asio.git
-[submodule "contrib/memory"]
-	path = contrib/memory
-	url = https://github.com/foonathan/memory
