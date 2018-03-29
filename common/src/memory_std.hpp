@@ -1,6 +1,9 @@
 #pragma once
 
+#include <map>
 #include <memory_resource>
+#include <set>
+#include <vector>
 
 namespace ares {
   namespace pmr {
