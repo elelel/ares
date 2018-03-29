@@ -51,10 +51,6 @@ if (NOT TARGET lzma)
   add_subdirectory(${CONTRIB}/lzma lzma)
 endif()
 
-if (NOT TARGET memory)
-  add_subdirectory(${CONTRIB}/memory memory)
-endif()
-
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}
   ${NETWORK}/include
