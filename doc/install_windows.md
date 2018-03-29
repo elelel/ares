@@ -2,19 +2,17 @@
 
 ## Building with Microsoft compiler and tools
 
-### Installing simple prerequisites
+### Installing simple build prerequisites
 
 This procedure assumes that you already have Microsoft Visual Studio 2017 (or Microsoft
-Build Tools 2017) and git installed.
+Build Tools 2017) installed and Ares sources downloaded (e.g. into c:\sources\ares)
 
-- Clone Ares sources, e.g. into c:\sources\ares
-- Download and install latest CMake from https://cmake.org/download/
 - Download and install PostgreSQL server from https://www.postgresql.org/download/windows/
 Even if you don't plan to run the PostgreSQL server on the same machine, the libraries
 included with the it are needed to compile Ares server. An alternative source of these
 libraries can be pgAdmin tool which can also be downloaded from the official site.
 
-### Installing not so simple prerequisites
+### Installing not so simple build prerequisites
 
 #### libpqxx
 Clone https://github.com/jtv/libpqxx somewhere, e.g to c:\libs_for_ares\:
@@ -23,7 +21,7 @@ Clone https://github.com/jtv/libpqxx somewhere, e.g to c:\libs_for_ares\:
 git clone https://github.com/jtv/libpqxx
 ```
 
-The instructions for compiling libpqxx can be found in win32/INSTALL.txt file but may
+Instructions for compiling libpqxx can be found in win32/INSTALL.txt file but may
 be outdated.
 Here's a quick overview of the process.
 
@@ -67,10 +65,8 @@ nmake
 
 ### Configuring and building
 
-#### Configuring server builds
-
 Create a directory, e.g. c:\build\ares with three subdirectories: account, character and zone for each server.
-In developer tools Command Prompt configure and build account server. Pass the following required configuration parameters to CMake:
+Use the following required configuration parameters to CMake:
 - ARES_PACKET_SET - packet set version to build the server for
 - ARES_LIBPQ_LIB - libpq library (from the dir you've built libpqxx in)
 - ARES_LIBPQ_INCLUDE_DIRS - location of libpq include files (from PostgreSQL install dir)
@@ -84,11 +80,14 @@ Optionally set these definitions
 
 Note that on Windows you should match Release/Debug versions of the libraries when linking.
 
-Example for configuring and building ares server:
+Example of configuring and building account server:
 
 ```
 cd c:\build\ares\account
-"c:\program files\cmake\bin\cmake.exe" -G "NMake Makefiles" -DARES_PACKET_SET=pets_5a4c7c5c -DARES_LIBPQ_LIB="C:\libs_for_ares\libpqxx\lib\libpq.lib" -DARES_LIBPQ_INCLUDE_DIRS="C:\Program Files\PostgreSQL\10\include" -DARES_LIBPQXX_LIB="c:\libs_for_ares\libpqxx\lib\libpqxx_staticD.lib" -DARES_LIBPQXX_INCLUDE_DIRS="c:\libs_for_ares\libpqxx\include" -DARES_ZLIB_LIB="c:\build\zlib\zlibd.lib" -DARES_ZLIB_INCLUDE_DIRS="c:\libs_for_ares\zlib;c:\build\zlib" e:\ares\account
+"c:\program files\cmake\bin\cmake.exe" -G "NMake Makefiles" -DARES_PACKET_SET=pets_5a4c7c5c -DARES_LIBPQ_LIB="C:\libs_for_ares\libpqxx\lib\libpq.lib" -DARES_LIBPQ_INCLUDE_DIRS="C:\Program Files\PostgreSQL\10\include" -DARES_LIBPQXX_LIB="c:\libs_for_ares\libpqxx\lib\libpqxx_staticD.lib" -DARES_LIBPQXX_INCLUDE_DIRS="c:\libs_for_ares\libpqxx\include" -DARES_ZLIB_LIB="c:\build\zlib\zlibd.lib" -DARES_ZLIB_INCLUDE_DIRS="c:\libs_for_ares\zlib;c:\build\zlib" c:\sources\ares\account
 nmake
 ```
 
+This procedure has to be performed for each server type (account, character and zone).
+
+Now proceed to [configure](configure.md) your Ares installation.
