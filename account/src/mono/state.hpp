@@ -32,8 +32,8 @@ namespace ares {
         void on_socket_error();
         void defuse_asio();
 
-        packet::alloc_info allocate(const uint16_t packet_id);
-        void dispatch_packet(void* buf, std::function<void(void*)> deallocator);
+        std::tuple<size_t, size_t, size_t> packet_sizes(const uint16_t packet_id);
+        void dispatch_packet(std::shared_ptr<std::byte[]> buf);
         
         std::shared_ptr<spdlog::logger> log() const;
         const config& conf() const;

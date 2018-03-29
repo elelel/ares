@@ -44,9 +44,8 @@ namespace ares {
       void on_packet_processed();
       void defuse_asio();
 
-      packet::alloc_info allocate(uint16_t& packet_id);
-      void dispatch_packet(void* buf,
-                           std::function<void(void*)> deallocator);
+      std::tuple<size_t, size_t, size_t> packet_sizes(uint16_t& packet_id);
+      void dispatch_packet(std::shared_ptr<std::byte[]> buf);
 
     private:
       state_variant session_state_;

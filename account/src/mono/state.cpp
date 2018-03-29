@@ -32,28 +32,22 @@ void ares::account::mono::state::on_socket_error() {
 void ares::account::mono::state::defuse_asio() {
 }
 
-auto ares::account::mono::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+auto ares::account::mono::state::packet_sizes(const uint16_t packet_id) -> std::tuple<size_t, size_t, size_t> {
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(CA_EXE_HASHCHECK);
-    ARES_ALLOCATE_PACKET_CASE(CA_SSO_LOGIN_REQ::login_password);
-    ARES_ALLOCATE_PACKET_CASE(CA_SSO_LOGIN_REQ::token_auth);
-    ARES_ALLOCATE_PACKET_CASE(ARES_HA_LOGIN_REQ);
+    ARES_PACKET_SIZES_CASE(CA_EXE_HASHCHECK);
+    ARES_PACKET_SIZES_CASE(CA_SSO_LOGIN_REQ::login_password);
+    ARES_PACKET_SIZES_CASE(CA_SSO_LOGIN_REQ::token_auth);
+    ARES_PACKET_SIZES_CASE(ARES_HA_LOGIN_REQ);
   default:
-    { // Packet id is not known to this server under selected packet set
-      log()->error("Unexpected packet_id {:#x} for mono::state session while allocating", packet_id);
-      packet::alloc_info ai;
-      ai.expected_packet_sz = 0;
-      ai.buf = nullptr;
-      ai.buf_sz = 0;
-      ai.deallocator = [] (void*) {};
-      ai.PacketLength_offset = 0;
-      return std::move(ai);
+    {
+      log()->error("Unexpected packet_id {:#x} for mono session while getting packet sizes", packet_id);
+      return std::tuple<size_t, size_t, size_t>(0, 0, 0);
     }
   }
 }
 
-void ares::account::mono::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
-  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+void ares::account::mono::state::dispatch_packet(std::shared_ptr<std::byte[]> buf) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf.get());
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(CA_EXE_HASHCHECK);
     ARES_DISPATCH_PACKET_CASE(CA_SSO_LOGIN_REQ::login_password);
@@ -61,7 +55,7 @@ void ares::account::mono::state::dispatch_packet(void* buf, std::function<void(v
     ARES_DISPATCH_PACKET_CASE(ARES_HA_LOGIN_REQ);
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", *packet_id);
+      log()->error("Unexpected packet_id {:#x} for mono session while dispatching, disconnecting", *packet_id);
       session_.close_gracefuly();
       return;
     }

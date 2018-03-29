@@ -1,10 +1,11 @@
 #pragma once
 
-#include <ares/packets>
-
 /*! \file handlers.hpp
   Various Asio-compliant handlers for network and timer events
  */
+
+#include <ares/packets>
+#include <ares/common/memory>
 
 namespace ares {
   namespace network {
@@ -88,7 +89,7 @@ namespace ares {
       template <typename Session>
       struct receive_after_id : session_base<Session> {
         receive_after_id(std::shared_ptr<Session> s,
-                         packet::alloc_info&& ai,
+                         memory::packet_alloc&& ai,
                          const size_t alreay_received);
         receive_after_id(const receive_after_id& other);
         receive_after_id(receive_after_id&& other);
@@ -96,7 +97,7 @@ namespace ares {
         void operator()(const std::error_code& ec, const size_t sz);
       
       protected:
-        packet::alloc_info ai_;
+        memory::packet_alloc ai_;
         size_t bytes_received_;
       };
     }

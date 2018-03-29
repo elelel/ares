@@ -211,26 +211,32 @@ inline void ares::network::handler::receive_id<Session>::operator()(const std::e
         // receiving packet_id
         need_more_ -= sz;
         if (need_more_ == 0) {
-          // Deobfuscate packet_id if needed, allocate memory buffer
-          packet::alloc_info ai = s.allocate(packet_id);
-          if (ai.buf != nullptr) {
-            // Place packet_id into memory chunk's start
-            auto pck_id = (decltype(s.packet_id_recv_buf_)*)ai.buf;
-            *pck_id = packet_id;
-            if (ai.expected_packet_sz > sizeof(packet_id)) {
-              s.socket_->async_read_some(asio::buffer((void*)((uintptr_t)ai.buf + sizeof(packet_id)), ai.expected_packet_sz - sizeof(packet_id)),
-                                         handler::receive_after_id<Session>(this->session_, std::move(ai), sizeof(packet_id)));
-            } else {
-              s.dispatch_packet(ai.buf, ai.deallocator);
-              s.receiving_ = false;
-              s.receive();
+          // Deobfuscate packet_id if needed and
+          // get buffer size, expected packet size, PacketLength offset for this packet id
+          auto alloc_sizes = s.packet_sizes(packet_id);
+          SPDLOG_TRACE(s.log(), "For packed id {:#x} got buffer size {}, expected size {}, PacketLength offset {}",
+                       packet_id, std::get<0>(alloc_sizes), std::get<1>(alloc_sizes), std::get<2>(alloc_sizes));
+          if (std::get<0>(alloc_sizes) != 0) {
+            try {
+              auto ai = memory::packet_alloc(alloc_sizes);
+              // Place packet_id into memory chunk's start
+              auto pck_id = (decltype(s.packet_id_recv_buf_)*)ai.buf.get();
+              *pck_id = packet_id;
+              // Receive the rest of the packet if the packet is expected to have something more than just id
+              if (ai.expected_sz > sizeof(packet_id)) {
+                auto buf = asio::buffer((void*)((uintptr_t)ai.buf.get() + sizeof(packet_id)), ai.expected_sz - sizeof(packet_id));
+                s.socket_->async_read_some(buf, handler::receive_after_id<Session>(this->session_, std::move(ai), sizeof(packet_id)));
+              } else {
+                s.dispatch_packet(ai.buf);
+                s.receiving_ = false;
+                s.receive();
+              }
+            } catch (std::bad_alloc) {
+              s.log()->error("Failed to allocate memory for packet {:#x}, closing session", packet_id);
+              s.close_gracefuly();
             }
           } else {
-            if (ai.expected_packet_sz == 0) {
-              s.log()->error("Packet id {:#x} is not known to this server under selected packet set, closing session", packet_id);
-            } else {
-              s.log()->error("Failed to allocate memory for packet {:#x}, closing session", packet_id);
-            }
+            s.log()->error("Packet id {:#x} is not known to this server under selected packet set, closing session", packet_id);
             s.close_gracefuly();
           }
         } else if (need_more_ < sizeof(packet_id)) {
@@ -258,7 +264,7 @@ inline void ares::network::handler::receive_id<Session>::operator()(const std::e
 
 template <typename Session>
 inline ares::network::handler::receive_after_id<Session>::receive_after_id(std::shared_ptr<Session> s,
-                                                                           packet::alloc_info&& ai,
+                                                                           memory::packet_alloc&& ai,
                                                                            const size_t already_received) :
   session_base<Session>(s),
   ai_(std::move(ai)),
@@ -290,39 +296,36 @@ inline void ares::network::handler::receive_after_id<Session>::operator()(const 
       bytes_received_ += sz;
       // Check if we need more bytes. We may need more for two reasons: we still haven't got what we've already requested
       // or we already have PacketLength field's contents and it indicates that we must change our expected_packet_sz
-      int need_more = int(ai_.expected_packet_sz) - int(bytes_received_);
+      int need_more = int(ai_.expected_sz) - int(bytes_received_);
       int need_more_dyn_length = 0;
       if ((ai_.PacketLength_offset != 0) && (bytes_received_ >= ai_.PacketLength_offset + sizeof(uint16_t))) {
-        auto PacketLength = (uint16_t*)((uintptr_t)ai_.buf + ai_.PacketLength_offset);
-        ai_.expected_packet_sz = *PacketLength;
+        auto PacketLength = (uint16_t*)((uintptr_t)ai_.buf.get() + ai_.PacketLength_offset);
+        ai_.expected_sz = *PacketLength;
         need_more_dyn_length = int(*PacketLength) - int(bytes_received_);
       }
       need_more = need_more > need_more_dyn_length ? need_more : need_more_dyn_length;
       if (need_more == 0) {
-        s.dispatch_packet(ai_.buf, ai_.deallocator);
+        s.dispatch_packet(ai_.buf);
         s.receiving_ = false;
         s.receive();
       } else if (need_more > 0) {
         // We need to receieve more data, but first we should check that our allocation fits that
-        if (ai_.expected_packet_sz <= ai_.buf_sz) {
+        if (ai_.expected_sz <= ai_.buf_sz) {
           SPDLOG_TRACE(s.log(), "receive_after_id need to receive more bytes with existing allocation");
-          auto buf_ptr = (void*)((uintptr_t)ai_.buf + bytes_received_);
+          auto buf_ptr = (void*)((uintptr_t)ai_.buf.get() + bytes_received_);
           s.socket_->async_read_some(asio::buffer(buf_ptr, need_more),
                                      handler::receive_after_id<Session>(this->session_, std::move(ai_), bytes_received_));
         } else {
           SPDLOG_TRACE(s.log(), "receive_after_id need to receive more bytes with new traditional allocation");
           // We are out of our clever preallocation scheme, fallback to direct memory allocation
-          void* new_buf = malloc(ai_.expected_packet_sz);
-          if (new_buf != nullptr) {
-            memcpy(new_buf, ai_.buf, bytes_received_);
-            ai_.deallocator(ai_.buf);
-            ai_.buf = new_buf;
-            ai_.buf_sz = ai_.expected_packet_sz;
-            ai_.deallocator = [] (void* p) { free(p); };
-            auto buf_ptr = (void*)((uintptr_t)ai_.buf + bytes_received_);
+          auto old_buf = ai_.buf;
+          try {
+            ai_ = memory::packet_alloc(ai_.expected_sz, ai_.expected_sz, ai_.PacketLength_offset);
+            memcpy(ai_.buf.get(), old_buf.get(), bytes_received_);
+            auto buf_ptr = (void*)((uintptr_t)ai_.buf.get() + bytes_received_);
             s.socket_->async_read_some(asio::buffer(buf_ptr, need_more),
                                        handler::receive_after_id<Session>(this->session_, std::move(ai_), bytes_received_));
-          } else {
+          } catch (std::bad_alloc) {
             s.log()->error("failed to allocate new buffer in malloc fallback scheme, closing session");
             s.close_gracefuly();
           }

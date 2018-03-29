@@ -45,26 +45,20 @@ void ares::zone::mono::state::rotate_obf_crypt_key() {
 void ares::zone::mono::state::defuse_asio() {
 }
 
-auto ares::zone::mono::state::allocate(uint16_t& packet_id) -> packet::alloc_info {
+auto ares::zone::mono::state::packet_sizes(uint16_t& packet_id) -> std::tuple<size_t, size_t, size_t> {
   if (obf_crypt_key_) packet_id = packet_id ^ ((*obf_crypt_key_ >> 16) & 0x7fff);
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(CZ_ENTER);
+    ARES_PACKET_SIZES_CASE(CZ_ENTER);
   default:
     { // Packet id is not known to this server under selected packet set
-      log()->error("Unexpected packet_id {:#x} for mono session while allocating", packet_id);
-      packet::alloc_info ai;
-      ai.expected_packet_sz = 0;
-      ai.buf = nullptr;
-      ai.buf_sz = 0;
-      ai.deallocator = [] (void*) {};
-      ai.PacketLength_offset = 0;
-      return std::move(ai);
+      log()->error("Unexpected packet_id {:#x} for mono session while getting packet sizes", packet_id);
+      return std::tuple<size_t, size_t, size_t>(0, 0, 0);
     }
   }
 }
 
-void ares::zone::mono::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
-  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+void ares::zone::mono::state::dispatch_packet(std::shared_ptr<std::byte[]> buf) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf.get());
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(CZ_ENTER);
   default:

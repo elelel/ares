@@ -94,7 +94,7 @@ namespace ares {
          */
         std::vector<model::packed_coordinates> path();
 
-        pmr::unsynchronized_pool_resource& pool();
+
         pmr::multimap<float, pmr::vector<space_node>>& fringe();
         pmr::set<space_node>& closed_set();
         pmr::vector<space_node>& children();

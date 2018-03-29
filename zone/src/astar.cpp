@@ -22,36 +22,28 @@ ares::zone::a_star::search_state::search_state(const model::map_info& map, const
   goal_(goal) {
   closed_set().clear();
   fringe().clear();
-  auto v = pmr::vector<space_node>(&pool());
+  auto v = pmr::vector<space_node>(&memory::thread_local_pool());
   v.push_back(start);
   fringe().insert(std::pair<const float, pmr::vector<space_node>>(0.0f, std::move(v)));
   }
 
-auto ares::zone::a_star::search_state::pool() -> pmr::unsynchronized_pool_resource& {
-  pmr::pool_options opts;
-  opts.max_blocks_per_chunk = 512;
-  opts.largest_required_pool_block = 1024 * 1024;
-  static thread_local pmr::unsynchronized_pool_resource p(opts);
-  return p;
-}
-
 auto ares::zone::a_star::search_state::fringe() -> pmr::multimap<float, pmr::vector<space_node>>& {
-  static thread_local pmr::multimap<float, pmr::vector<space_node>> f(&pool());
+  static thread_local pmr::multimap<float, pmr::vector<space_node>> f(&memory::thread_local_pool());
   return f;
 }
 
 auto ares::zone::a_star::search_state::closed_set() -> pmr::set<space_node>& {
-  static thread_local pmr::set<space_node> c(&pool());
+  static thread_local pmr::set<space_node> c(&memory::thread_local_pool());
   return c;
 }
 
 auto ares::zone::a_star::search_state::children() -> pmr::vector<space_node>& {
-  static thread_local pmr::vector<space_node> v(&pool());
+  static thread_local pmr::vector<space_node> v(&memory::thread_local_pool());
   return v;
 }
 
 auto ares::zone::a_star::search_state::result() -> pmr::vector<space_node>& {
-  static thread_local pmr::vector<space_node> v(&pool());
+  static thread_local pmr::vector<space_node> v(&memory::thread_local_pool());
   return v;
 }
 

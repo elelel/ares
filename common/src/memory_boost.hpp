@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/container/pmr/pool_options.hpp>
+#include <boost/container/pmr/synchronized_pool_resource.hpp>
 #include <boost/container/pmr/unsynchronized_pool_resource.hpp>
 #include <boost/container/pmr/vector.hpp>
 #include <boost/container/pmr/map.hpp>
@@ -11,6 +12,7 @@ namespace ares {
     using pool_options = boost::container::pmr::pool_options;
     
     using unsynchronized_pool_resource = boost::container::pmr::unsynchronized_pool_resource;
+    using synchronized_pool_resource = boost::container::pmr::synchronized_pool_resource;
     
     template <typename T>
     using vector = boost::container::pmr::vector<T>;

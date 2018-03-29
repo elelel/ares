@@ -39,28 +39,22 @@ void ares::character::client::state::on_socket_error() {
 void ares::character::client::state::defuse_asio() {
 }
 
-auto ares::character::client::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+auto ares::character::client::state::packet_sizes(const uint16_t packet_id) -> std::tuple<size_t, size_t, size_t> {
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(PING);
-    ARES_ALLOCATE_PACKET_CASE(CH_MAKE_CHAR::no_stats);
-    ARES_ALLOCATE_PACKET_CASE(CH_SELECT_CHAR);
-    ARES_ALLOCATE_PACKET_CASE(CH_CHAR_PAGE_REQ);
+    ARES_PACKET_SIZES_CASE(PING);
+    ARES_PACKET_SIZES_CASE(CH_MAKE_CHAR::no_stats);
+    ARES_PACKET_SIZES_CASE(CH_SELECT_CHAR);
+    ARES_PACKET_SIZES_CASE(CH_CHAR_PAGE_REQ);
   default:
-    { // Packet id is not known to this server under selected packet set
-      log()->error("Unexpected packet_id {:#x} for client session while allocating", packet_id);
-      packet::alloc_info ai;
-      ai.expected_packet_sz = 0;
-      ai.buf = nullptr;
-      ai.buf_sz = 0;
-      ai.deallocator = [] (void*) {};
-      ai.PacketLength_offset = 0;
-      return std::move(ai);
+    { 
+      log()->error("Unexpected packet_id {:#x} for client session while getting packet sizes", packet_id);
+      return std::tuple<size_t, size_t, size_t>(0, 0, 0);
     }
   }
 }
 
-void ares::character::client::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
-  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+void ares::character::client::state::dispatch_packet(std::shared_ptr<std::byte[]> buf) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf.get());
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(PING);
     ARES_DISPATCH_PACKET_CASE(CH_MAKE_CHAR::no_stats);

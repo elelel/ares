@@ -33,18 +33,16 @@
   
 
 #define ARES_DISPATCH_PACKET_CASE(NAME)                                 \
-  case packet_sets::id_of<packet_sets::current, packet::NAME>::value: {        \
-    using packet_type = packet::current<packet::NAME>;                          \
-    auto pck = packet::make_shared_packet<packet_type>(buf, deallocator); \
-    packet_handler<packet_type> h(server_, session_, *this, pck);       \
-    h();                                                                \
+  case packet_sets::id_of<packet_sets::current, packet::NAME>::value: { \
+    using packet_type = packet::current<packet::NAME>;                  \
+    packet_handler<packet_type>(server_, session_, *this, buf)();       \
     break;                                                              \
   }                                                                     \
 
 
-#define ARES_ALLOCATE_PACKET_CASE(NAME)                                 \
-  case packet_sets::id_of<packet_sets::current, packet::NAME>::value: {        \
+#define ARES_PACKET_SIZES_CASE(NAME)                                    \
+  case packet_sets::id_of<packet_sets::current, packet::NAME>::value: { \
     using packet_type = packet::current<packet::NAME>;                  \
-    return packet::size::allocate<packet_type>();                       \
+    return packet::size::allocate_size<packet_type>();                  \
   }                                                                     \
   

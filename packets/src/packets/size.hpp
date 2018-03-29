@@ -10,7 +10,7 @@
     The member has to be public, otherwise the detection will assume it's a fixed-size packet.
  */
 
-#include "allocator.hpp"
+#include <tuple>
 
 namespace ares {
   namespace packet {
@@ -57,9 +57,9 @@ namespace ares {
       }
 
       template <typename Packet>
-      static alloc_info allocate() {
+      static constexpr std::tuple<size_t, size_t, size_t> allocate_size() {
         Packet* p = nullptr;
-        return allocate_(p, dynamic_size());
+        return allocate_size_(p, dynamic_size());
       }
       
     private:
@@ -129,25 +129,21 @@ namespace ares {
 
       template <typename Packet,
                 typename int_<decltype(Packet::PacketLength)>::type = 0>
-      static alloc_info allocate_(Packet* p, dynamic_size) {
-        using pool_allocator_type = pool_allocator<
-          (sizeof(Packet) > 512)
-            ? sizeof(Packet) + (1024 - (sizeof(Packet) % 1024)) + 1024
-            : 1024>; 
-        const auto& [buf, buf_sz] = pool_allocator_type::allocate();
-        return {sizeof(Packet), buf, buf_sz, [] (void* p) { pool_allocator_type::deallocate(p); }, (uintptr_t)&p->PacketLength - (uintptr_t)p};
+      static constexpr std::tuple<size_t, size_t, size_t> allocate_size_(Packet* p, dynamic_size) {
+        return std::tuple<size_t, size_t, size_t>
+          (sizeof(Packet),
+           (sizeof(Packet) > 512) ? sizeof(Packet) + (1024 - (sizeof(Packet) % 1024)) + 1024 : sizeof(Packet),
+           (uintptr_t)&p->PacketLength - (uintptr_t)p);
       }
 
       template <typename Packet>
-      static alloc_info allocate_(Packet*, fixed_size) {
-        using pool_allocator_type = pool_allocator<
-          (sizeof(Packet) > 512)
-            ? sizeof(Packet) + (1024 - (sizeof(Packet) % 1024))
-            : sizeof(Packet)>;
-        const auto& [buf, buf_sz] = pool_allocator_type::allocate();
-
-        return {sizeof(Packet), buf, buf_sz, [] (void* p) { pool_allocator_type::deallocate(p); }, 0 };
+      static constexpr std::tuple<size_t, size_t, size_t> allocate_size_(Packet*, fixed_size) {
+        return std::tuple<size_t, size_t, size_t>
+          (sizeof(Packet),
+           (sizeof(Packet) > 512) ? sizeof(Packet) + (1024 - (sizeof(Packet) % 1024)) : sizeof(Packet),
+           0);
       }
+      
       
     };
   }

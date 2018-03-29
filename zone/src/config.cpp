@@ -1,6 +1,5 @@
 #include "config.hpp"
 
-#include <iostream>
 #include <sstream>
 
 ares::zone::config::config(std::shared_ptr<spdlog::logger> log,

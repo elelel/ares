@@ -41,28 +41,22 @@ void ares::account::character_server::state::on_socket_error() {
 void ares::account::character_server::state::defuse_asio() {
 }
 
-auto ares::account::character_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+auto ares::account::character_server::state::packet_sizes(const uint16_t packet_id) -> std::tuple<size_t, size_t, size_t> {
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(ARES_HA_PING_REQ);
-    ARES_ALLOCATE_PACKET_CASE(ARES_HA_ONLINE_ACCOUNTS);
-    ARES_ALLOCATE_PACKET_CASE(ARES_HA_USER_COUNT);
-    ARES_ALLOCATE_PACKET_CASE(ARES_HA_ACCOUNT_AUTH_REQ);
+    ARES_PACKET_SIZES_CASE(ARES_HA_PING_REQ);
+    ARES_PACKET_SIZES_CASE(ARES_HA_ONLINE_ACCOUNTS);
+    ARES_PACKET_SIZES_CASE(ARES_HA_USER_COUNT);
+    ARES_PACKET_SIZES_CASE(ARES_HA_ACCOUNT_AUTH_REQ);
   default:
-    { // Packet id is not known to this server under selected packet set
-      log()->error("Unexpected packet_id {:#x} for character server session while allocating", packet_id);
-      packet::alloc_info ai;
-      ai.expected_packet_sz = 0;
-      ai.buf = nullptr;
-      ai.buf_sz = 0;
-      ai.deallocator = [] (void*) {};
-      ai.PacketLength_offset = 0;
-      return std::move(ai);
+    {
+      log()->error("Unexpected packet_id {:#x} for character server session while getting packet sizes", packet_id);
+      return std::tuple<size_t, size_t, size_t>(0, 0, 0);
     }
   }
 }
 
-void ares::account::character_server::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
-  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+void ares::account::character_server::state::dispatch_packet(std::shared_ptr<std::byte[]> buf) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf.get());
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(ARES_HA_PING_REQ);
     ARES_DISPATCH_PACKET_CASE(ARES_HA_ONLINE_ACCOUNTS);
@@ -70,7 +64,7 @@ void ares::account::character_server::state::dispatch_packet(void* buf, std::fun
     ARES_DISPATCH_PACKET_CASE(ARES_HA_ACCOUNT_AUTH_REQ);
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for mono session, disconnecting", *packet_id);
+      log()->error("Unexpected packet_id {:#x} for character server session while dispatching, disconnecting", *packet_id);
       session_.close_gracefuly();
       return;
     }

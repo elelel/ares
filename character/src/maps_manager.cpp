@@ -82,7 +82,7 @@ std::optional<uint32_t> ares::character::maps_manager::load_and_verify(const std
   auto map_id = db->query<database::maps::id_by_name>(map_name);
   if (map_id) {
     auto map_info = db->query<database::maps::info>(*map_id);
-    if (!map_info || (uint32_t(map_info->x_size() * map_info->y_size()) != map_info->static_flags().size())) {
+    if (!map_info) {
       map_id.reset();
     } else {
       for (const auto& f : map_info->static_flags().container()) {

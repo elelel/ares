@@ -19,7 +19,6 @@ else()
   set(ARES_NO_STD_PMR ON)
 endif()
 set(CMAKE_REQUIRED_FLAGS ${ARES_PUSH_FLAGS})
-unset(VAR CACHE)
 
 unset(ARES_BOOST_NEEDED_LIBS)
 if (ARES_NO_STD_PMR)

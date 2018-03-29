@@ -2,11 +2,10 @@
 
 #include <algorithm>
 #include <experimental/filesystem>
+#include <fstream>
 #include <string_view>
 #include <system_error>
 #include <sstream>
-#include <fstream>
-#include <iostream>
 #include <type_traits>
 
 #include <zlib.h>
@@ -14,6 +13,7 @@
 
 #include "des.hpp"
 #include "grf_structs.hpp"
+
 
 ares::grf::resource_set::resource_set(const std::vector<std::string>& filenames) {
   for (const auto& filename : filenames) {
@@ -179,9 +179,8 @@ std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file_grf(const
   f.seekg(r.offset);
   f.read((char*)compressed.data(), compressed.size());
   decode_grf(compressed, FILELIST_TYPE(r.type), r.compressed_sz);
-  auto actual_sz = uLongf(uncompressed.size());
-  auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), uLong(compressed.size()));
-  if (((zlib_rc != Z_OK) || (actual_sz == 0)) && (compressed[0] == 0)) {
+
+  if (compressed[0] == 0) {
     SizeT actual_sz = uncompressed.size();
     ELzmaStatus lzma_status;
     auto data_sz = compressed.size() - LZMA_PROPS_SIZE - 1;
@@ -189,17 +188,25 @@ std::optional<std::vector<uint8_t>> ares::grf::resource_set::read_file_grf(const
                                &compressed[1 + LZMA_PROPS_SIZE], &data_sz,
                                &compressed[1], LZMA_PROPS_SIZE,
                                LZMA_FINISH_ANY, &lzma_status, &SzAllocForLzma);
-    if (lzma_res != SZ_OK) {
-      throw std::runtime_error("ares::grf could not uncompress resource '" + r.name + "' from source '" + *r.source
-                               + "' with any known methods");
+    if ((lzma_res != SZ_OK) || (actual_sz != r.uncompressed_sz)) {
+      throw std::runtime_error("ares::grf could not uncompress LZMA-compressed resource '" + r.name + "' from source '" + *r.source +
+                               "', lzma code " + std::to_string(lzma_res) +
+                               ", compressed size " + std::to_string(compressed.size()) +
+                               ", expected uncompressed size " + std::to_string(r.uncompressed_sz) +
+                               ", actual " + std::to_string(actual_sz));
+    }
+  } else {
+    auto actual_sz = uLongf(uncompressed.size());
+    auto zlib_rc = uncompress((Bytef*)uncompressed.data(), &actual_sz, (const Bytef*)compressed.data(), uLong(compressed.size()));
+    if ((zlib_rc != Z_OK) || (actual_sz != r.uncompressed_sz)) {
+      throw std::runtime_error("ares::grf could not uncompress Zlib-compressed resource '" + r.name + "' from source '" + *r.source +
+                               "', zlib code " + std::to_string(zlib_rc) +
+                               ", compressed size " + std::to_string(compressed.size()) +
+                               ", expected uncompressed size " + std::to_string(r.uncompressed_sz) +
+                               ", actual " + std::to_string(actual_sz));
     }
   }
-
-  if (actual_sz != r.uncompressed_sz) {
-    throw std::runtime_error("ares::grf uncompressed resource '" + r.name + "' size mismatch in source '" + *r.source + "': "
-                             + "compressed size " + std::to_string(compressed.size()) + ", uncompressed size expected "
-                             + std::to_string(r.uncompressed_sz) + ", actual " + std::to_string(actual_sz));
-  }
+  
   rslt.emplace(std::move(uncompressed));
   return rslt;
 }

@@ -37,28 +37,22 @@ void ares::character::zone_server::state::on_socket_error() {
 void ares::character::zone_server::state::defuse_asio() {
 }
 
-auto ares::character::zone_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+auto ares::character::zone_server::state::packet_sizes(const uint16_t packet_id) -> std::tuple<size_t, size_t, size_t> {
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(ARES_ZH_GAME_RATES);
-    ARES_ALLOCATE_PACKET_CASE(ARES_ZH_PING_REQ);
-    ARES_ALLOCATE_PACKET_CASE(ARES_ZH_MAP_IDS_REQ);
-    ARES_ALLOCATE_PACKET_CASE(ARES_ZH_CHAR_AUTH_REQ);
+    ARES_PACKET_SIZES_CASE(ARES_ZH_GAME_RATES);
+    ARES_PACKET_SIZES_CASE(ARES_ZH_PING_REQ);
+    ARES_PACKET_SIZES_CASE(ARES_ZH_MAP_IDS_REQ);
+    ARES_PACKET_SIZES_CASE(ARES_ZH_CHAR_AUTH_REQ);
   default:
-    { // Packet id is not known to this server under selected packet set
-      log()->error("Unexpected packet_id {:#x} for zone server session while allocating", packet_id);
-      packet::alloc_info ai;
-      ai.expected_packet_sz = 0;
-      ai.buf = nullptr;
-      ai.buf_sz = 0;
-      ai.deallocator = [] (void*) {};
-      ai.PacketLength_offset = 0;
-      return std::move(ai);
+    {
+      log()->error("Unexpected packet_id {:#x} for zone server session while getting packet sizes", packet_id);
+      return std::tuple<size_t, size_t, size_t>(0, 0, 0);
     }
   }
 }
 
-void ares::character::zone_server::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
-  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+void ares::character::zone_server::state::dispatch_packet(std::shared_ptr<std::byte[]> buf) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf.get());
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(ARES_ZH_GAME_RATES);
     ARES_DISPATCH_PACKET_CASE(ARES_ZH_PING_REQ);

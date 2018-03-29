@@ -36,28 +36,22 @@ void ares::account::client::state::on_socket_error() {
 void ares::account::client::state::defuse_asio() {
 }
 
-auto ares::account::client::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+auto ares::account::client::state::packet_sizes(const uint16_t packet_id) -> std::tuple<size_t, size_t, size_t> {
   switch (packet_id) {
   default:
-    { // Packet id is not known to this server under selected packet set
-      log()->error("Unexpected packet_id {:#x} for client::state session while allocating", packet_id);
-      packet::alloc_info ai;
-      ai.expected_packet_sz = 0;
-      ai.buf = nullptr;
-      ai.buf_sz = 0;
-      ai.deallocator = [] (void*) {};
-      ai.PacketLength_offset = 0;
-      return std::move(ai);
+    {
+      log()->error("Unexpected packet_id {:#x} for client session while getting packet sizes", packet_id);
+      return std::tuple<size_t, size_t, size_t>(0, 0, 0);
     }
   }
 }
 
-void ares::account::client::state::dispatch_packet(void* buf, std::function<void(void*)> /*deallocator*/) {
-  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+void ares::account::client::state::dispatch_packet(std::shared_ptr<std::byte[]> buf) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf.get());
   switch (*packet_id) {
   default:
     {
-      log()->error("Unexpected packet_id {:#x} for mono::state session while dispatching, disconnecting", *packet_id);
+      log()->error("Unexpected packet_id {:#x} for client::state session while dispatching, disconnecting", *packet_id);
       session_.close_gracefuly();
       return;
     }

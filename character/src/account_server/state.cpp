@@ -98,28 +98,22 @@ void ares::character::account_server::state::defuse_asio() {
     ping_account_server_timer_->cancel();
 }
 
-auto ares::character::account_server::state::allocate(const uint16_t packet_id) -> packet::alloc_info {
+auto ares::character::account_server::state::packet_sizes(const uint16_t packet_id) -> std::tuple<size_t, size_t, size_t> {
   switch (packet_id) {
-    ARES_ALLOCATE_PACKET_CASE(ARES_AH_LOGIN_RESULT);
-    ARES_ALLOCATE_PACKET_CASE(ARES_AH_PING_ACK);
-    ARES_ALLOCATE_PACKET_CASE(ARES_AH_ACCOUNT_AUTH_RESULT);
-    ARES_ALLOCATE_PACKET_CASE(ARES_AH_KICK_ACCOUNT);
+    ARES_PACKET_SIZES_CASE(ARES_AH_LOGIN_RESULT);
+    ARES_PACKET_SIZES_CASE(ARES_AH_PING_ACK);
+    ARES_PACKET_SIZES_CASE(ARES_AH_ACCOUNT_AUTH_RESULT);
+    ARES_PACKET_SIZES_CASE(ARES_AH_KICK_ACCOUNT);
   default:
-    { // Packet id is not known to this server under selected packet set
-      log()->error("Unexpected packet_id {:#x} for account server session while allocating", packet_id);
-      packet::alloc_info ai;
-      ai.expected_packet_sz = 0;
-      ai.buf = nullptr;
-      ai.buf_sz = 0;
-      ai.deallocator = [] (void*) {};
-      ai.PacketLength_offset = 0;
-      return std::move(ai);
+    { 
+      log()->error("Unexpected packet_id {:#x} for account server session while getting packet sizes", packet_id);
+      return std::tuple<size_t, size_t, size_t>(0, 0, 0);
     }
   }
 }
 
-void ares::character::account_server::state::dispatch_packet(void* buf, std::function<void(void*)> deallocator) {
-  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf);
+void ares::character::account_server::state::dispatch_packet(std::shared_ptr<std::byte[]> buf) {
+  uint16_t* packet_id = reinterpret_cast<uint16_t*>(buf.get());
   switch (*packet_id) {
     ARES_DISPATCH_PACKET_CASE(ARES_AH_LOGIN_RESULT);
     ARES_DISPATCH_PACKET_CASE(ARES_AH_PING_ACK);

@@ -86,6 +86,6 @@ set_target_properties(ares_zone PROPERTIES
   CXX_STANDARD 17
   )
   
-target_link_libraries(ares_zone ${ARES_LINK_LIBRARIES} foonathan_memory common database lzma)
+target_link_libraries(ares_zone ${ARES_LINK_LIBRARIES} common database lzma)
 target_include_directories(ares_zone PRIVATE ${INCLUDE_DIRS})
 target_compile_definitions(ares_zone PRIVATE ${ARES_COMPILE_DEFINITIONS})

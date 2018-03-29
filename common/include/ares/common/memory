@@ -1,5 +1,3 @@
-#if !defined(ARES_NO_STD_PMR)
-#include "../../../src/memory_std.hpp"
-#else
-#include "../../../src/memory_boost.hpp"
-#endif
+#pragma once
+
+#include "../../../src/memory.hpp"

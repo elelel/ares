@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "../map.hpp"
 
 inline ares::model::map_cell_gat_type::map_cell_gat_type(const uint32_t& gat_uint32) :

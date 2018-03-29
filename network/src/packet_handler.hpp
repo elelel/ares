@@ -11,17 +11,19 @@ namespace ares {
     struct packet_handler {
       using handled_packet_type = Packet;
         
-      packet_handler(Server& serv, Session& sess, SessionState& session_state, std::shared_ptr<Packet>);
+      packet_handler(Server& serv, Session& sess, SessionState& session_state, std::shared_ptr<std::byte[]>);
       ~packet_handler();
       
       std::shared_ptr<spdlog::logger> log() const;
       const elelel::network_buffer& send_buf() const;
     protected:
-      std::shared_ptr<Packet> p_;
+      const Packet* p_;
 
       Session& session_;
       Server& server_;
       SessionState& state_;
+      
+      std::shared_ptr<std::byte[]> buf_;
     };
     
   }

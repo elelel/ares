@@ -12,6 +12,7 @@ set(SOURCES
   src/random.cpp
   src/config.cpp
   src/grf.cpp
+  src/memory.cpp
   )
 
 add_library(common STATIC ${SOURCES})
