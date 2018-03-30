@@ -23,5 +23,5 @@ The instructions for each OS can be found under the links.
 
 ## Configuring installation
 
-[Configure](configure.md) your Ares installation
+[Configure](configuring.md) your Ares installation
 

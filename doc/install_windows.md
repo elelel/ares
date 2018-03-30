@@ -90,4 +90,4 @@ nmake
 
 This procedure has to be performed for each server type (account, character and zone).
 
-Now proceed to [configure](configure.md) your Ares installation.
+Now proceed to [configure](configuring.md) your Ares installation.
