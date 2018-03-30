@@ -68,6 +68,7 @@ Some configuration settings explained
 
 #### Example
 
+```js
 {
     "server_name": "Ares server",
     "log": {
@@ -130,6 +131,7 @@ Some configuration settings explained
         }
     ]
 }
+```
 
 ### Zone server JSON configuration (zone_server.json)
 
@@ -138,6 +140,8 @@ Some configuration settings explained:
 will likely to be moved into packet_set configuration later
  
 #### Example
+
+```js
 {
     "log": {
         "target" : "console"
@@ -161,4 +165,4 @@ will likely to be moved into packet_set configuration later
     },
     "obfuscation_key": [ "0x348F4BD7", "0x7A425A54", "0x628F589A" ]
 }
-
+```
