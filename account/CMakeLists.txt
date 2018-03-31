@@ -48,7 +48,7 @@ if (NOT TARGET database)
 endif()
 
 if (NOT TARGET lzma)
-  add_subdirectory(${CONTRIB}/lzma lzma)
+  add_subdirectory(${CONTRIB}/lzma_lite_lib lzma)
 endif()
 
 set(INCLUDE_DIRS

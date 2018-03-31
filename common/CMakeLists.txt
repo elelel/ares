@@ -31,7 +31,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/json/include
   ${CONTRIB}/asio/asio/include
   ${CONTRIB}/spdlog/include
-  ${CONTRIB}/lzma
+  ${CONTRIB}/lzma_lite_lib
   )
 
 target_link_libraries(common ${ARES_LINK_LIBRARIES})

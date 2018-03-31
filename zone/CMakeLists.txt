@@ -59,7 +59,7 @@ if (NOT TARGET database)
   add_subdirectory(${DATABASE} database)
 endif()
 
-add_subdirectory(${CONTRIB}/lzma lzma)
+add_subdirectory(${CONTRIB}/lzma_lite_lib lzma)
 
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}

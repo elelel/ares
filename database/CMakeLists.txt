@@ -43,7 +43,7 @@ set_target_properties(database PROPERTIES
 set(INCLUDE_DIRS
   ${ARES_INCLUDE_DIRECTORIES}
   ${CONTRIB}/spdlog/include
-  ${CONTRIB}/lzma
+  ${CONTRIB}/lzma_lite_lib
   ${MODEL}/include
   )
 
