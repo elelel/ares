@@ -1,5 +1,7 @@
 #include "astar.hpp"
 
+#include "map.hpp"
+
 ares::zone::a_star::space_node::space_node(const space_node& other) :
   x(other.x),
   y(other.y),
@@ -17,7 +19,7 @@ auto ares::zone::a_star::space_node::operator=(const space_node& other) -> space
   return *this;
 }
 
-ares::zone::a_star::search_state::search_state(const model::map_info& map, const space_node& start, const space_node& goal) :
+ares::zone::a_star::search_state::search_state(const zone::map& map, const space_node& start, const space_node& goal) :
   map_(map),
   goal_(goal) {
   closed_set().clear();
@@ -68,20 +70,10 @@ void ares::zone::a_star::search_state::refresh_children(const space_node& curren
   bool south{false};
   bool east{false};
   bool west{false};
-  if ((y < map_.y_size()) && (map_.static_flags(x, y + 1).data() & model::map_cell_flags::walkable)) {
-    north = true;
-  }
-  if ((y > 0) && (map_.static_flags(x, y - 1).data() & model::map_cell_flags::walkable)) {
-    south = true;
-  }
-  // East
-  if ((x < map_.x_size()) && (map_.static_flags(x + 1, y).data() & model::map_cell_flags::walkable)) {
-    east = true;
-  }
-  // West
-  if ((x > 0) && (map_.static_flags(x - 1, y).data() & model::map_cell_flags::walkable)) {
-    west = true;
-  }
+  if (map_.is_walkable(x, y + 1)) north = true;
+  if (map_.is_walkable(x, y - 1)) south = true;
+  if (map_.is_walkable(x + 1, y)) east = true;
+  if (map_.is_walkable(x - 1, y)) west = true;
 
   // Since we are storing the direction in node state, we can use it to prune search tree early from steps backwards towards the root
   if (north && (current.dir != model::packed_coordinates::DIR_SOUTH))
@@ -95,22 +87,22 @@ void ares::zone::a_star::search_state::refresh_children(const space_node& curren
 
   if ((south && east) &&
       (current.dir != model::packed_coordinates::DIR_NORTHWEST) &&
-      (map_.static_flags(x + 1, y - 1).data() & model::map_cell_flags::walkable))
+      map_.is_walkable(x + 1, y - 1))
     children().push_back(space_node(x + 1, y - 1, true, model::packed_coordinates::DIR_SOUTHEAST, current.depth + 1));
         
   if ((north && east) &&
       (current.dir != model::packed_coordinates::DIR_SOUTHWEST) &&
-      (map_.static_flags(x + 1, y + 1).data() & model::map_cell_flags::walkable))
+      map_.is_walkable(x + 1, y + 1))
     children().push_back(space_node(x + 1, y + 1, true, model::packed_coordinates::DIR_NORTHEAST, current.depth + 1));
       
   if ((north && west) &&
       (current.dir != model::packed_coordinates::DIR_SOUTHEAST) &&
-      (map_.static_flags(x - 1, y + 1).data() & model::map_cell_flags::walkable))
+      map_.is_walkable(x - 1, y + 1))
     children().push_back(space_node(x - 1, y + 1, true, model::packed_coordinates::DIR_NORTHWEST, current.depth + 1));
     
   if ((south && west) &&
       (current.dir != model::packed_coordinates::DIR_NORTHEAST) &&
-      (map_.static_flags(x - 1, y - 1).data() & model::map_cell_flags::walkable))
+      map_.is_walkable(x - 1, y - 1))
     children().push_back(space_node(x - 1, y - 1, true, model::packed_coordinates::DIR_SOUTHWEST, current.depth + 1));
 }
 

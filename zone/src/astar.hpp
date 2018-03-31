@@ -8,6 +8,8 @@
 
 namespace ares {
   namespace zone {
+    struct map;
+    
     namespace a_star {
       /* Node in search space tree
        */
@@ -76,7 +78,7 @@ namespace ares {
       struct search_state {
         friend search_iterator;
 
-        search_state(const model::map_info& map, const space_node& start, const space_node& goal);
+        search_state(const zone::map& map, const space_node& start, const space_node& goal);
 
         search_iterator begin();
         search_iterator end();
@@ -100,7 +102,7 @@ namespace ares {
         pmr::vector<space_node>& children();
         pmr::vector<space_node>& result();
         
-        const model::map_info& map_;
+        const zone::map& map_;
         space_node goal_;
         size_t depth_limit_{128};
       };
