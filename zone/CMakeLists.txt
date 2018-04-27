@@ -22,9 +22,11 @@ set(DATABASE "${ARES_DIR}/database")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SOURCES
-  ${SRC}/astar.cpp
-  ${SRC}/map.cpp
-  ${SRC}/pc.cpp
+  ${SRC}/map/astar.cpp
+  ${SRC}/map/map.cpp
+  ${SRC}/map/event_visitor.cpp
+  ${SRC}/map/event_pc_walking.cpp
+  ${SRC}/pc/pc.cpp
   ${SRC}/maps_manager.cpp
   ${SRC}/pcs_manager.cpp
   ${SRC}/main.cpp
@@ -74,7 +76,7 @@ set(INCLUDE_DIRS
   ${CONTRIB}/json/include
   ${CONTRIB}/network_buffer/include
   ${CONTRIB}/RxCpp/Rx/v2/src
-  ${CONTRIB}/memory/include
+  ${CONTRIB}/concurrentqueue
   ${ARES_DIR})
 
 add_executable(ares_zone ${SOURCES})

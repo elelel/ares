@@ -18,6 +18,9 @@ namespace ares {
     using vector = boost::container::pmr::vector<T>;
 
     template <typename Key, typename T, typename Compare = std::less<Key>>
+    using map = boost::container::pmr::map<Key, T, Compare>;
+ 
+    template <typename Key, typename T, typename Compare = std::less<Key>>
     using multimap = boost::container::pmr::multimap<Key, T, Compare>;
 
     template <typename Key, typename Compare = std::less<Key>>

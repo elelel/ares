@@ -1,7 +1,7 @@
 #include "state.hpp"
 #include "../server.hpp"
 
-#include "../pc.hpp"
+#include "../pc/pc.hpp"
 
 void ares::zone::character_server::packet_handler<ares::packet::current<ares::packet::ARES_HZ_CHAR_AUTH_RESULT>>::operator()() {
   SPDLOG_TRACE(log(), "handle_packet ARES_HZ_CHAR_AUTH_RESULT: begin");
@@ -24,9 +24,9 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
             auto map_id = pc_info->location_last.map_id;
             auto map = server_.maps.by_id(map_id);
             if (map) {
-              auto pc = std::make_shared<zone::pc>(*pc_info, map);
+              auto pc = std::make_shared<zone::pc>(*pc_info, map, session_.shared_from_this());
               s->as_client().pc = pc;
-              server_.pcs.add(p_->character_id(), pc, s);
+              server_.pcs.add(p_->character_id(), pc, map, s);
               s->emplace_and_send<packet::current<packet::ZC_ACCEPT_ENTER>>(std::chrono::system_clock::time_point(),
                                                                             *pc_info->location_last.coords.x(),
                                                                             *pc_info->location_last.coords.y(),

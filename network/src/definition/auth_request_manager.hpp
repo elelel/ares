@@ -27,7 +27,7 @@ inline uint32_t ares::network::auth_request_manager<Derived, Server, Session>::n
   auto m = static_cast<Derived*>(this)->shared_from_this();
   timer->async_wait([i = i_, m, s] (const std::error_code& ec) {
       if (ec.value() == 0) {
-        SPDLOG_TRACE(s->log(), "Auth timeout rimer for session {} fired", (void*)s.get());
+        SPDLOG_TRACE(s->log(), "Auth timeout timer for session {} fired", (void*)s.get());
         m->auth_timeout(s);
         m->pending_.erase(i);
       }

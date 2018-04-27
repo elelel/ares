@@ -16,3 +16,6 @@
 [submodule "contrib/lzma_lite_lib"]
 	path = contrib/lzma_lite_lib
 	url = https://github.com/elelel/lzma_lite_lib.git
+[submodule "contrib/concurrentqueue"]
+	path = contrib/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git

@@ -6,24 +6,6 @@
 
 namespace ares {
   namespace packet {
-    enum class KIND {
-      UNKNOWN = -1,
-      STATIC,
-      DYNAMIC
-    };
-    
-    template <typename Packet>
-    inline static Packet* copy_construct(const Packet& other) {
-      const size_t sz = size::get<Packet>(&other, sizeof(Packet));
-      Packet* p = (Packet*)malloc(sz);
-      if (p != nullptr) {
-        memcpy(p, &other, sz);
-        return p;
-      } else {
-        throw std::bad_alloc();
-      }
-    }
-    
     template <typename PacketSet, typename PacketName>
     struct type {
     };
@@ -71,6 +53,7 @@ namespace ares {
     struct CZ_REQUEST_TIME {};
     struct ZC_NOTIFY_TIME {};
     struct CZ_REQUEST_MOVE {};
+    struct ZC_NOTIFY_PLAYERMOVE {};
     struct ZC_ACCEPT_ENTER {};
     struct ZC_REFUSE_ENTER {};
     struct CZ_LESSEFFECT {};

@@ -16,7 +16,7 @@ void ares::zone::character_server::packet_handler<ares::packet::current<ares::pa
         if (map_name != "") {
           auto map_info = server_.db->query<database::maps::info>(map_id);
           if (map_info) {
-            auto m = std::make_shared<zone::map>(map_id, *map_info);
+            auto m = std::make_shared<zone::map>(server_.log(), server_.io_context(), map_id, *map_info);
             server_.maps.add(map_id, m);
           } else {
             log()->error("No map information cached in database for map is {}. Reload maps database with character server.", map_id);

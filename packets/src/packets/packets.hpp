@@ -46,6 +46,7 @@ namespace ares {
 #include "CZ/CZ_REQ_GUILD_MENU.hpp"
 #include "CZ/CZ_REQNAME.hpp"
 #include "CZ/CZ_REQUEST_MOVE.hpp"
+#include "ZC/ZC_NOTIFY_PLAYERMOVE.hpp"
     
     // Account <-> Character
 #include "ARES/ARES_HA_LOGIN_REQ.hpp"

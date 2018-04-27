@@ -3,7 +3,7 @@
 #include <spdlog/spdlog.h>
 
 #include "config.hpp"
-#include "map.hpp"
+#include "map/map.hpp"
 
 namespace ares {
   namespace zone {

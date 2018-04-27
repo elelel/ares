@@ -2,7 +2,7 @@
 
 #include <ares/model>
 
-#include "pc.hpp"
+#include "pc/pc.hpp"
 #include "session.hpp"
 
 namespace ares {
@@ -10,7 +10,7 @@ namespace ares {
     struct pcs_manager {
       pcs_manager(std::shared_ptr<spdlog::logger> log);
 
-      void add(const model::character_id& char_id, std::shared_ptr<zone::pc> pc, std::shared_ptr<session> s);
+      void add(const model::character_id& char_id, std::shared_ptr<zone::pc> pc, std::shared_ptr<zone::map> m, std::shared_ptr<session> s);
                
     private:
       // Char name index

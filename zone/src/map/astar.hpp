@@ -14,7 +14,11 @@ namespace ares {
       /* Node in search space tree
        */
       struct space_node {
-       
+        inline space_node(const uint16_t x,
+                          const uint16_t y) :
+          space_node(x, y, 0, -1, 0) {
+        }
+        
         inline space_node(const uint16_t x,
                           const uint16_t y,
                           const bool diag,

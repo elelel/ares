@@ -111,6 +111,50 @@ inline uint8_t ares::model::packed_coordinates::dir() const {
   return data_[2] & 0xf;
 }
 
+
+inline ares::model::packed_coordinates2::packed_coordinates2() {
+}
+
+inline void ares::model::packed_coordinates2::emplace(const uint16_t x0, const uint16_t y0, const uint16_t x1, const uint16_t y1, const uint8_t sx0, const uint8_t sy0) {
+  data_[0] = x0 >> 2;
+  data_[1] = (x0 << 6) | ((y0 >> 4) & 0x3f);
+  data_[2] = (y0 << 4) | ((x1 >> 6) & 0x0f);
+  data_[3] = (x1 << 2) | ((y1 >> 8) & 0x03);
+  data_[4] = y1;
+  data_[5] = (sx0 << 4) | (sy0 & 0x0f);
+}
+
+inline ares::model::packed_coordinates2::packed_coordinates2(const uint16_t x0, const uint16_t y0, const uint16_t x1, const uint16_t y1, const uint8_t sx0, const uint8_t sy0) {
+  emplace(x0, y0, x1, y1, sx0, sy0);
+}
+
+
+inline uint16_t ares::model::packed_coordinates2::x0() const {
+  return (data_[0] << 2) | (data_[1] >> 6);
+}
+
+inline uint16_t ares::model::packed_coordinates2::y0() const {
+  return ((data_[1] & 0x3f) << 4) | (data_[2] >> 4);
+}
+
+inline uint16_t ares::model::packed_coordinates2::x1() const {
+  return ((data_[2] & 0x0f) << 6) | (data_[3] >> 2);
+}
+
+inline uint16_t ares::model::packed_coordinates2::y1() const {
+  return ((data_[3] & 0x03) << 8) | (data_[4] >> 0);
+}
+
+inline uint8_t ares::model::packed_coordinates2::sx0() const {
+  return (data_[5] & 0x0f) >> 4;
+}
+
+inline uint8_t ares::model::packed_coordinates2::sy0() const {
+  return (data_[5] & 0x0f) >> 0;
+}
+
+
+
 inline ares::model::coordinates::coordinates() {
 }
 

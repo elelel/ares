@@ -5,12 +5,11 @@
 
 #include "../config.hpp"
 
-#include "../pc.hpp"
-
 namespace ares {
   namespace zone {
     struct server;
     struct session;
+    struct pc;
 
     namespace mono {
       struct state;

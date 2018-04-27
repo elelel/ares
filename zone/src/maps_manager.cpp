@@ -3,7 +3,7 @@
 #include <ares/database>
 
 ares::zone::maps_manager::maps_manager(std::shared_ptr<spdlog::logger> log,
-                                            const config::postgres_config& pg_conf) :
+                                       const config::postgres_config& pg_conf) :
   log_(log) {
   log_->info("Loading maps index");
   auto db = std::make_shared<ares::database::db>(log_, pg_conf->dbname, pg_conf->host, pg_conf->port, pg_conf->user, pg_conf->password);

@@ -39,20 +39,35 @@ namespace ares {
       static const uint8_t DIR_EAST = 6;
       static const uint8_t DIR_NORTHEAST = 7;
       
-      void emplace(const uint16_t x, const uint16_t y);
-      void emplace(const uint16_t x, const uint16_t y, const uint8_t dir);
-      packed_coordinates(const uint16_t x, const uint16_t y);
-      packed_coordinates(const uint16_t x, const uint16_t y, const uint8_t dir);
-      packed_coordinates(const packed_coordinates& other);
-      packed_coordinates& operator=(const packed_coordinates& other);
-      bool operator==(const packed_coordinates& other) const;
-      bool operator<(const packed_coordinates& other) const;
+      inline void emplace(const uint16_t x, const uint16_t y);
+      inline void emplace(const uint16_t x, const uint16_t y, const uint8_t dir);
+      inline packed_coordinates(const uint16_t x, const uint16_t y);
+      inline packed_coordinates(const uint16_t x, const uint16_t y, const uint8_t dir);
+      inline packed_coordinates(const packed_coordinates& other);
+      inline packed_coordinates& operator=(const packed_coordinates& other);
+      inline bool operator==(const packed_coordinates& other) const;
+      inline bool operator<(const packed_coordinates& other) const;
 
       inline uint16_t x() const;
       inline uint16_t y() const;
       inline uint8_t dir() const;
     private:
       uint8_t data_[3];
+    };
+
+    struct packed_coordinates2 {
+      inline packed_coordinates2();
+
+      inline void emplace(const uint16_t x0, const uint16_t y0, const uint16_t x1, const uint16_t y1, const uint8_t sx0, const uint8_t sy0);
+      inline packed_coordinates2(const uint16_t x0, const uint16_t y0, const uint16_t x1, const uint16_t y1, const uint8_t sx0, const uint8_t sy0);
+      inline uint16_t x0() const;
+      inline uint16_t y0() const;
+      inline uint16_t x1() const;
+      inline uint16_t y1() const;
+      inline uint8_t sx0() const;
+      inline uint8_t sy0() const;
+    private:
+      uint8_t data_[6];
     };
 
     struct coordinates {
